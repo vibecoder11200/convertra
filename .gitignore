@@ -22,3 +22,6 @@ vite.config.ts.timestamp-*
 
 # IDE
 .idea
+
+# mupdf wasm (copied by postinstall)
+static/mupdf-wasm.wasm
