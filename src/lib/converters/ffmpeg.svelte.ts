@@ -78,31 +78,48 @@ export class FFmpegConverter extends Converter {
 	constructor() {
 		super();
 		log(["converters", this.name], `created converter`);
+		// ffmpeg core (~30MB) is loaded lazily on first convert() to avoid
+		// downloading it on page load (issue #214).
+		if (browser) this.status = "not-ready";
+	}
+
+	private loadPromise: Promise<void> | null = null;
+
+	/** Warm the ffmpeg engine ahead of use (e.g. when a file needing it is added). */
+	public warm(): void {
 		if (!browser) return;
-		try {
-			// this is just to cache the wasm and js for when we actually use it. we're not using this ffmpeg instance
-			this.ffmpeg = new FFmpeg();
-			(async () => {
-				const baseURL =
-					"https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm";
+		this.ffmpeg = this.ffmpeg ?? new FFmpeg();
+		void this.ensureLoaded();
+	}
 
-				this.status = "downloading";
+	private ensureLoaded(): Promise<void> {
+		if (this.status === "ready") return Promise.resolve();
+		if (this.loadPromise) return this.loadPromise;
 
-				await this.ffmpeg.load({
-					coreURL: `${baseURL}/ffmpeg-core.js`,
-					wasmURL: `${baseURL}/ffmpeg-core.wasm`,
-				});
-
+		this.loadPromise = this.ffmpeg
+			.load({
+				coreURL: `${this.baseURL}/ffmpeg-core.js`,
+				wasmURL: `${this.baseURL}/ffmpeg-core.wasm`,
+			})
+			.then(() => {
 				this.status = "ready";
-			})();
-		} catch (err) {
-			error(["converters", this.name], `Error loading ffmpeg: ${err}`);
-			this.status = "error";
-			ToastManager.add({
-				type: "error",
-				message: m["workers.errors.ffmpeg"](),
+			})
+			.catch((err: unknown) => {
+				this.status = "error";
+				error(
+					["converters", this.name],
+					`Error loading ffmpeg: ${err}`,
+				);
+				ToastManager.add({
+					type: "error",
+					message: m["workers.errors.ffmpeg"](),
+				});
 			});
-		}
+		return this.loadPromise;
+	}
+
+	private get baseURL() {
+		return "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm";
 	}
 
 	public async convert(input: VertFile, to: string): Promise<VertFile> {
@@ -110,6 +127,12 @@ export class FFmpegConverter extends Converter {
 
 		const isAlac = to === ".alac";
 		if (isAlac) to = ".m4a";
+
+		this.ffmpeg = this.ffmpeg ?? new FFmpeg();
+		await this.ensureLoaded();
+		if (this.status !== "ready") {
+			throw new Error(`FFmpeg not ready (status: ${this.status})`);
+		}
 
 		let conversionError: string | null = null;
 		const ffmpeg = await this.setupFFmpeg(input);
@@ -220,11 +243,9 @@ export class FFmpegConverter extends Converter {
 			log(["converters", this.name], l.message);
 		});
 
-		const baseURL =
-			"https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm";
 		await ffmpeg.load({
-			coreURL: `${baseURL}/ffmpeg-core.js`,
-			wasmURL: `${baseURL}/ffmpeg-core.wasm`,
+			coreURL: `${this.baseURL}/ffmpeg-core.js`,
+			wasmURL: `${this.baseURL}/ffmpeg-core.wasm`,
 		});
 
 		return ffmpeg;

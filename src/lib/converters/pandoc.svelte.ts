@@ -15,8 +15,23 @@ export class PandocConverter extends Converter {
 
 	constructor() {
 		super();
-		if (!browser) return;
-		(async () => {
+		// WASM is loaded lazily on first convert() to avoid downloading
+		// ~51MB pandoc.wasm on page load (issue #214).
+		if (browser) this.status = "not-ready";
+	}
+
+	private wasmPromise: Promise<void> | null = null;
+
+	/** Warm the WASM engine ahead of use (e.g. when a file needing it is added). */
+	public warm(): void {
+		void this.ensureWasm();
+	}
+
+	private ensureWasm(): Promise<void> {
+		if (this.status === "ready") return Promise.resolve();
+		if (this.wasmPromise) return this.wasmPromise;
+
+		this.wasmPromise = (async () => {
 			try {
 				this.status = "downloading";
 				this.wasm = await fetch("/pandoc.wasm").then((r) =>
@@ -36,9 +51,16 @@ export class PandocConverter extends Converter {
 				});
 			}
 		})();
+
+		return this.wasmPromise;
 	}
 
 	public async convert(file: VertFile, to: string): Promise<VertFile> {
+		await this.ensureWasm();
+		if (this.status !== "ready") {
+			throw new Error(`Pandoc WASM not ready (status: ${this.status})`);
+		}
+
 		const worker = new Worker(PandocWorker, {
 			type: "module",
 		});

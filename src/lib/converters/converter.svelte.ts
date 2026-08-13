@@ -82,6 +82,14 @@ export class Converter {
 		throw new Error("Not implemented");
 	}
 
+	/**
+	 * Warm the converter engine ahead of use. Base implementation is a no-op;
+	 * WASM-backed converters override this to fetch their engine off page-load.
+	 */
+	public warm(): void {
+		// no-op
+	}
+
 	public async valid(): Promise<boolean> {
 		return true;
 	}

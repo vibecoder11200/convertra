@@ -126,9 +126,11 @@ class Files {
 
 		// check if completely transparent
 		const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-		const isTransparent = Array.from(imageData.data).every((value, index) => {
-			return (index + 1) % 4 !== 0 || value === 0;
-		});
+		const isTransparent = Array.from(imageData.data).every(
+			(value, index) => {
+				return (index + 1) % 4 !== 0 || value === 0;
+			},
+		);
 		if (isTransparent) {
 			canvas.remove();
 			return undefined;
@@ -271,7 +273,9 @@ class Files {
 			}
 			const converter = converters
 				.sort(byNative(format))
-				.find((converter) => converter.formatStrings().includes(format));
+				.find((converter) =>
+					converter.formatStrings().includes(format),
+				);
 			if (!converter) {
 				log(["files"], `no converter found for ${file.name}`);
 				this.files.push(new VertFile(file, format));
@@ -285,6 +289,10 @@ class Files {
 			const vf = new VertFile(file, to);
 			this.files.push(vf);
 			this._addThumbnail(vf);
+
+			// Warm the converter engine (eager WASM download moved here, off
+			// page-load, so the home page no longer fetches every engine).
+			converter.warm?.();
 
 			const convName = converter.name;
 			if (file.size > MAX_ARRAY_BUFFER_SIZE && convName === "vertd") {
@@ -312,7 +320,10 @@ class Files {
 						action: () => {
 							this.files = [
 								...this.files.filter(
-									(f) => !f.converters.map((c) => c.name).includes("vertd"),
+									(f) =>
+										!f.converters
+											.map((c) => c.name)
+											.includes("vertd"),
 								),
 							];
 							this._warningShown = false;
@@ -321,7 +332,10 @@ class Files {
 					{
 						text: m["convert.external_warning.yes"](),
 						action: () => {
-							localStorage.setItem("acceptedExternalWarning", "true");
+							localStorage.setItem(
+								"acceptedExternalWarning",
+								"true",
+							);
 							this._warningShown = false;
 						},
 					},
@@ -337,7 +351,14 @@ class Files {
 	public add(file: VertFile[] | null | undefined): void;
 	public add(file: FileList | null | undefined): void;
 	public add(
-		file: VertFile | File | VertFile[] | File[] | FileList | null | undefined,
+		file:
+			| VertFile
+			| File
+			| VertFile[]
+			| File[]
+			| FileList
+			| null
+			| undefined,
 	) {
 		if (!file) return;
 		if (Array.isArray(file) || file instanceof FileList) {
@@ -551,7 +572,10 @@ export const getMaxArrayBufferSize = (): number => {
 	const cached = localStorage.getItem("maxArrayBufferSize");
 	if (cached) {
 		const parsed = Number(cached);
-		log(["converters"], `using cached max ArrayBuffer size: ${parsed} bytes`);
+		log(
+			["converters"],
+			`using cached max ArrayBuffer size: ${parsed} bytes`,
+		);
 		if (!isNaN(parsed) && parsed > 0) return parsed;
 	}
 

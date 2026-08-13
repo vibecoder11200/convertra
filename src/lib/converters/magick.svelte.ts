@@ -82,34 +82,49 @@ export class MagickConverter extends Converter {
 	constructor() {
 		super();
 		log(["converters", this.name], `created converter`);
-		if (!browser) return;
-		this.initializeWasm();
+		// WASM is loaded lazily on first convert() to avoid downloading
+		// ~10MB engines on page load (issue #214).
+		if (browser) this.status = "not-ready";
 	}
 
-	private async initializeWasm() {
-		try {
-			this.status = "downloading";
-			const response = await fetch(magickWasm);
-			if (!response.ok) {
-				throw new Error(
-					`Failed to fetch WASM: ${response.status} ${response.statusText}`,
+	private wasmPromise: Promise<void> | null = null;
+
+	/** Warm the WASM engine ahead of use (e.g. when a file needing it is added). */
+	public warm(): void {
+		void this.ensureWasm();
+	}
+
+	private ensureWasm(): Promise<void> {
+		if (this.status === "ready") return Promise.resolve();
+		if (this.wasmPromise) return this.wasmPromise;
+
+		this.wasmPromise = (async () => {
+			try {
+				this.status = "downloading";
+				const response = await fetch(magickWasm);
+				if (!response.ok) {
+					throw new Error(
+						`Failed to fetch WASM: ${response.status} ${response.statusText}`,
+					);
+				}
+
+				this.wasm = await response.arrayBuffer();
+				this.status = "ready";
+			} catch (err) {
+				this.status = "error";
+				error(
+					["converters", this.name],
+					`Failed to load ImageMagick WASM: ${err}`,
 				);
+
+				ToastManager.add({
+					type: "error",
+					message: m["workers.errors.magick"](),
+				});
 			}
+		})();
 
-			this.wasm = await response.arrayBuffer();
-			this.status = "ready";
-		} catch (err) {
-			this.status = "error";
-			error(
-				["converters", this.name],
-				`Failed to load ImageMagick WASM: ${err}`,
-			);
-
-			ToastManager.add({
-				type: "error",
-				message: m["workers.errors.magick"](),
-			});
-		}
+		return this.wasmPromise;
 	}
 
 	public async convert(
@@ -127,6 +142,11 @@ export class MagickConverter extends Converter {
 			);
 		}
 		log(["converters", this.name], `converting ${input.name} to ${to}`);
+
+		await this.ensureWasm();
+		if (this.status !== "ready") {
+			throw new Error(`Magick WASM not ready (status: ${this.status})`);
+		}
 
 		// handle converting from SVG manually because magick-wasm doesn't support it
 		if (input.from === ".svg") {
