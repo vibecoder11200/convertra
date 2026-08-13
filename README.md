@@ -1,11 +1,19 @@
 <p align="center">
   <img src="https://github.com/user-attachments/assets/bf441748-0ec5-4c8a-b3e5-11301ee3f0bd" alt="VERT's logo" height="100">
 </p>
-<h1 align="center"><a href="https://vert.sh">VERT.sh</a></h1>
+<h1 align="center">Convertra</h1>
 
-VERT is a file conversion utility that uses WebAssembly to convert files on your device instead of a cloud. Check out the live instance at [vert.sh](https://vert.sh).
+Convertra is a **privacy-first, fully client-side file converter** forked from
+[VERT](https://vert.sh) ([VERT-sh/VERT](https://github.com/VERT-sh/VERT),
+AGPL-3.0). It converts files on your device using WebAssembly — nothing is
+uploaded to a server.
 
-VERT is built in Svelte and TypeScript.
+Convertra keeps VERT's "no upload, runs in your browser" promise across images,
+audio, and documents, and extends it where VERT falls short: **full PDF support**
+(merge/split/compress/text/image) and **client-side video → GIF/WebM** via
+WebCodecs.
+
+Convertra is built in Svelte and TypeScript.
 
 ## Screenshots
 
@@ -16,13 +24,53 @@ VERT is built in Svelte and TypeScript.
 ## Features
 
 - Convert files directly on your device using WebAssembly\*
-- No file or file size limits
+- No file or file size limits (bounded by available device memory)
 - Convert images, audio, documents, and video\*
 - Supports over **250+** file formats
+- **PDF tooling**: merge, split, compress, extract text/markdown, and render to
+  image — all client-side
+- **Video → GIF / WebM** fully client-side (WebCodecs) for short clips
 - Conversion settings
 - User-friendly interface built with Svelte
 
-<sup>\* Non-local video conversion is available with our official instance, but the [daemon](https://github.com/VERT-sh/vertd) is easily self-hostable to maintain privacy and fully local functionality.</sup>
+<sup>\* Non-local video conversion is available with our official instance, but
+the [daemon](https://github.com/VERT-sh/vertd) is easily self-hostable to
+maintain privacy and fully local functionality. Convertra adds a fully
+client-side video → GIF/WebM path for short clips, and falls back to vertd for
+everything else.</sup>
+
+## Setup
+
+Requires [bun](https://bun.sh) ≥ 1.3 (pinned in CI via `oven-sh/setup-bun`).
+
+```bash
+cp .env.example .env   # then edit
+bun install
+bun run dev            # or: bun run build && bun run preview
+```
+
+### Environment variables
+
+All public config is `PUB_*` prefixed (see `.env.example`):
+
+| Variable                              | Purpose                                                     |
+| ------------------------------------- | ----------------------------------------------------------- |
+| `PUB_HOSTNAME`                        | Hostname for analytics tracking (Plausible)                 |
+| `PUB_PLAUSIBLE_URL`                   | Plausible instance URL (empty disables analytics)           |
+| `PUB_ENV`                             | `development`, `production`, or `nightly`                   |
+| `PUB_VERTD_URL`                       | URL of the vertd daemon for video conversion                |
+| `PUB_DISABLE_ALL_EXTERNAL_REQUESTS`   | `true` disables vertd/Stripe/Plausible (privacy/air-gapped) |
+| `PUB_DISABLE_FAILURE_BLOCKS`          | `true` disables blocking repeated failed video conversions  |
+| `PUB_DONATION_URL` / `PUB_STRIPE_KEY` | Donation links (Stripe)                                     |
+
+### Syncing upstream
+
+Convertra tracks upstream VERT on-demand (specific features/fixes, not weekly):
+
+```bash
+git fetch upstream
+git merge upstream/main   # or cherry-pick specific PRs
+```
 
 ## Documentation
 
@@ -33,14 +81,7 @@ VERT is built in Svelte and TypeScript.
 
 ## License
 
-This project is licensed under the AGPL-3.0 License, please see the [LICENSE](LICENSE) file for details.
-
-## Star History
-
-<a href="https://www.star-history.com/#VERT-sh/VERT&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=VERT-sh/VERT&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=VERT-sh/VERT&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=VERT-sh/VERT&type=Date" />
- </picture>
-</a>
+This project is licensed under the AGPL-3.0 License, please see the
+[LICENSE](LICENSE) file for details. It is a fork of
+[VERT-sh/VERT](https://github.com/VERT-sh/VERT) — credit to the original VERT
+authors.

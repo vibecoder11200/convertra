@@ -1,7 +1,7 @@
 {
-	"name": "VERT",
-	"short_name": "VERT",
-	"description": "The file converter you'll love",
+	"name": "Convertra",
+	"short_name": "Convertra",
+	"description": "The privacy-first, fully client-side file converter",
 	"start_url": "/",
 	"display": "standalone",
 	"background_color": "#ffffff",
