@@ -43,7 +43,9 @@
 						{m["settings.conversion.filename_format"]()}
 					</p>
 					<p class="text-sm text-muted font-normal">
-						{@html sanitize(m["settings.conversion.filename_description"]())}
+						{@html sanitize(
+							m["settings.conversion.filename_description"](),
+						)}
 					</p>
 				</div>
 				<FancyTextInput
@@ -71,8 +73,14 @@
 				<div
 					class={clsx(
 						"flex flex-col gap-8 transition-all duration-300 ease-in-out",
-						{"max-h-[2000px] opacity-100 overflow-visible": showAdvanced},
-						{"max-h-0 opacity-0 overflow-hidden -mb-4": !showAdvanced},
+						{
+							"max-h-[2000px] opacity-100 overflow-visible":
+								showAdvanced,
+						},
+						{
+							"max-h-0 opacity-0 overflow-hidden -mb-4":
+								!showAdvanced,
+						},
 					)}
 				>
 					<div class="flex flex-col gap-8">
@@ -102,7 +110,9 @@
 											size="24"
 											class="inline-block mr-2"
 										/>
-										{m["settings.conversion.default_format_enable"]()}
+										{m[
+											"settings.conversion.default_format_enable"
+										]()}
 									</button>
 
 									<button
@@ -118,7 +128,9 @@
 											size="24"
 											class="inline-block mr-2"
 										/>
-										{m["settings.conversion.default_format_disable"]()}
+										{m[
+											"settings.conversion.default_format_disable"
+										]()}
 									</button>
 								</div>
 							</div>
@@ -193,9 +205,7 @@
 								<p class="text-base font-bold">
 									{m["settings.conversion.metadata"]()}
 								</p>
-								<p
-									class="text-sm text-muted font-normal"
-								>
+								<p class="text-sm text-muted font-normal">
 									{m[
 										"settings.conversion.metadata_description"
 									]()}

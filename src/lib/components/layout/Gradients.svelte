@@ -2,11 +2,7 @@
 	import { page } from "$app/state";
 	import { duration, transition } from "$lib/util/animation";
 	import VertVBig from "$lib/assets/vert-bg.svg?component";
-	import {
-		files,
-		gradientColor,
-		showGradient,
-	} from "$lib/store/index.svelte";
+	import { files, gradientColor } from "$lib/store/index.svelte";
 	import { quintOut } from "svelte/easing";
 	import { fade } from "$lib/util/animation";
 	import { Tween } from "svelte/motion";
@@ -51,7 +47,7 @@
 		},
 	);
 
-	// svelte-ignore state_referenced_locally This is handled in the effect below
+	// svelte-ignore state_referenced_locally This captures the initial value; the effect below keeps it reactive
 	let at = new Tween(color.at, {
 		duration,
 		easing: quintOut,

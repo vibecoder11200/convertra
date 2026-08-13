@@ -22,7 +22,6 @@
 
 	let open = $state(false);
 	let hover = $state(false);
-	let isUp = $state(false);
 	let dropdown = $state<HTMLDivElement>();
 
 	const toggle = () => {
@@ -30,9 +29,6 @@
 	};
 
 	const select = (option: string) => {
-		const oldIndex = options.indexOf(selected || "");
-		const newIndex = options.indexOf(option);
-		isUp = oldIndex > newIndex;
 		selected = option;
 		onselect?.(option);
 		toggle();

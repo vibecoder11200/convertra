@@ -74,7 +74,7 @@ self.addEventListener("fetch", (event) => {
 		return; // Let the request go through normally if not a target URL
 	}
 
-    // else intercept request
+	// else intercept request
 	event.respondWith(
 		caches.match(request).then((cachedResponse) => {
 			if (cachedResponse) {
@@ -124,8 +124,8 @@ self.addEventListener("fetch", (event) => {
 });
 
 self.addEventListener("message", (event) => {
-    if (!event.data) return;
-    const type = event.data.type;
+	if (!event.data) return;
+	const type = event.data.type;
 
 	if (type === "GET_CACHE_INFO") {
 		event.waitUntil(

@@ -17,6 +17,8 @@
 	import { addDialog } from "$lib/store/DialogProvider";
 	import VertdErrorDetails from "./VertdErrorDetails.svelte";
 
+	// Custom-element props identifier hint does not apply (no web components here).
+	// eslint-disable-next-line svelte/valid-compile
 	const toast: ToastProps<VertdErrorProps> = $props();
 
 	let submitting = $state(false);
@@ -31,7 +33,9 @@
 		submitting = true;
 		try {
 			await submitInner();
-		} catch (e) {}
+		} catch {
+			// submission errors surface in VertdErrorDetails
+		}
 		submitting = false;
 	};
 
@@ -62,7 +66,7 @@
 	const showDetails = () => {
 		addDialog(
 			m["convert.errors.vertd_details"](),
-			VertdErrorDetails as any,
+			VertdErrorDetails as unknown as import("svelte").Component,
 			[
 				{
 					text: "Close",

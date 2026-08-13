@@ -19,46 +19,56 @@
 	<p>{@html sanitize(m["convert.errors.vertd_details_body"]())}</p>
 	<p>
 		<span class="text-black dynadark:text-white">
-			{@html sanitize(m["convert.errors.vertd_details_job_id"]({
-				jobId: additional.jobId,
-			}))}
+			{@html sanitize(
+				m["convert.errors.vertd_details_job_id"]({
+					jobId: additional.jobId,
+				}),
+			)}
 		</span>
 	</p>
 	<p>
 		<span class="text-black dynadark:text-white">
-			{@html sanitize(m["convert.errors.vertd_details_from"]({
-				from: additional.from,
-			}))}
+			{@html sanitize(
+				m["convert.errors.vertd_details_from"]({
+					from: additional.from,
+				}),
+			)}
 		</span>
 	</p>
 	<p>
 		<span class="text-black dynadark:text-white">
-			{@html sanitize(m["convert.errors.vertd_details_to"]({ to: additional.to }))}
+			{@html sanitize(
+				m["convert.errors.vertd_details_to"]({ to: additional.to }),
+			)}
 		</span>
 	</p>
 	<p>
 		<span class="text-black dynadark:text-white">
-			{@html sanitize(link(
-				["view_link"],
-				m["convert.errors.vertd_details_error_message"](),
-				[
-					URL.createObjectURL(
-						new Blob([additional.errorMessage], {
-							type: "text/plain",
-						}),
-					),
-				],
+			{@html sanitize(
+				link(
+					["view_link"],
+					m["convert.errors.vertd_details_error_message"](),
+					[
+						URL.createObjectURL(
+							new Blob([additional.errorMessage], {
+								type: "text/plain",
+							}),
+						),
+					],
+					[true],
+					["text-blue-500 font-normal"],
+				),
+			)}
+		</span>
+	</p>
+	<p>
+		{@html sanitize(
+			link(
+				["privacy_link"],
+				m["convert.errors.vertd_details_footer"](),
+				"/privacy",
 				[true],
-				["text-blue-500 font-normal"],
-			))}
-		</span>
-	</p>
-	<p>
-		{@html sanitize(link(
-			["privacy_link"],
-			m["convert.errors.vertd_details_footer"](),
-			"/privacy",
-			[true],
-		))}
+			),
+		)}
 	</p>
 </div>

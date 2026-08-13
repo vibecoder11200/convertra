@@ -76,11 +76,13 @@
 					{@html sanitize(m["settings.vertd.description"]())}
 				</p>
 				<p class="text-sm text-muted font-normal">
-					{@html sanitize(link(
-						"vertd_link",
-						m["settings.vertd.hosting_info"](),
-						GITHUB_URL_VERTD,
-					))}
+					{@html sanitize(
+						link(
+							"vertd_link",
+							m["settings.vertd.hosting_info"](),
+							GITHUB_URL_VERTD,
+						),
+					)}
 				</p>
 				<div class="flex flex-col gap-2">
 					<p class="text-base font-bold">

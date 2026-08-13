@@ -28,7 +28,10 @@ export async function extractZip(file: File): Promise<ZipEntry[]> {
 					data: new Uint8Array(data),
 				}));
 
-			log(["zip"], `extracted ${entries.length} entries from ${file.name}`);
+			log(
+				["zip"],
+				`extracted ${entries.length} entries from ${file.name}`,
+			);
 			resolve(entries);
 		});
 	});

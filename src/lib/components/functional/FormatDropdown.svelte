@@ -104,7 +104,7 @@
 		return finalCategories;
 	});
 
-	const shouldInclude = (format: string, category: string): boolean => {
+	const shouldInclude = (format: string): boolean => {
 		// if converting from audio to video, dont show gifs
 		if (
 			categories["audio"]?.formats.includes(from ?? "") &&
@@ -123,7 +123,7 @@
 		if (!searchQuery) {
 			let formats = currentCategory
 				? categories[currentCategory].formats.filter((format) =>
-						shouldInclude(format, currentCategory!),
+						shouldInclude(format),
 					)
 				: [];
 
@@ -139,7 +139,7 @@
 			categories[cat].formats.some(
 				(format) =>
 					normalize(format).includes(searchLower) &&
-					shouldInclude(format, cat),
+					shouldInclude(format),
 			),
 		);
 		if (matchingCategories.length === 0) {
@@ -163,7 +163,7 @@
 			? categories[currentCategory].formats.filter(
 					(format) =>
 						normalize(format).includes(searchLower) &&
-						shouldInclude(format, currentCategory!),
+						shouldInclude(format),
 				)
 			: [];
 
@@ -315,7 +315,7 @@
 					});
 					const ext = filename.split(".").pop() ?? "";
 					return new VertFile(f, ext);
-				} catch (err) {
+				} catch {
 					return null;
 				}
 			})
@@ -460,7 +460,9 @@
 							: 'border-b-separator text-muted'}"
 						onclick={() => selectCategory(category)}
 					>
-						{(m as any)[`convert.dropdown.${category}`]?.()}
+						{(m as unknown as Record<string, () => string>)[
+							`convert.dropdown.${category}`
+						]?.()}
 					</button>
 				{/each}
 			</div>

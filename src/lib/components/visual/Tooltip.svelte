@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { fade } from "$lib/util/animation";
+	import type { Snippet } from "svelte";
 	interface Props {
-		children: () => any;
+		children: Snippet;
 		text: string;
 		className?: string;
 		position?: "top" | "bottom" | "left" | "right";

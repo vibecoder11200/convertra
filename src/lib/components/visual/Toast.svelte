@@ -14,6 +14,8 @@
 	import clsx from "clsx";
 	import type { Toast as ToastType } from "$lib/util/toast.svelte";
 
+	// Custom-element props identifier hint does not apply (no web components here).
+	// eslint-disable-next-line svelte/valid-compile
 	const props: {
 		toast: ToastType<unknown>;
 	} = $props();
@@ -41,10 +43,13 @@
 	let Icon = $derived(Icons[type]);
 
 	let msg = $state<SvelteComponent<ToastProps>>();
-	const title = $derived(((msg as any)?.title as string) ?? "");
+	const title = $derived(
+		((msg as unknown as { title: string })?.title as string) ?? "",
+	);
 
 	// intentionally unused. this is so tailwind can generate the css for these colours as it doesn't detect if it's dynamically loaded
 	// this would lead to the colours not being generated in the final css file by tailwind
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const colourVariants = [
 		"border-accent-pink-alt",
 		"border-accent-red-alt",

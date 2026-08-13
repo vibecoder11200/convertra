@@ -7,6 +7,9 @@
 
 	type Props = DialogType;
 
+	// Destructure after the fact; this app does not build custom elements, so
+	// the custom_element_props_identifier compiler hint does not apply.
+	// eslint-disable-next-line svelte/valid-compile
 	let props: Props = $props();
 	const { id, title, message, buttons, type } = props;
 	const additional = "additional" in props ? props.additional : undefined;
@@ -54,7 +57,9 @@
 	</div>
 	<div class="flex flex-col gap-1 w-full">
 		{#if typeof message === "string"}
-			<p class="text-sm font-normal text-muted whitespace-pre-wrap">{message}</p>
+			<p class="text-sm font-normal text-muted whitespace-pre-wrap">
+				{message}
+			</p>
 		{:else}
 			{@const MessageComponent = message}
 			<div class="text-sm font-normal text-muted">

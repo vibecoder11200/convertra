@@ -231,9 +231,11 @@
 										</p>
 									{/if}
 									<p>
-										{@html sanitize(m["upload.cards.status.text"]({
-											status: getStatusText(s.status),
-										}))}
+										{@html sanitize(
+											m["upload.cards.status.text"]({
+												status: getStatusText(s.status),
+											}),
+										)}
 									</p>
 									<div
 										class="flex flex-col items-center relative"
