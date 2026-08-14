@@ -5,6 +5,8 @@ import { PandocConverter } from "./pandoc.svelte";
 import { VertdConverter } from "./vertd.svelte";
 import { MagickConverter } from "./magick.svelte";
 import { MuPDFConverter } from "./mupdf.svelte";
+import { PdfLibConverter } from "./pdf-lib.svelte";
+import { PdfRenderConverter } from "./pdf-render.svelte";
 import { DISABLE_ALL_EXTERNAL_REQUESTS } from "$lib/util/consts";
 
 const getConverters = (): Converter[] => {
@@ -19,6 +21,8 @@ const getConverters = (): Converter[] => {
 
 	converters.push(new PandocConverter());
 	converters.push(new MuPDFConverter());
+	converters.push(new PdfLibConverter());
+	converters.push(new PdfRenderConverter());
 	return converters;
 };
 
@@ -51,14 +55,33 @@ categories.video.formats =
 		?.supportedFormats.filter((f) => f.toSupported && f.isNative)
 		.map((f) => f.name) || [];
 categories.image.formats =
-	converters
-		.find((c) => c.name === "imagemagick")
-		?.formatStrings((f) => f.toSupported) || [];
+	Array.from(
+		new Set([
+			...(converters
+				.find((c) => c.name === "imagemagick")
+				?.formatStrings((f) => f.toSupported) || []),
+			...(converters
+				.find((c) => c.name === "pdf-render")
+				?.formatStrings((f) => f.toSupported) || []),
+		]),
+	) || [];
 categories.doc.formats =
-	converters
-		.find((c) => c.name === "pandoc")
-		?.supportedFormats.filter((f) => f.toSupported && f.isNative)
-		.map((f) => f.name) || [];
+	Array.from(
+		new Set([
+			...(converters
+				.find((c) => c.name === "pandoc")
+				?.supportedFormats.filter((f) => f.toSupported && f.isNative)
+				.map((f) => f.name) || []),
+			...(converters
+				.find((c) => c.name === "mupdf")
+				?.supportedFormats.filter((f) => f.toSupported)
+				.map((f) => f.name) || []),
+			...(converters
+				.find((c) => c.name === "pdf-lib")
+				?.supportedFormats.filter((f) => f.toSupported)
+				.map((f) => f.name) || []),
+		]),
+	) || [];
 
 export const byNative = (format: string) => {
 	return (a: Converter, b: Converter) => {

@@ -113,14 +113,19 @@ export class ChainedConverter extends Converter {
 
 	constructor(steps: ChainStep[]) {
 		super(0);
-		if (steps.length < 2) throw new Error("Chain requires at least 2 steps");
+		if (steps.length < 2)
+			throw new Error("Chain requires at least 2 steps");
 		this.steps = steps;
 		this.name = steps.map((s) => s.converter.name).join("+");
 		this.clearTimeout();
 		this.status = this.deriveStatus();
 		this.supportedFormats = [
-			...steps[0].converter.supportedFormats.filter((f) => f.fromSupported),
-			...steps[steps.length - 1].converter.supportedFormats.filter((f) => f.toSupported),
+			...steps[0].converter.supportedFormats.filter(
+				(f) => f.fromSupported,
+			),
+			...steps[steps.length - 1].converter.supportedFormats.filter(
+				(f) => f.toSupported,
+			),
 		];
 	}
 
@@ -132,7 +137,10 @@ export class ChainedConverter extends Converter {
 		return "not-ready";
 	}
 
-	public override async convert(input: VertFile, to: string): Promise<VertFile> {
+	public override async convert(
+		input: VertFile,
+		to: string,
+	): Promise<VertFile> {
 		this.status = this.deriveStatus();
 		const { VertFile: VF } = await import("$lib/types");
 		let current: VertFile = input;
@@ -144,7 +152,10 @@ export class ChainedConverter extends Converter {
 			const result = await converter.convert(current, target);
 			if (!isLast) {
 				current = new VF(
-					new File([await result.file.arrayBuffer()], input.name.replace(/\.[^/.]+$/, target)),
+					new File(
+						[await result.file.arrayBuffer()],
+						input.name.replace(/\.[^/.]+$/, target),
+					),
 					target,
 				);
 			} else {
@@ -156,6 +167,8 @@ export class ChainedConverter extends Converter {
 	}
 
 	public override async cancel(input: VertFile): Promise<void> {
-		await Promise.allSettled(this.steps.map((s) => s.converter.cancel(input)));
+		await Promise.allSettled(
+			this.steps.map((s) => s.converter.cancel(input)),
+		);
 	}
 }
