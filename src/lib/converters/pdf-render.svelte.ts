@@ -31,15 +31,22 @@ export class PdfRenderConverter extends Converter {
 			}) ?? {};
 		const scale = op.scale ?? 2; // 144dpi default for crisp output
 		const quality = op.quality ?? 85;
-		const range = op.range
-			? {
-					from: Math.max(0, parseInt(op.range.split("-")[0], 10) - 1),
-					to: Math.max(
-						0,
-						parseInt(op.range.split("-").pop() ?? "1", 10) - 1,
-					),
-				}
-			: "all";
+		// "all" or empty => render every page (pass the "all" sentinel through);
+		// otherwise parse a 1-based inclusive "from-to" range into 0-based pages.
+		const trimmed = op.range?.trim() ?? "";
+		const range =
+			trimmed === "" || trimmed.toLowerCase() === "all"
+				? "all"
+				: {
+						from: Math.max(
+							0,
+							parseInt(trimmed.split("-")[0], 10) - 1,
+						),
+						to: Math.max(
+							0,
+							parseInt(trimmed.split("-").pop() ?? "1", 10) - 1,
+						),
+					};
 
 		const worker = new Worker(PdfRenderWorker, { type: "module" });
 		this.activeConversions.set(input.id, worker);
@@ -71,7 +78,7 @@ export class PdfRenderConverter extends Converter {
 
 		if (result.type === "error") {
 			// D11: fall back to pdfjs-dist rendering when mupdf fails.
-			return this.renderWithPdfjs(input);
+			return this.renderWithPdfjs(input, target, scale, range);
 		}
 
 		const parts = result.output ?? [];
@@ -134,24 +141,82 @@ export class PdfRenderConverter extends Converter {
 		});
 	}
 
-	private async renderWithPdfjs(input: VertFile): Promise<VertFile> {
-		// pdfjs-dist (legacy build) renders each page to a canvas in the page,
-		// but in a worker we lack a DOM. This path is used on the main thread
-		// via OffscreenCanvas when available; otherwise it surfaces a clear
-		// error. See PdfRenderConverter for the browser fallback.
+	private async renderWithPdfjs(
+		input: VertFile,
+		to: string,
+		scale: number,
+		range: "all" | { from: number; to: number },
+	): Promise<VertFile> {
+		// D11 fallback: pdfjs-dist rasterization needs a DOM canvas, so this
+		// runs on the browser main thread (not in a worker) when the mupdf path
+		// failed on a complex PDF. Produces the same zipped-image output shape.
+		const target = to.startsWith(".") ? to.slice(1) : to;
 		const { getDocument } = await import("pdfjs-dist/legacy/build/pdf.mjs");
 		const loadingTask = getDocument({
 			data: await input.file.arrayBuffer(),
 		});
-		await loadingTask.promise;
+		const pdf = await loadingTask.promise;
+		this.activeConversions.delete(input.id);
 
-		// pdfjs-dist rasterization requires a DOM canvas to draw to; this
-		// module-level fallback documents the dependency rather than silently
-		// producing empty output. The mupdf path is the primary renderer (D11).
-		await loadingTask.destroy();
-		throw new Error(
-			`pdfjs fallback needs a canvas context; the mupdf path produced the error below.`,
-		);
+		try {
+			const pageNums =
+				range === "all"
+					? Array.from({ length: pdf.numPages }, (_, i) => i + 1)
+					: Array.from(
+							{ length: range.to - range.from + 1 },
+							(_, i) => range.from + 1 + i,
+						);
+
+			const outFiles: File[] = [];
+			const width = Math.max(2, String(pdf.numPages).length);
+			const outName = (p: number) =>
+				`page_${String(p).padStart(width, "0")}.${target}`;
+
+			for (const pageNum of pageNums) {
+				const page = await pdf.getPage(pageNum);
+				const viewport = page.getViewport({ scale });
+				const canvas = document.createElement("canvas");
+				canvas.width = viewport.width;
+				canvas.height = viewport.height;
+				const ctx = canvas.getContext("2d")!;
+				await page.render({ canvas, canvasContext: ctx, viewport })
+					.promise;
+				page.cleanup();
+
+				const blob = await new Promise<Blob>((resolve, reject) => {
+					canvas.toBlob(
+						(b) =>
+							b
+								? resolve(b)
+								: reject(
+										new Error(`Failed to encode ${target}`),
+									),
+						`image/${target}`,
+						0.85,
+					);
+				});
+				outFiles.push(
+					new File([blob as unknown as BlobPart], outName(pageNum), {
+						type: `image/${target}`,
+					}),
+				);
+				canvas.remove();
+			}
+
+			await loadingTask.destroy();
+			const { createZip } = await import("$lib/util/zip");
+			const zipBytes = await createZip(outFiles);
+			return new VertFile(
+				new File(
+					[zipBytes as unknown as BlobPart],
+					`${baseName(input.name)}_images.zip`,
+				),
+				".zip",
+			);
+		} catch (err) {
+			await loadingTask.destroy().catch(() => {});
+			throw err;
+		}
 	}
 
 	public async cancel(input: VertFile): Promise<void> {

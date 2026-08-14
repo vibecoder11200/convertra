@@ -244,17 +244,33 @@ const handleMessage = async (
 					message.to === ".gif"
 						? MagickFormat.Gif
 						: MagickFormat.WebP;
-				const result = await new Promise<Uint8Array>((resolve) => {
-					collection.write(format, (output) => {
-						resolve(structuredClone(output));
+				try {
+					const result = await new Promise<Uint8Array>((resolve) => {
+						let settled = false;
+						const onDone = (output: Uint8Array) => {
+							settled = true;
+							resolve(structuredClone(output));
+						};
+						collection.write(format, onDone);
+						// If magick-wasm never calls back (e.g. a corrupt
+						// animated frame), time out so the caller doesn't hang
+						// and the collection is still disposed via finally.
+						setTimeout(() => {
+							if (!settled) resolve(new Uint8Array(0));
+						}, 30_000);
 					});
-				});
-				collection.dispose();
-
-				return {
-					type: "finished",
-					output: result,
-				};
+					if ((result as Uint8Array).length === 0) {
+						throw new Error("Failed to convert animated image");
+					}
+					return {
+						type: "finished",
+						output: result,
+					};
+				} finally {
+					// Always release the collection, even on error, so the WASM
+					// image buffers don't leak across conversions.
+					collection.dispose();
+				}
 			}
 
 			const img = MagickImage.create(
