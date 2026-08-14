@@ -7,6 +7,7 @@ import { MagickConverter } from "./magick.svelte";
 import { MuPDFConverter } from "./mupdf.svelte";
 import { PdfLibConverter } from "./pdf-lib.svelte";
 import { PdfRenderConverter } from "./pdf-render.svelte";
+import { WebCodecsConverter } from "./video.svelte";
 import { DISABLE_ALL_EXTERNAL_REQUESTS } from "$lib/util/consts";
 
 const getConverters = (): Converter[] => {
@@ -23,6 +24,9 @@ const getConverters = (): Converter[] => {
 	converters.push(new MuPDFConverter());
 	converters.push(new PdfLibConverter());
 	converters.push(new PdfRenderConverter());
+	// Client-side video->GIF/WebM for short clips (D7/D13). vertd stays the
+	// full video path.
+	converters.push(new WebCodecsConverter());
 	return converters;
 };
 
@@ -54,6 +58,14 @@ categories.video.formats =
 		.find((c) => c.name === "vertd")
 		?.supportedFormats.filter((f) => f.toSupported && f.isNative)
 		.map((f) => f.name) || [];
+categories.video.formats = Array.from(
+	new Set([
+		...categories.video.formats,
+		...(converters
+			.find((c) => c.name === "webcodecs")
+			?.formatStrings((f) => f.toSupported) || []),
+	]),
+).sort();
 categories.image.formats =
 	Array.from(
 		new Set([

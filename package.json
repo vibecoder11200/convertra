@@ -52,6 +52,7 @@
 		"client-zip": "^2.5.0",
 		"clsx": "^2.1.1",
 		"fflate": "^0.8.2",
+		"gifenc": "^1.0.3",
 		"lucide-svelte": "^0.554.0",
 		"mupdf": "^1.28.0",
 		"music-metadata": "^11.10.3",
@@ -64,7 +65,8 @@
 		"sanitize-html": "^2.17.0",
 		"svelte-stripe": "^1.4.0",
 		"vert-wasm": "^0.0.2",
-		"vite-plugin-wasm": "^3.5.0"
+		"vite-plugin-wasm": "^3.5.0",
+		"webm-muxer": "^5.1.4"
 	},
 	"trustedDependencies": [
 		"@parcel/watcher",
