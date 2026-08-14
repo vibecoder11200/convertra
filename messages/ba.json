@@ -117,6 +117,11 @@
 			"audio": "audio",
 			"doc": "dokument",
 			"image": "slika"
+		},
+		"pdf": {
+			"split_range": "Split range",
+			"compress_quality": "Compress quality",
+			"render_scale": "Render scale"
 		}
 	},
 	"settings": {

@@ -91,6 +91,11 @@
 			"audio": "ήχου",
 			"doc": "εγγράφου",
 			"image": "εικόνας"
+		},
+		"pdf": {
+			"split_range": "Split range",
+			"compress_quality": "Compress quality",
+			"render_scale": "Render scale"
 		}
 	},
 	"settings": {

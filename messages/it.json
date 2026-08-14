@@ -91,6 +91,11 @@
 			"audio": "audio",
 			"doc": "documento",
 			"image": "immagine"
+		},
+		"pdf": {
+			"split_range": "Split range",
+			"compress_quality": "Compress quality",
+			"render_scale": "Render scale"
 		}
 	},
 	"settings": {

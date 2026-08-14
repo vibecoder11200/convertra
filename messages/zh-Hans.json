@@ -108,6 +108,11 @@
 			"audio": "音频",
 			"doc": "文档",
 			"image": "图片"
+		},
+		"pdf": {
+			"split_range": "Split range",
+			"compress_quality": "Compress quality",
+			"render_scale": "Render scale"
 		}
 	},
 	"settings": {

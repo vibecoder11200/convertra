@@ -35,6 +35,36 @@
 
 	let processedFileIds = $state(new Set<string>());
 
+	// Per-file PDF options (split range, compress quality, render scale).
+	const pdfOptions = $state<
+		Record<string, { range: string; quality: number; scale: number }>
+	>({});
+
+	const getPdfOptions = (id: string) => {
+		pdfOptions[id] ??= { range: "", quality: 75, scale: 2 };
+		return pdfOptions[id];
+	};
+
+	const convertPdf = async (file: VertFile) => {
+		const opts = getPdfOptions(file.id);
+		const to = file.to;
+		// pdf-lib: compress (->.pdf), split-all (->.zip), split-range (->.pdf with range)
+		if (to === ".pdf" || to === ".zip") {
+			const isCompress = to === ".pdf" && opts.range === "";
+			await file.convert(
+				isCompress
+					? { op: "compress", quality: opts.quality }
+					: { op: "split", range: opts.range || "all" },
+			);
+			return;
+		}
+		// pdf-render: pdf -> png/jpeg/webp
+		await file.convert({
+			scale: opts.scale,
+			range: opts.range || "all",
+		});
+	};
+
 	$effect(() => {
 		if (!Settings.instance.settings || files.files.length === 0) return;
 
@@ -373,6 +403,51 @@
 									handleSelect(option, file)}
 								{file}
 							/>
+							{#if currentConverter?.name === "pdf-lib" || currentConverter?.name === "pdf-render"}
+								{@const opts = getPdfOptions(file.id)}
+								<div
+									class="w-full flex flex-col gap-1.5 items-stretch text-sm"
+								>
+									{#if currentConverter?.name === "pdf-lib"}
+										<label class="text-muted">
+											{m["convert.pdf.split_range"]()}
+											<input
+												class="w-full input"
+												placeholder="e.g. 2-5"
+												bind:value={opts.range}
+											/>
+										</label>
+										{#if file.to === ".pdf"}
+											<label class="text-muted">
+												{m[
+													"convert.pdf.compress_quality"
+												]()}: {opts.quality}%
+												<input
+													class="w-full"
+													type="range"
+													min="30"
+													max="100"
+													bind:value={opts.quality}
+												/>
+											</label>
+										{/if}
+									{:else}
+										<label class="text-muted">
+											{m["convert.pdf.render_scale"]()}
+											<select
+												class="input w-full"
+												bind:value={opts.scale}
+											>
+												<option value={1}>72dpi</option>
+												<option value={2}>144dpi</option
+												>
+												<option value={3}>216dpi</option
+												>
+											</select>
+										</label>
+									{/if}
+								</div>
+							{/if}
 							<div
 								class="w-full flex items-center justify-between"
 							>
@@ -391,7 +466,13 @@
 													? 'bg-accent-green'
 													: 'bg-accent-blue'}"
 										disabled={!files.ready}
-										onclick={() => file.convert()}
+										onclick={() =>
+											currentConverter?.name ===
+												"pdf-lib" ||
+											currentConverter?.name ===
+												"pdf-render"
+												? convertPdf(file)
+												: file.convert()}
 									>
 										<RotateCwIcon size="24" />
 									</button>
