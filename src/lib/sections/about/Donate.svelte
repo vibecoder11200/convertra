@@ -357,4 +357,59 @@
 			)}
 		{/if}
 	</p>
+
+	<!-- D8: support upstream VERT alongside Convertra -->
+	<div class="flex flex-col gap-2 pt-2 border-t border-separator">
+		<h3 class="text-lg font-bold">
+			{m["about.donate.upstream_title"]()}
+		</h3>
+		<p class="text-sm font-normal text-muted">
+			{@html sanitize(
+				link(
+					"vert_link",
+					m["about.donate.upstream_body"](),
+					"https://github.com/VERT-sh/VERT",
+					true,
+					"",
+				),
+			)}
+		</p>
+	</div>
+
+	<!-- D8a: Vietnamese payment methods -->
+	<div class="flex flex-col gap-3">
+		<h3 class="text-lg font-bold flex items-center gap-2">
+			<HandCoinsIcon size="20" />
+			{m["about.donate.vn_title"]()}
+		</h3>
+		<p class="text-sm font-normal text-muted">
+			{m["about.donate.vn_description"]()}
+		</p>
+		<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+			<div class="p-4 rounded-lg bg-panel-alt flex flex-col gap-1">
+				<span class="font-semibold text-sm">
+					{m["about.donate.vn_bank"]()}
+				</span>
+				<span class="text-sm font-normal text-muted">
+					{m["about.donate.vn_bank_detail"]()}
+				</span>
+			</div>
+			<div class="p-4 rounded-lg bg-panel-alt flex flex-col gap-1">
+				<span class="font-semibold text-sm">
+					{m["about.donate.vn_momo"]()}
+				</span>
+				<span class="text-sm font-normal text-muted">
+					{m["about.donate.vn_momo_detail"]()}
+				</span>
+			</div>
+			<div class="p-4 rounded-lg bg-panel-alt flex flex-col gap-1">
+				<span class="font-semibold text-sm">
+					{m["about.donate.vn_qr"]()}
+				</span>
+				<span class="text-sm font-normal text-muted">
+					{m["about.donate.vn_qr_detail"]()}
+				</span>
+			</div>
+		</div>
+	</div>
 </Panel>

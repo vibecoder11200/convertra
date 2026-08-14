@@ -211,7 +211,17 @@
 			"thank_you": "ご支援ありがとうございます！",
 			"payment_failed": "支払いに失敗しました: {message}{period} 請求は行われていません。",
 			"donation_error": "寄付の処理中にエラーが発生しました。後でもう一度お試しください。",
-			"payment_error": "支払い情報の取得中にエラーが発生しました。後でもう一度お試しください。"
+			"payment_error": "支払い情報の取得中にエラーが発生しました。後でもう一度お試しください。",
+			"upstream_title": "Support upstream VERT too",
+			"upstream_body": "Convertra is a fork of VERT. Consider [vert_link]supporting the original project[/vert_link] as well.",
+			"vn_title": "Support via Vietnamese payment",
+			"vn_description": "Prefer local payment methods? You can transfer directly to the project bank account.",
+			"vn_bank": "Bank transfer",
+			"vn_bank_detail": "Please contact us for the current account details.",
+			"vn_momo": "Momo",
+			"vn_momo_detail": "Momo wallet transfers are welcome.",
+			"vn_qr": "Banking QR code",
+			"vn_qr_detail": "Scan the VietQR-style QR code from your banking app."
 		},
 		"credits": {
 			"title": "クレジット",
