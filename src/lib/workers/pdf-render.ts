@@ -9,6 +9,7 @@ interface RenderRequest {
 	data: Uint8Array;
 	format: "png" | "jpeg" | "webp";
 	scale: number; // render scale (1 = 72dpi, 2 = 144dpi, ...)
+	quality?: number; // JPEG quality (0-100), default 85
 	range: "all" | { from: number; to: number };
 }
 
@@ -39,6 +40,15 @@ self.onmessage = async (e: MessageEvent<RenderRequest>) => {
 		const outputs: { name: string; bytes: Uint8Array }[] = [];
 		const matrix = mupdf.Matrix.scale(req.scale, req.scale);
 
+		// mupdf exports PNG and JPEG natively. WebP is not supported, so the
+		// worker emits PNG and the converter transcodes to WebP via canvas.
+		const emitFormat =
+			req.format === "png"
+				? "png"
+				: req.format === "jpeg"
+					? "jpeg"
+					: "png";
+
 		for (const p of pages) {
 			const page = doc.loadPage(p);
 			try {
@@ -47,11 +57,21 @@ self.onmessage = async (e: MessageEvent<RenderRequest>) => {
 					mupdf.ColorSpace.DeviceRGB,
 					false,
 				);
-				const bytes = pixmap.asPNG();
-				pixmap.destroy();
+				let bytes: Uint8Array;
+				try {
+					if (emitFormat === "jpeg") {
+						bytes = new Uint8Array(
+							pixmap.asJPEG(req.quality ?? 85),
+						);
+					} else {
+						bytes = new Uint8Array(pixmap.asPNG());
+					}
+				} finally {
+					pixmap.destroy();
+				}
 				outputs.push({
-					name: `page_${p + 1}.png`,
-					bytes: new Uint8Array(bytes),
+					name: `page_${p + 1}.${emitFormat}`,
+					bytes,
 				});
 			} finally {
 				page.destroy();

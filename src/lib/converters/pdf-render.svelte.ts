@@ -23,8 +23,14 @@ export class PdfRenderConverter extends Converter {
 		...args: unknown[]
 	): Promise<VertFile> {
 		const target = to.startsWith(".") ? to.slice(1) : to;
-		const op = (args.at(0) as { scale?: number; range?: string }) ?? {};
+		const op =
+			(args.at(0) as {
+				scale?: number;
+				range?: string;
+				quality?: number;
+			}) ?? {};
 		const scale = op.scale ?? 2; // 144dpi default for crisp output
+		const quality = op.quality ?? 85;
 		const range = op.range
 			? {
 					from: Math.max(0, parseInt(op.range.split("-")[0], 10) - 1),
@@ -43,7 +49,8 @@ export class PdfRenderConverter extends Converter {
 			type: "render",
 			id: input.id,
 			data,
-			format: "png",
+			format: target as "png" | "jpeg" | "webp",
+			quality,
 			scale,
 			range,
 		});
@@ -70,13 +77,26 @@ export class PdfRenderConverter extends Converter {
 		const parts = result.output ?? [];
 		if (parts.length === 0) throw new Error("No pages rendered");
 
-		// Rewrite names/bytes to the requested image format when possible.
-		const files = parts.map((p) => {
-			const name = p.name.replace(/\.png$/, `.${target}`);
-			return new File([p.bytes as unknown as BlobPart], name, {
-				type: `image/${target}`,
-			});
-		});
+		// mupdf emits PNG for the webp request (it has no WebP export), so
+		// transcode to WebP via the browser's canvas encoder. png/jpeg bytes
+		// come straight from the worker and only need correct naming.
+		const files = await Promise.all(
+			parts.map(async (p) => {
+				const ext = p.name.split(".").pop() ?? target;
+				const outName = p.name.replace(/\.[^.]+$/, `.${target}`);
+				let blob: Blob;
+				if (target === "webp" && ext !== "webp") {
+					blob = await this.transcodeToWebP(p.bytes);
+				} else {
+					blob = new Blob([p.bytes as unknown as BlobPart], {
+						type: `image/${target}`,
+					});
+				}
+				return new File([blob as unknown as BlobPart], outName, {
+					type: `image/${target}`,
+				});
+			}),
+		);
 
 		const { createZip } = await import("$lib/util/zip");
 		const zipBytes = await createZip(files);
@@ -87,6 +107,31 @@ export class PdfRenderConverter extends Converter {
 			),
 			".zip",
 		);
+	}
+
+	private async transcodeToWebP(pngBytes: Uint8Array): Promise<Blob> {
+		const blob = new Blob([pngBytes as unknown as BlobPart], {
+			type: "image/png",
+		});
+		const bitmap = await createImageBitmap(blob);
+		const canvas = document.createElement("canvas");
+		canvas.width = bitmap.width;
+		canvas.height = bitmap.height;
+		const ctx = canvas.getContext("2d")!;
+		ctx.drawImage(bitmap, 0, 0);
+		bitmap.close();
+
+		return new Promise<Blob>((resolve, reject) => {
+			canvas.toBlob(
+				(b) => {
+					canvas.remove();
+					if (b) resolve(b);
+					else reject(new Error("Failed to encode WebP"));
+				},
+				"image/webp",
+				0.85,
+			);
+		});
 	}
 
 	private async renderWithPdfjs(input: VertFile): Promise<VertFile> {
