@@ -61,63 +61,67 @@ const handleMessage = async (
 			if (from === ".ico") {
 				const imgs = MagickImageCollection.create();
 
-				while (true) {
-					try {
-						const img = MagickImage.create(
-							new Uint8Array(buffer),
-							new MagickReadSettings({
-								format: MagickFormat.Ico,
-								frameIndex: imgs.length,
-							}),
-						);
-						imgs.push(img);
-						// eslint-disable-next-line @typescript-eslint/no-unused-vars
-					} catch (_) {
-						break;
+				try {
+					while (true) {
+						try {
+							const img = MagickImage.create(
+								new Uint8Array(buffer),
+								new MagickReadSettings({
+									format: MagickFormat.Ico,
+									frameIndex: imgs.length,
+								}),
+							);
+							imgs.push(img);
+							// eslint-disable-next-line @typescript-eslint/no-unused-vars
+						} catch (_) {
+							break;
+						}
 					}
-				}
 
-				if (imgs.length === 0) {
+					if (imgs.length === 0) {
+						return {
+							type: "error",
+							error: `Failed to read ICO -- no images found inside?`,
+						};
+					}
+
+					const convertedImgs: Uint8Array[] = [];
+					await Promise.all(
+						imgs.map(async (img, i) => {
+							const output = await magickConvert(
+								img,
+								message.to,
+								keepMetadata,
+								compression,
+							);
+							convertedImgs[i] = output;
+						}),
+					);
+
+					const zip = makeZip(
+						convertedImgs.map(
+							(img, i) =>
+								new File(
+									[new Uint8Array(img)],
+									`image${i}.${message.to.slice(1)}`,
+								),
+						),
+						"images.zip",
+					);
+
+					// read the ReadableStream to the end
+					const zipBytes = await readToEnd(zip.getReader());
+
 					return {
-						type: "error",
-						error: `Failed to read ICO -- no images found inside?`,
+						type: "finished",
+						output: zipBytes,
+						zip: true,
 					};
+				} finally {
+					// Always release the collection, even on error (fixes the
+					// .ico -> .png memory leak, issue #252).
+					imgs.dispose();
 				}
-
-				const convertedImgs: Uint8Array[] = [];
-				await Promise.all(
-					imgs.map(async (img, i) => {
-						const output = await magickConvert(
-							img,
-							message.to,
-							keepMetadata,
-							compression,
-						);
-						convertedImgs[i] = output;
-					}),
-				);
-
-				const zip = makeZip(
-					convertedImgs.map(
-						(img, i) =>
-							new File(
-								[new Uint8Array(img)],
-								`image${i}.${message.to.slice(1)}`,
-							),
-					),
-					"images.zip",
-				);
-
-				// read the ReadableStream to the end
-				const zipBytes = await readToEnd(zip.getReader());
-
-				imgs.dispose();
-
-				return {
-					type: "finished",
-					output: zipBytes,
-					zip: true,
-				};
 			} else if (from === ".ani") {
 				console.log("Parsing ANI file");
 				try {
@@ -125,23 +129,28 @@ const handleMessage = async (
 					const files: File[] = [];
 					await Promise.all(
 						parsedAni.images.map(async (img, i) => {
-							const blob = await magickConvert(
-								MagickImage.create(
-									img,
-									new MagickReadSettings({
-										format: MagickFormat.Ico,
-									}),
-								),
-								message.to,
-								keepMetadata,
-								compression,
+							const mi = MagickImage.create(
+								img,
+								new MagickReadSettings({
+									format: MagickFormat.Ico,
+								}),
 							);
-							files.push(
-								new File(
-									[new Uint8Array(blob)],
-									`image${i}${message.to}`,
-								),
-							);
+							try {
+								const blob = await magickConvert(
+									mi,
+									message.to,
+									keepMetadata,
+									compression,
+								);
+								files.push(
+									new File(
+										[new Uint8Array(blob)],
+										`image${i}${message.to}`,
+									),
+								);
+							} finally {
+								mi.dispose();
+							}
 						}),
 					);
 
@@ -174,8 +183,9 @@ const handleMessage = async (
 				const outputs: Uint8Array[] = [];
 				for (const file of icns) {
 					for (const format of formats) {
+						let img: IMagickImage | null = null;
 						try {
-							const img = MagickImage.create(
+							img = MagickImage.create(
 								file,
 								new MagickReadSettings({
 									format: format,
@@ -192,6 +202,8 @@ const handleMessage = async (
 							// eslint-disable-next-line @typescript-eslint/no-unused-vars
 						} catch (_) {
 							continue;
+						} finally {
+							img?.dispose();
 						}
 					}
 				}
@@ -248,17 +260,21 @@ const handleMessage = async (
 				}),
 			);
 
-			const converted = await magickConvert(
-				img,
-				message.to,
-				keepMetadata,
-				compression,
-			);
+			try {
+				const converted = await magickConvert(
+					img,
+					message.to,
+					keepMetadata,
+					compression,
+				);
 
-			return {
-				type: "finished",
-				output: converted,
-			};
+				return {
+					type: "finished",
+					output: converted,
+				};
+			} finally {
+				img.dispose();
+			}
 		}
 		default:
 			return {
