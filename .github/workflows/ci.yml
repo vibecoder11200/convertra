@@ -13,6 +13,12 @@ env:
     PUB_ENV: production
     PUB_DISABLE_ALL_EXTERNAL_REQUESTS: "true"
     PUB_DISABLE_FAILURE_BLOCKS: "true"
+    # Optional/public-exposed vars; empty values are valid for type resolution.
+    PUB_PLAUSIBLE_URL: ""
+    PUB_VERTD_URL: ""
+    PUB_DONATION_URL: ""
+    PUB_DONATION_API: ""
+    PUB_STRIPE_KEY: ""
 
 jobs:
     lint-typecheck-build:
