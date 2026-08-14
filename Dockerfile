@@ -20,7 +20,7 @@ ENV PUB_DONATION_URL=${PUB_DONATION_URL}
 ENV PUB_STRIPE_KEY=${PUB_STRIPE_KEY}
 ENV PUB_DISABLE_FAILURE_BLOCKS=${PUB_DISABLE_FAILURE_BLOCKS}
 
-COPY package.json ./
+COPY package.json bun.lock ./
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends git && \
@@ -29,7 +29,7 @@ RUN apt-get update && \
 # postinstall copies mupdf-wasm.wasm into static/; create it before install.
 RUN mkdir -p static
 
-RUN bun install
+RUN bun install --frozen-lockfile
 
 COPY . ./
 
