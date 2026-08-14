@@ -6,7 +6,7 @@
 let mupdf: typeof import("mupdf") | null = null;
 
 self.onmessage = async (e: MessageEvent) => {
-	const { file, to, id } = e.data as { file: File; to: string; id: string };
+	const { file, id } = e.data as { file: File; to: string; id: string };
 	try {
 		if (!mupdf) mupdf = await import("mupdf");
 

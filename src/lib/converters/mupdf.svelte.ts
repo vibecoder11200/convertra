@@ -21,12 +21,15 @@ export class MuPDFConverter extends Converter {
 
 		worker.postMessage({ file: file.file, to, id: file.id });
 
-		const result = await new Promise<{ type: string; output?: Uint8Array; error?: string }>(
-			(resolve) => {
-				worker.onmessage = (e) => resolve(e.data);
-				worker.onerror = (e) => resolve({ type: "error", error: e.message });
-			},
-		);
+		const result = await new Promise<{
+			type: string;
+			output?: Uint8Array;
+			error?: string;
+		}>((resolve) => {
+			worker.onmessage = (e) => resolve(e.data);
+			worker.onerror = (e) =>
+				resolve({ type: "error", error: e.message });
+		});
 
 		worker.terminate();
 		this.activeConversions.delete(file.id);
@@ -34,7 +37,10 @@ export class MuPDFConverter extends Converter {
 		if (result.type === "error") throw new Error(result.error);
 
 		if (!to.startsWith(".")) to = `.${to}`;
-		return new VertFile(new File([result.output! as BlobPart], file.name), to);
+		return new VertFile(
+			new File([result.output! as BlobPart], file.name),
+			to,
+		);
 	}
 
 	public async cancel(input: VertFile): Promise<void> {

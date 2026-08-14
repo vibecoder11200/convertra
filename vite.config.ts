@@ -53,7 +53,12 @@ export default defineConfig(({ command }) => {
 			format: "es",
 		},
 		optimizeDeps: {
-			exclude: ["@ffmpeg/core-mt", "@ffmpeg/ffmpeg", "@ffmpeg/util", "mupdf"],
+			exclude: [
+				"@ffmpeg/core-mt",
+				"@ffmpeg/ffmpeg",
+				"@ffmpeg/util",
+				"mupdf",
+			],
 		},
 		css: {
 			preprocessorOptions: {
