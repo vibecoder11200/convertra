@@ -1,7 +1,8 @@
-const CACHE_NAME = "vert-wasm-cache-v2"; // updated when workers update
+const CACHE_NAME = "convertra-wasm-cache-v1"; // updated when workers update
 
 const WASM_FILES = [
 	"/pandoc.wasm",
+	"/mupdf-wasm.wasm",
 	"https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm/ffmpeg-core.js",
 	"https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm/ffmpeg-core.wasm",
 ];
@@ -53,7 +54,8 @@ self.addEventListener("activate", (event) => {
 					cacheNames.map((cacheName) => {
 						if (
 							cacheName !== CACHE_NAME &&
-							cacheName.startsWith("vert-wasm-cache")
+							(cacheName.startsWith("vert-wasm-cache") ||
+								cacheName.startsWith("convertra-wasm-cache"))
 						) {
 							console.log("[SW] deleting old cache:", cacheName);
 							return caches.delete(cacheName);

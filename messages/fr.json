@@ -255,7 +255,17 @@
 			"donation_error": "Une erreur s'est produite lors du traitement de votre don. Veuillez réessayer ultérieurement.",
 			"payment_error": "Erreur lors de la récupération des informations de paiement. Veuillez réessayer ultérieurement.",
 			"donation_notice_official": "Vos dons ici vont à l'instance officielle de VERT (vert.sh) et contribuent à soutenir le développement du projet.",
-			"donation_notice_unofficial": "Vos dons ici vont à l'opérateur de cette instance de VERT. Si vous souhaitez soutenir les développeurs officiels de VERT, veuillez plutôt vous rendre sur [official_link]vert.sh[/official_link]."
+			"donation_notice_unofficial": "Vos dons ici vont à l'opérateur de cette instance de VERT. Si vous souhaitez soutenir les développeurs officiels de VERT, veuillez plutôt vous rendre sur [official_link]vert.sh[/official_link].",
+			"upstream_title": "Support upstream VERT too",
+			"upstream_body": "Convertra is a fork of VERT. Consider [vert_link]supporting the original project[/vert_link] as well.",
+			"vn_title": "Support via Vietnamese payment",
+			"vn_description": "Prefer local payment methods? You can transfer directly to the project bank account.",
+			"vn_bank": "Bank transfer",
+			"vn_bank_detail": "Please contact us for the current account details.",
+			"vn_momo": "Momo",
+			"vn_momo_detail": "Momo wallet transfers are welcome.",
+			"vn_qr": "Banking QR code",
+			"vn_qr_detail": "Scan the VietQR-style QR code from your banking app."
 		},
 		"credits": {
 			"title": "Crédits",

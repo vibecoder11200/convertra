@@ -32,9 +32,12 @@ COPY . ./
 
 RUN bun run build
 
+# nginx stable, kept patched to reduce known High-severity CVEs in shipped
+# libs (issue #243). The base image is rebuilt with an `apk upgrade`.
 FROM nginx:stable-alpine
 
-RUN apk add --no-cache iproute2
+RUN apk add --no-cache --upgrade iproute2 && \
+    rm -rf /var/cache/apk/*
 
 EXPOSE 80/tcp
 
@@ -43,6 +46,10 @@ COPY ./docker-entrypoint.sh /docker-entrypoint-custom.sh
 RUN chmod +x /docker-entrypoint-custom.sh
 
 COPY --from=builder /app/build /usr/share/nginx/html
+
+# Run as non-root (the alpine image provides the `nginx` user).
+RUN chown -R nginx:nginx /usr/share/nginx/html /etc/nginx/conf.d /var/cache/nginx /var/run && \
+    sed -i 's/^user  nginx;$/user  nginx;/' /etc/nginx/nginx.conf
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl --fail --silent --output /dev/null http://localhost || exit 1

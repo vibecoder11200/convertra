@@ -1,0 +1,47 @@
+name: Security Audit
+
+on:
+    schedule:
+        - cron: "23 4 * * 1" # weekly, Monday ~04:23 UTC
+    workflow_dispatch:
+
+jobs:
+    dependency-audit:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Install Bun
+              uses: oven-sh/setup-bun@v2
+
+            - name: Audit npm deps (OSV)
+              uses: socketdev/github-action@v1
+              with:
+                  command: npm audit
+              continue-on-error: true
+
+    container-scan:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            security-events: write
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Build image
+              run: docker build -t convertra:scan . --build-arg PUB_ENV=production
+
+            - name: Run Trivy vulnerability scanner
+              uses: aquasecurity/trivy-action@master
+              with:
+                  image-ref: convertra:scan
+                  format: sarif
+                  output: trivy-results.sarif
+                  severity: HIGH,CRITICAL
+
+            - name: Upload Trivy scan results to GitHub Security tab
+              uses: github/codeql-action/upload-sarif@v3
+              with:
+                  sarif_file: trivy-results.sarif
