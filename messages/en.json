@@ -47,6 +47,11 @@
 		}
 	},
 	"convert": {
+		"pdf": {
+			"split_range": "Split range",
+			"compress_quality": "Compress quality",
+			"render_scale": "Render scale"
+		},
 		"archive_file": {
 			"extract": "Extract archive",
 			"extracting": "Detected archive: {filename}",
@@ -117,6 +122,11 @@
 			"audio": "audio",
 			"doc": "document",
 			"image": "image"
+		},
+		"video": {
+			"trim": "Trim (start–end seconds)",
+			"fps": "FPS",
+			"width": "Width"
 		}
 	},
 	"settings": {

@@ -35,6 +35,59 @@
 
 	let processedFileIds = $state(new Set<string>());
 
+	// Per-file PDF options (split range, compress quality, render scale).
+	const pdfOptions = $state<
+		Record<string, { range: string; quality: number; scale: number }>
+	>({});
+
+	const getPdfOptions = (id: string) => {
+		pdfOptions[id] ??= { range: "", quality: 75, scale: 2 };
+		return pdfOptions[id];
+	};
+
+	// Per-file client-side video options (trim start/end, fps, width).
+	const videoOptions = $state<
+		Record<
+			string,
+			{ start: number; end: number; fps: number; width: number }
+		>
+	>({});
+
+	const getVideoOptions = (id: string) => {
+		videoOptions[id] ??= { start: 0, end: 60, fps: 12, width: 480 };
+		return videoOptions[id];
+	};
+
+	const convertVideo = async (file: VertFile) => {
+		const opts = getVideoOptions(file.id);
+		await file.convert({
+			start: opts.start,
+			end: opts.end,
+			fps: opts.fps,
+			width: opts.width,
+		});
+	};
+
+	const convertPdf = async (file: VertFile) => {
+		const opts = getPdfOptions(file.id);
+		const to = file.to;
+		// pdf-lib: compress (->.pdf), split-all (->.zip), split-range (->.pdf with range)
+		if (to === ".pdf" || to === ".zip") {
+			const isCompress = to === ".pdf" && opts.range === "";
+			await file.convert(
+				isCompress
+					? { op: "compress", quality: opts.quality }
+					: { op: "split", range: opts.range || "all" },
+			);
+			return;
+		}
+		// pdf-render: pdf -> png/jpeg/webp
+		await file.convert({
+			scale: opts.scale,
+			range: opts.range || "all",
+		});
+	};
+
 	$effect(() => {
 		if (!Settings.instance.settings || files.files.length === 0) return;
 
@@ -373,6 +426,122 @@
 									handleSelect(option, file)}
 								{file}
 							/>
+							{#if currentConverter?.name === "pdf-lib" || currentConverter?.name === "pdf-render"}
+								{@const opts = getPdfOptions(file.id)}
+								<div
+									class="w-full flex flex-col gap-1.5 items-stretch text-sm"
+								>
+									{#if currentConverter?.name === "pdf-lib"}
+										<label class="text-muted">
+											{m["convert.pdf.split_range"]()}
+											<input
+												class="w-full input"
+												placeholder="e.g. 2-5"
+												bind:value={opts.range}
+											/>
+										</label>
+										{#if file.to === ".pdf"}
+											<label class="text-muted">
+												{m[
+													"convert.pdf.compress_quality"
+												]()}: {opts.quality}%
+												<input
+													class="w-full"
+													type="range"
+													min="30"
+													max="100"
+													bind:value={opts.quality}
+												/>
+											</label>
+										{/if}
+									{:else}
+										<label class="text-muted">
+											{m["convert.pdf.render_scale"]()}
+											<select
+												class="input w-full"
+												bind:value={opts.scale}
+											>
+												<option value={1}>72dpi</option>
+												<option value={2}>144dpi</option
+												>
+												<option value={3}>216dpi</option
+												>
+											</select>
+										</label>
+									{/if}
+								</div>
+							{:else if currentConverter?.name === "webcodecs"}
+								{@const vopts = getVideoOptions(file.id)}
+								<div
+									class="w-full flex flex-col gap-1.5 items-stretch text-sm"
+								>
+									<label class="text-muted">
+										{m["convert.video.trim"]()}
+										<div class="flex items-center gap-2">
+											<input
+												class="input w-full"
+												type="number"
+												min="0"
+												max="60"
+												value={vopts.start}
+												onchange={(e) =>
+													(vopts.start = Number(
+														(
+															e.currentTarget as HTMLInputElement
+														).value,
+													))}
+											/>
+											<span>–</span>
+											<input
+												class="input w-full"
+												type="number"
+												min="0"
+												max="60"
+												value={vopts.end}
+												onchange={(e) =>
+													(vopts.end = Number(
+														(
+															e.currentTarget as HTMLInputElement
+														).value,
+													))}
+											/>
+										</div>
+									</label>
+									<label class="text-muted">
+										{m["convert.video.fps"]()}
+										<input
+											class="input w-full"
+											type="number"
+											min="1"
+											max="30"
+											value={vopts.fps}
+											onchange={(e) =>
+												(vopts.fps = Number(
+													(
+														e.currentTarget as HTMLInputElement
+													).value,
+												))}
+										/>
+									</label>
+									<label class="text-muted">
+										{m["convert.video.width"]()}
+										<input
+											class="input w-full"
+											type="number"
+											min="64"
+											max="1920"
+											step="16"
+											value={vopts.width}
+											onchange={(e) =>
+												(vopts.width = Number(
+													(
+														e.currentTarget as HTMLInputElement
+													).value,
+												))}
+										/>
+									</label>
+								</div>
+							{/if}
 							<div
 								class="w-full flex items-center justify-between"
 							>
@@ -391,7 +560,16 @@
 													? 'bg-accent-green'
 													: 'bg-accent-blue'}"
 										disabled={!files.ready}
-										onclick={() => file.convert()}
+										onclick={() =>
+											currentConverter?.name ===
+												"pdf-lib" ||
+											currentConverter?.name ===
+												"pdf-render"
+												? convertPdf(file)
+												: currentConverter?.name ===
+													  "webcodecs"
+													? convertVideo(file)
+													: file.convert()}
 									>
 										<RotateCwIcon size="24" />
 									</button>

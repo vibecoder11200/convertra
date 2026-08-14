@@ -108,6 +108,16 @@
 			"audio": "音訊",
 			"doc": "文件",
 			"image": "圖片"
+		},
+		"pdf": {
+			"split_range": "Split range",
+			"compress_quality": "Compress quality",
+			"render_scale": "Render scale"
+		},
+		"video": {
+			"trim": "Trim (start–end seconds)",
+			"fps": "FPS",
+			"width": "Width"
 		}
 	},
 	"settings": {
