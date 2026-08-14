@@ -45,6 +45,29 @@
 		return pdfOptions[id];
 	};
 
+	// Per-file client-side video options (trim start/end, fps, width).
+	const videoOptions = $state<
+		Record<
+			string,
+			{ start: number; end: number; fps: number; width: number }
+		>
+	>({});
+
+	const getVideoOptions = (id: string) => {
+		videoOptions[id] ??= { start: 0, end: 60, fps: 12, width: 480 };
+		return videoOptions[id];
+	};
+
+	const convertVideo = async (file: VertFile) => {
+		const opts = getVideoOptions(file.id);
+		await file.convert({
+			start: opts.start,
+			end: opts.end,
+			fps: opts.fps,
+			width: opts.width,
+		});
+	};
+
 	const convertPdf = async (file: VertFile) => {
 		const opts = getPdfOptions(file.id);
 		const to = file.to;
@@ -447,6 +470,77 @@
 										</label>
 									{/if}
 								</div>
+							{:else if currentConverter?.name === "webcodecs"}
+								{@const vopts = getVideoOptions(file.id)}
+								<div
+									class="w-full flex flex-col gap-1.5 items-stretch text-sm"
+								>
+									<label class="text-muted">
+										{m["convert.video.trim"]()}
+										<div class="flex items-center gap-2">
+											<input
+												class="input w-full"
+												type="number"
+												min="0"
+												max="60"
+												value={vopts.start}
+												onchange={(e) =>
+													(vopts.start = Number(
+														(
+															e.currentTarget as HTMLInputElement
+														).value,
+													))}
+											/>
+											<span>–</span>
+											<input
+												class="input w-full"
+												type="number"
+												min="0"
+												max="60"
+												value={vopts.end}
+												onchange={(e) =>
+													(vopts.end = Number(
+														(
+															e.currentTarget as HTMLInputElement
+														).value,
+													))}
+											/>
+										</div>
+									</label>
+									<label class="text-muted">
+										{m["convert.video.fps"]()}
+										<input
+											class="input w-full"
+											type="number"
+											min="1"
+											max="30"
+											value={vopts.fps}
+											onchange={(e) =>
+												(vopts.fps = Number(
+													(
+														e.currentTarget as HTMLInputElement
+													).value,
+												))}
+										/>
+									</label>
+									<label class="text-muted">
+										{m["convert.video.width"]()}
+										<input
+											class="input w-full"
+											type="number"
+											min="64"
+											max="1920"
+											step="16"
+											value={vopts.width}
+											onchange={(e) =>
+												(vopts.width = Number(
+													(
+														e.currentTarget as HTMLInputElement
+													).value,
+												))}
+										/>
+									</label>
+								</div>
 							{/if}
 							<div
 								class="w-full flex items-center justify-between"
@@ -472,7 +566,10 @@
 											currentConverter?.name ===
 												"pdf-render"
 												? convertPdf(file)
-												: file.convert()}
+												: currentConverter?.name ===
+													  "webcodecs"
+													? convertVideo(file)
+													: file.convert()}
 									>
 										<RotateCwIcon size="24" />
 									</button>

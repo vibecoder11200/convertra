@@ -122,6 +122,11 @@
 			"audio": "audio",
 			"doc": "document",
 			"image": "image"
+		},
+		"video": {
+			"trim": "Trim (start–end seconds)",
+			"fps": "FPS",
+			"width": "Width"
 		}
 	},
 	"settings": {
