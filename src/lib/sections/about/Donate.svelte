@@ -34,7 +34,6 @@
 		WalletIcon,
 	} from "lucide-svelte";
 	import { onMount } from "svelte";
-	import { Elements, PaymentElement } from "svelte-stripe";
 	import { quintOut } from "svelte/easing";
 	import { m } from "$lib/paraglide/messages";
 	import { ToastManager } from "$lib/util/toast.svelte";
@@ -51,6 +50,17 @@
 	let enablePay = $state(false);
 	let clientSecret = $state<string | null>(null);
 	let elements: StripeElements | null = $state(null);
+
+	// Lazy-loaded svelte-stripe components. Loaded on demand so the package's
+	// raw .svelte files are compiled by the Svelte toolchain as a separate
+	// chunk, never handed to Rollup's JS parser during the production build.
+	type SvelteComponent = typeof import("svelte").SvelteComponent;
+	let StripeElementsComp = $state<{
+		component: SvelteComponent;
+		stripe: Stripe;
+		clientSecret: string;
+	} | null>(null);
+	let PaymentElementComp = $state<SvelteComponent | null>(null);
 
 	const amountClick = (preset: number) => {
 		amount = preset;
@@ -80,6 +90,17 @@
 		const { data }: { data: string } = await res.json();
 		clientSecret = data;
 		paymentState = "details";
+
+		// Lazy-load the Stripe form components only once a payment is underway.
+		if (!StripeElementsComp && data) {
+			const mod = await import("svelte-stripe");
+			StripeElementsComp = {
+				component: mod.Elements as SvelteComponent,
+				stripe: stripe as Stripe,
+				clientSecret: data,
+			};
+			PaymentElementComp = mod.PaymentElement as SvelteComponent;
+		}
 	};
 
 	$effect(() => {
@@ -298,14 +319,25 @@
 						<div
 							class="flex-grow max-h-full overflow-y-auto overflow-x-hidden"
 						>
-							{#if stripe && clientSecret}
-								<Elements {stripe} {clientSecret} bind:elements>
-									<PaymentElement
-										on:change={(e) => {
-											enablePay = e.detail.complete;
-										}}
-									/>
-								</Elements>
+							{#if StripeElementsComp}
+								{@const StripeElements =
+									StripeElementsComp.component}
+								{@const pcs = StripeElementsComp}
+								<StripeElements
+									stripe={pcs.stripe}
+									clientSecret={pcs.clientSecret}
+									bind:elements
+								>
+									{#if PaymentElementComp}
+										{@const PaymentElement =
+											PaymentElementComp}
+										<PaymentElement
+											on:change={(e) => {
+												enablePay = e.detail.complete;
+											}}
+										/>
+									{/if}
+								</StripeElements>
 							{/if}
 						</div>
 
