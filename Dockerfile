@@ -26,6 +26,9 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends git && \
     rm -rf /var/lib/apt/lists/*
 
+# postinstall copies mupdf-wasm.wasm into static/; create it before install.
+RUN mkdir -p static
+
 RUN bun install
 
 COPY . ./
