@@ -137,6 +137,11 @@ export class ChainedConverter extends Converter {
 		return "not-ready";
 	}
 
+	public override warm(): void {
+		for (const step of this.steps) step.converter.warm();
+		this.status = this.deriveStatus();
+	}
+
 	public override async convert(
 		input: VertFile,
 		to: string,

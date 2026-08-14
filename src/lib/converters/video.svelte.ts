@@ -20,10 +20,12 @@ export class WebCodecsConverter extends Converter {
 
 	constructor() {
 		super(120);
-		// No WASM; uses browser video decode + gifenc/webm-muxer lazily.
+		// No WASM; uses browser video decode + gifenc (GIF) / MediaRecorder (WebM) lazily.
 		if (browser) this.status = "ready";
 		this.clearTimeout();
 	}
+
+	private cancelledIds = new Set<string>();
 
 	public async convert(
 		input: VertFile,
@@ -36,6 +38,12 @@ export class WebCodecsConverter extends Converter {
 		// Hard caps (D13): reject clips beyond duration/size with a clear error.
 		const start = opts.start ?? 0;
 		const end = opts.end ?? VIDEO_MAX_DURATION;
+		if (start > end) {
+			throw new Error("Trim start must not be later than trim end.");
+		}
+		if (start < 0 || end < 0) {
+			throw new Error("Trim times cannot be negative.");
+		}
 		const duration = Math.max(0, end - start);
 		if (duration > VIDEO_MAX_DURATION) {
 			throw new Error(
@@ -47,6 +55,7 @@ export class WebCodecsConverter extends Converter {
 				"Video exceeds the 200MB client-side limit. Use vertd for larger files.",
 			);
 		}
+		this.cancelledIds.delete(input.id);
 
 		if (target === "gif") return this.toGif(input, opts, start, end);
 		if (target === "webm") return this.toWebM(input, opts, start, end);
@@ -55,6 +64,7 @@ export class WebCodecsConverter extends Converter {
 
 	private async decodeVideo(file: File): Promise<{
 		video: HTMLVideoElement;
+		url: string;
 		duration: number;
 		width: number;
 		height: number;
@@ -65,15 +75,35 @@ export class WebCodecsConverter extends Converter {
 		video.muted = true;
 		video.playsInline = true;
 
-		await new Promise<void>((resolve, reject) => {
-			video.onloadedmetadata = () => resolve();
-			video.onerror = () => reject(new Error("Failed to load video"));
-		});
+		try {
+			await new Promise<void>((resolve, reject) => {
+				video.onloadedmetadata = () => resolve();
+				video.onerror = () => reject(new Error("Failed to load video"));
+			});
+		} catch (err) {
+			URL.revokeObjectURL(url);
+			video.removeAttribute("src");
+			video.load();
+			throw err;
+		}
 
 		const duration = video.duration;
 		const width = video.videoWidth;
 		const height = video.videoHeight;
-		return { video, duration, width, height };
+		return { video, url, duration, width, height };
+	}
+
+	private releaseMedia(
+		video: HTMLVideoElement,
+		url: string,
+		canvas?: HTMLCanvasElement,
+	) {
+		video.pause();
+		video.removeAttribute("src");
+		video.load();
+		URL.revokeObjectURL(url);
+		video.remove();
+		canvas?.remove();
 	}
 
 	private seekTo(video: HTMLVideoElement, time: number): Promise<void> {
@@ -87,21 +117,8 @@ export class WebCodecsConverter extends Converter {
 		});
 	}
 
-	private drawFrame(
-		video: HTMLVideoElement,
-		canvas: HTMLCanvasElement,
-		ctx: CanvasRenderingContext2D,
-		width: number,
-		height: number,
-	) {
-		const w = canvas.width;
-		const h = canvas.height;
-		// cover-crop to target aspect, or letterbox; simplest: center crop to fill
-		if (canvas.width && canvas.height) {
-			ctx.drawImage(video, 0, 0, width, height, 0, 0, w, h);
-		} else {
-			ctx.drawImage(video, 0, 0, w, h);
-		}
+	private isCancelled(id: string): boolean {
+		return this.cancelledIds.has(id);
 	}
 
 	private async toGif(
@@ -110,68 +127,78 @@ export class WebCodecsConverter extends Converter {
 		start: number,
 		end: number,
 	): Promise<VertFile> {
-		const { video, duration } = await this.decodeVideo(input.file);
-		const srcW = video.videoWidth;
-		const srcH = video.videoHeight;
-		const fps = opts.fps ?? 12;
-		const width =
-			opts.width && opts.width > 0 ? opts.width : Math.min(480, srcW);
-		const height = Math.round((width * srcH) / srcW);
-
+		const { video, url, duration } = await this.decodeVideo(input.file);
 		const canvas = document.createElement("canvas");
-		canvas.width = width;
-		canvas.height = height;
-		const ctx = canvas.getContext("2d")!;
+		try {
+			const srcW = video.videoWidth;
+			const srcH = video.videoHeight;
+			const fps = opts.fps ?? 12;
+			const width =
+				opts.width && opts.width > 0 ? opts.width : Math.min(480, srcW);
+			const height = Math.max(1, Math.round((width * srcH) / srcW));
 
-		const { GIFEncoder, quantize, applyPalette } = await import("gifenc");
-		const gif = GIFEncoder();
+			canvas.width = width;
+			canvas.height = height;
+			const ctx = canvas.getContext("2d")!;
 
-		const totalFrames = Math.max(
-			1,
-			Math.ceil(Math.min(end, duration) - start) * fps,
-		);
-		const step = 1 / fps;
-		let t = start;
-		let frame = 0;
+			const { GIFEncoder, quantize, applyPalette } = await import(
+				"gifenc"
+			);
+			const gif = GIFEncoder();
 
-		const frameDelay = Math.round((step * 1000) / 10); // in 10ms units
+			const totalFrames = Math.max(
+				1,
+				Math.ceil(Math.min(end, duration) - start) * fps,
+			);
+			const step = 1 / fps;
+			let t = start;
+			let frame = 0;
 
-		for (
-			frame = 0;
-			frame < totalFrames && t < Math.min(end, duration);
-			frame++
-		) {
-			await this.seekTo(video, t);
-			this.drawFrame(video, canvas, ctx, srcW, srcH);
-			const {
-				data,
-				width: w,
-				height: h,
-			} = ctx.getImageData(0, 0, width, height);
-			const palette = quantize(data, 256);
-			const index = applyPalette(data, palette);
-			gif.writeFrame(index, w, h, { palette, delay: frameDelay });
-			t += step;
-			// fire-and-forget progress
-			input.progress = Math.round((frame / totalFrames) * 100);
-			await new Promise((r) => setTimeout(r, 0)); // yield
-		}
-		gif.finish();
+			// gifenc delay is in 10ms units; clamp to >= 50ms so the clip does
+			// not play back faster than the requested fps.
+			const frameDelay = Math.max(5, Math.round(step * 100));
 
-		const bytes = (
-			gif as {
-				bytes: () => Uint8Array;
+			for (
+				frame = 0;
+				frame < totalFrames && t < Math.min(end, duration);
+				frame++
+			) {
+				if (this.isCancelled(input.id)) {
+					throw new Error("Conversion cancelled");
+				}
+				await this.seekTo(video, t);
+				ctx.drawImage(video, 0, 0, width, height);
+				const {
+					data,
+					width: w,
+					height: h,
+				} = ctx.getImageData(0, 0, width, height);
+				const palette = quantize(data, 256);
+				const index = applyPalette(data, palette);
+				gif.writeFrame(index, w, h, { palette, delay: frameDelay });
+				t += step;
+				input.progress = Math.round((frame / totalFrames) * 100);
+				await new Promise((r) => setTimeout(r, 0)); // yield
 			}
-		).bytes();
-		const outFile = new File(
-			[bytes as unknown as BlobPart],
-			`${baseName(input.name)}.gif`,
-			{
-				type: "image/gif",
-			},
-		);
-		input.progress = 100;
-		return new VertFile(outFile, ".gif");
+			gif.finish();
+
+			const bytes = (
+				gif as {
+					bytes: () => Uint8Array;
+				}
+			).bytes();
+			const outFile = new File(
+				[bytes as unknown as BlobPart],
+				`${baseName(input.name)}.gif`,
+				{
+					type: "image/gif",
+				},
+			);
+			input.progress = 100;
+			return new VertFile(outFile, ".gif");
+		} finally {
+			this.releaseMedia(video, url, canvas);
+		}
 	}
 
 	private async toWebM(
@@ -180,76 +207,79 @@ export class WebCodecsConverter extends Converter {
 		start: number,
 		end: number,
 	): Promise<VertFile> {
-		const { video, duration } = await this.decodeVideo(input.file);
-		const srcW = video.videoWidth;
-		const srcH = video.videoHeight;
-		const fps = opts.fps ?? 24;
-		const width =
-			opts.width && opts.width > 0 ? opts.width : Math.min(640, srcW);
-		const height = Math.round((width * srcH) / srcW);
-
+		const { video, url, duration } = await this.decodeVideo(input.file);
 		const canvas = document.createElement("canvas");
-		canvas.width = width;
-		canvas.height = height;
-		const ctx = canvas.getContext("2d")!;
-
-		const stream = canvas.captureStream(fps);
-		const rec = new MediaRecorder(stream, {
-			mimeType: pickWebMCodec(),
-			videoBitsPerSecond: 4_000_000,
-		});
-
-		const chunks: Blob[] = [];
-		rec.ondataavailable = (e) => {
-			if (e.data.size > 0) chunks.push(e.data);
-		};
-		const stopped = new Promise<void>((resolve) => {
-			rec.onstop = () => resolve();
-		});
-
-		rec.start(100); // timeslice
-		const totalFrames = Math.max(
-			1,
-			Math.ceil(Math.min(end, duration) - start) * fps,
-		);
-		const step = 1 / fps;
-		let t = start;
-		let frame = 0;
 		try {
-			for (
-				frame = 0;
-				frame < totalFrames && t < Math.min(end, duration);
-				frame++
-			) {
-				await this.seekTo(video, t);
-				this.drawFrame(video, canvas, ctx, srcW, srcH);
-				t += step;
-				input.progress = Math.round((frame / totalFrames) * 100);
-				await new Promise((r) => setTimeout(r, 0)); // keep recorder fed
-			}
-		} finally {
-			rec.stop();
-			await stopped;
-		}
+			const srcW = video.videoWidth;
+			const srcH = video.videoHeight;
+			const fps = opts.fps ?? 24;
+			const width =
+				opts.width && opts.width > 0 ? opts.width : Math.min(640, srcW);
+			const height = Math.max(1, Math.round((width * srcH) / srcW));
 
-		const blob = new Blob(chunks, { type: "video/webm" });
-		const outFile = new File(
-			[blob as unknown as BlobPart],
-			`${baseName(input.name)}.webm`,
-			{
-				type: "video/webm",
-			},
-		);
-		input.progress = 100;
-		return new VertFile(outFile, ".webm");
+			canvas.width = width;
+			canvas.height = height;
+			const ctx = canvas.getContext("2d")!;
+
+			const stream = canvas.captureStream(fps);
+			const rec = new MediaRecorder(stream, {
+				mimeType: pickWebMCodec(),
+				videoBitsPerSecond: 4_000_000,
+			});
+
+			const chunks: Blob[] = [];
+			rec.ondataavailable = (e) => {
+				if (e.data.size > 0) chunks.push(e.data);
+			};
+			const stopped = new Promise<void>((resolve) => {
+				rec.onstop = () => resolve();
+			});
+
+			rec.start(100); // timeslice
+			const totalFrames = Math.max(
+				1,
+				Math.ceil(Math.min(end, duration) - start) * fps,
+			);
+			const step = 1 / fps;
+			let t = start;
+			try {
+				for (
+					let frame = 0;
+					frame < totalFrames && t < Math.min(end, duration);
+					frame++
+				) {
+					if (this.isCancelled(input.id)) {
+						throw new Error("Conversion cancelled");
+					}
+					await this.seekTo(video, t);
+					ctx.drawImage(video, 0, 0, width, height);
+					t += step;
+					input.progress = Math.round((frame / totalFrames) * 100);
+					await new Promise((r) => setTimeout(r, 0)); // keep recorder fed
+				}
+			} finally {
+				rec.stop();
+				await stopped;
+			}
+
+			const blob = new Blob(chunks, { type: "video/webm" });
+			const outFile = new File(
+				[blob as unknown as BlobPart],
+				`${baseName(input.name)}.webm`,
+				{
+					type: "video/webm",
+				},
+			);
+			input.progress = 100;
+			return new VertFile(outFile, ".webm");
+		} finally {
+			this.releaseMedia(video, url, canvas);
+		}
 	}
 
 	public async cancel(input: VertFile): Promise<void> {
-		// Video decode uses a single shared element; cancellation is cooperative
-		// via the progress loop yielding. No dedicated worker to terminate.
-		// The store sets cancelled and the loop aborts on the next iteration
-		// (frames check input.cancelled is not wired here; kept simple).
-		void input;
+		// Mark the id so the frame loops abort on their next iteration.
+		this.cancelledIds.add(input.id);
 	}
 
 	public supportedFormats = [

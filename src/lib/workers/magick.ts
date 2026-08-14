@@ -164,6 +164,10 @@ const handleMessage = async (
 					};
 				} catch (e) {
 					console.error(e);
+					return {
+						type: "error",
+						error: `Failed to convert ANI: ${(e as Error).message}`,
+					};
 				}
 			} else if (from === ".icns") {
 				const icns: Uint8Array[] = parseIcns(new Uint8Array(buffer));
