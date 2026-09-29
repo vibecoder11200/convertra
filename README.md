@@ -79,9 +79,23 @@ git merge upstream/main   # or cherry-pick specific PRs
 - [Using Docker](./docs/DOCKER.md)
 - [Video Conversion](./docs/VIDEO_CONVERSION.md)
 
+## Contributing
+
+Refer to our contributing guidelines before opening an issue or pull request here: [CONTRIBUTING.md](./CONTRIBUTING.md)
+
 ## License
 
 This project is licensed under the AGPL-3.0 License, please see the
 [LICENSE](LICENSE) file for details. It is a fork of
 [VERT-sh/VERT](https://github.com/VERT-sh/VERT) — credit to the original VERT
 authors.
+
+## Star History
+
+<a href="https://star-history.dera.page/#VERT-sh/VERT&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://star-history.dera.page/svg?repos=VERT-sh/VERT&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://star-history.dera.page/svg?repos=VERT-sh/VERT&type=Date" />
+   <img alt="Star History Chart" srcset="https://star-history.dera.page/svg?repos=VERT-sh/VERT&type=Date" />
+ </picture>
+</a>

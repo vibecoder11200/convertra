@@ -11,7 +11,7 @@
         "@fontsource/azeret-mono": "^5.2.11",
         "@fontsource/lexend": "^5.2.11",
         "@fontsource/radio-canada-big": "^5.2.7",
-        "@imagemagick/magick-wasm": "^0.0.37",
+        "@imagemagick/magick-wasm": "^0.0.43",
         "@stripe/stripe-js": "^8.5.2",
         "byte-data": "^19.0.1",
         "client-zip": "^2.5.0",
@@ -156,7 +156,7 @@
 
     "@humanwhocodes/retry": ["@humanwhocodes/retry@0.4.3", "", {}, "sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ=="],
 
-    "@imagemagick/magick-wasm": ["@imagemagick/magick-wasm@0.0.37", "", {}, "sha512-tVs9hcWu9u7I3Jz/XvUYVvCEniuxAR+JjZEzI+yKtQmYAtNsLF1WjoH1HZGCKPumaB9jAHZlcf2RGT9+1l3nxQ=="],
+    "@imagemagick/magick-wasm": ["@imagemagick/magick-wasm@0.0.43", "", {}, "sha512-+Wlr3eEl4JlqLwrhAHBlf4VDzOWiFa8L2hYl7mOMXCgq896KghEnh3Go35nuZJMfmE6lX2waBZdr+u9FVluJLA=="],
 
     "@inlang/paraglide-js": ["@inlang/paraglide-js@2.5.0", "", { "dependencies": { "@inlang/recommend-sherlock": "0.2.1", "@inlang/sdk": "2.4.9", "commander": "11.1.0", "consola": "3.4.0", "json5": "2.2.3", "unplugin": "^2.1.2", "urlpattern-polyfill": "^10.0.0" }, "bin": { "paraglide-js": "bin/run.js" } }, "sha512-FnycOM6j0GYd/n97NCDyXJiHnyPYGPgufL640eZWs+rTIRrOgDVz/o77iWRYFZK84REOcmSDi0N6PbbY8NT8+A=="],
 
