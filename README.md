@@ -1,15 +1,12 @@
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/bf441748-0ec5-4c8a-b3e5-11301ee3f0bd" alt="VERT's logo" height="100">
+  <img src="https://github.com/user-attachments/assets/bf441748-0ec5-4c8a-b3e5-11301ee3f0bd" alt="Convertra logo" height="100">
 </p>
 <h1 align="center">Convertra</h1>
 
-Convertra is a **privacy-first, fully client-side file converter** forked from
-[VERT](https://vert.sh) ([VERT-sh/VERT](https://github.com/VERT-sh/VERT),
-AGPL-3.0). It converts files on your device using WebAssembly — nothing is
-uploaded to a server.
+Convertra is a **privacy-first, fully client-side file converter**. It converts files on your device using WebAssembly — nothing is uploaded to a server.
 
-Convertra keeps VERT's "no upload, runs in your browser" promise across images,
-audio, and documents, and extends it where VERT falls short: **full PDF support**
+Convertra keeps the "no upload, runs in your browser" promise across images,
+audio, and documents, and goes further: **full PDF support**
 (merge/split/compress/text/image) and **client-side video → GIF/WebM** via
 WebCodecs.
 
@@ -19,7 +16,7 @@ Convertra is built in Svelte and TypeScript.
 
 |                     Upload page                      |                     Conversion page                      |
 | :--------------------------------------------------: | :------------------------------------------------------: |
-| ![VERT upload page](docs/images/screenshot-home.png) | ![VERT convert page](docs/images/screenshot-convert.png) |
+| ![Convertra upload page](docs/images/screenshot-home.png) | ![Convertra convert page](docs/images/screenshot-convert.png) |
 
 ## Features
 
@@ -34,7 +31,7 @@ Convertra is built in Svelte and TypeScript.
 - User-friendly interface built with Svelte
 
 <sup>\* Non-local video conversion is available with our official instance, but
-the [daemon](https://github.com/VERT-sh/vertd) is easily self-hostable to
+the [daemon](https://github.com/vibecoder11200/vertd) is easily self-hostable to
 maintain privacy and fully local functionality. Convertra adds a fully
 client-side video → GIF/WebM path for short clips, and falls back to vertd for
 everything else.</sup>
@@ -63,15 +60,6 @@ All public config is `PUB_*` prefixed (see `.env.example`):
 | `PUB_DISABLE_FAILURE_BLOCKS`          | `true` disables blocking repeated failed video conversions  |
 | `PUB_DONATION_URL` / `PUB_STRIPE_KEY` | Donation links (Stripe)                                     |
 
-### Syncing upstream
-
-Convertra tracks upstream VERT on-demand (specific features/fixes, not weekly):
-
-```bash
-git fetch upstream
-git merge upstream/main   # or cherry-pick specific PRs
-```
-
 ## Documentation
 
 - [FAQ](./docs/FAQ.md)
@@ -79,23 +67,6 @@ git merge upstream/main   # or cherry-pick specific PRs
 - [Using Docker](./docs/DOCKER.md)
 - [Video Conversion](./docs/VIDEO_CONVERSION.md)
 
-## Contributing
-
-Refer to our contributing guidelines before opening an issue or pull request here: [CONTRIBUTING.md](./CONTRIBUTING.md)
-
 ## License
 
-This project is licensed under the AGPL-3.0 License, please see the
-[LICENSE](LICENSE) file for details. It is a fork of
-[VERT-sh/VERT](https://github.com/VERT-sh/VERT) — credit to the original VERT
-authors.
-
-## Star History
-
-<a href="https://star-history.dera.page/#VERT-sh/VERT&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://star-history.dera.page/svg?repos=VERT-sh/VERT&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://star-history.dera.page/svg?repos=VERT-sh/VERT&type=Date" />
-   <img alt="Star History Chart" srcset="https://star-history.dera.page/svg?repos=VERT-sh/VERT&type=Date" />
- </picture>
-</a>
+See [LICENSE](LICENSE).

@@ -1,6 +1,6 @@
 ## Using Docker
 
-This file covers how to run VERT under a Docker container.
+This file covers how to run Convertra under a Docker container.
 
 - [Manually building the image](#manually-building-the-image)
 - [Using an image from the GitHub Container Registry](#using-an-image-from-the-github-container-registry)
@@ -10,19 +10,19 @@ This file covers how to run VERT under a Docker container.
 First, clone the repository:
 
 ```shell
-git clone https://github.com/VERT-sh/VERT
-cd VERT/
+git clone https://github.com/vibecoder11200/convertra
+cd convertra/
 ```
 
 Then build a Docker image with:
 
 ```shell
-docker build -t vert-sh/vert \
+docker build -t convertra \
     --build-arg PUB_ENV=production \
-    --build-arg PUB_HOSTNAME=vert.sh \
+    --build-arg PUB_HOSTNAME=example.com \
     --build-arg PUB_PLAUSIBLE_URL=https://plausible.example.com \
-    --build-arg PUB_VERTD_URL=https://vertd.vert.sh \
-    --build-arg PUB_DONATION_URL=https://donations.vert.sh \
+    --build-arg PUB_VERTD_URL=https://vertd.example.com \
+    --build-arg PUB_DONATION_URL=https://donations.example.com \
 	--build-arg PUB_DISABLE_ALL_EXTERNAL_REQUESTS=false \
     --build-arg PUB_STRIPE_KEY="" .
 ```
@@ -33,13 +33,13 @@ You can then run it by using:
 docker run -d \
     --restart unless-stopped \
     -p 3000:80 \
-    --name "vert" \
-    vert-sh/vert
+    --name "convertra" \
+    convertra
 ```
 
 This will do the following:
 
-- Use the previously built image as the container `vert`, in detached mode
+- Use the previously built image as the container `convertra`, in detached mode
 - Continuously restart the container until manually stopped
 - Map `3000/tcp` (host) to `80/tcp` (container)
 
@@ -53,6 +53,6 @@ While there's an image you can pull instead of cloning the repo and building the
 docker run -d \
     --restart unless-stopped \
     -p 3000:80 \
-    --name "vert" \
-    ghcr.io/vert-sh/vert:latest
+    --name "convertra" \
+    ghcr.io/vibecoder11200/convertra:latest
 ```
