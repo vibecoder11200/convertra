@@ -14,8 +14,8 @@ Convertra is built in Svelte and TypeScript.
 
 ## Screenshots
 
-|                     Upload page                      |                     Conversion page                      |
-| :--------------------------------------------------: | :------------------------------------------------------: |
+|                        Upload page                        |                        Conversion page                        |
+| :-------------------------------------------------------: | :-----------------------------------------------------------: |
 | ![Convertra upload page](docs/images/screenshot-home.png) | ![Convertra convert page](docs/images/screenshot-convert.png) |
 
 ## Features
