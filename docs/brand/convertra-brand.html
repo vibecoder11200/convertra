@@ -1,0 +1,170 @@
+<!doctype html>
+<!--
+	Convertra brand asset renderer.
+
+	Re-render after a palette change:
+		1. serve the repo root with any static server (e.g. `npx http-server .`)
+		2. open http://127.0.0.1:<port>/docs/brand/convertra-brand.html#<asset>
+		   assets: banner | squircle | plain | fullbleed
+		3. set the viewport to the target size and screenshot:
+		   banner     2048x274  -> static/banner.png            (omit background)
+		   squircle   128x128   -> static/favicon.png           (omit background)
+		   squircle   -         -> static/favicon.svg (copy the <svg> markup)
+		   fullbleed  180x180   -> static/apple-touch-icon.png
+		   fullbleed  512x512   -> static/lettermark_maskable.png
+		   fullbleed  512x512   -> static/lettermark.jpg        (screenshot as JPEG)
+-->
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+	@font-face {
+		font-family: "Lexend";
+		src: url("/node_modules/@fontsource/lexend/files/lexend-latin-900-normal.woff2")
+			format("woff2");
+		font-weight: 900;
+	}
+	html,
+	body {
+		margin: 0;
+		padding: 0;
+		background: transparent;
+	}
+	:root {
+		/* BRAND PALETTE — recolor these three to re-theme every asset.
+		   Current values are a deliberately neutral placeholder; the final
+		   palette is tracked in docs/BACKLOG.md. */
+		--ink: #18181b;
+		--paper: #f4f4f3;
+		--night: #0d0d10;
+	}
+	body {
+		width: 100vw;
+		height: 100vh;
+		overflow: hidden;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	/* ---- mark: two swap arrows ---- */
+	.arrows path {
+		fill: var(--ink);
+		stroke: var(--ink);
+		stroke-width: 14;
+		stroke-linejoin: round;
+	}
+
+	/* squircle icon (favicon.png / favicon.svg source) */
+	.squircle-tile {
+		width: 100vw;
+		height: 100vh;
+	}
+
+	/* full-bleed icon: lettermark.jpg / apple-touch-icon */
+	.fullbleed {
+		width: 100vw;
+		height: 100vh;
+		background: var(--paper);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	/* banner */
+	.banner {
+		width: 100vw;
+		height: 100vh;
+		background: var(--night);
+		border-radius: 38px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 46px;
+	}
+	.banner .tile {
+		width: 186px;
+		height: 186px;
+		border-radius: 43px;
+		background: var(--paper);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex: none;
+	}
+	.banner .tile svg {
+		width: 186px;
+		height: 186px;
+	}
+	.banner .word {
+		font-family: "Lexend", sans-serif;
+		font-weight: 900;
+		font-size: 118px;
+		letter-spacing: 0.015em;
+		color: #ffffff;
+		line-height: 1;
+		transform: translateY(4px);
+	}
+</style>
+</head>
+
+<body id="stage"></body>
+
+<script>
+	const ARROWS = `
+		<g class="arrows">
+			<path d="M120,162 H344 V140 L416,190 L344,240 V218 H120 Z" />
+			<path d="M392,294 H168 V272 L96,322 L168,372 V350 H392 Z" />
+		</g>`;
+
+	const MARK_SQUIRCLE = `
+		<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+			<rect x="0" y="0" width="512" height="512" rx="118" fill="var(--paper)"/>
+			${ARROWS}
+		</svg>`;
+
+	const MARK_PLAIN = `
+		<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+			${ARROWS}
+		</svg>`;
+
+	const stage = document.getElementById("stage");
+	const asset = location.hash.slice(1) || "squircle";
+
+	switch (asset) {
+		case "squircle":
+			stage.innerHTML = MARK_SQUIRCLE;
+			stage.firstElementChild.style.width = "100vw";
+			stage.firstElementChild.style.height = "100vh";
+			break;
+		case "plain":
+			stage.innerHTML = MARK_PLAIN;
+			stage.firstElementChild.style.width = "100vw";
+			stage.firstElementChild.style.height = "100vh";
+			break;
+		case "fullbleed": {
+			// full square paper bg + arrows scaled to 82% centered
+			stage.innerHTML = `
+				<div class="fullbleed">
+					<div style="width:82%;height:82%">
+						<svg viewBox="0 0 512 512" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">${ARROWS}</svg>
+					</div>
+				</div>`;
+			break;
+		}
+		case "banner":
+			stage.innerHTML = `
+				<div class="banner">
+					<div class="tile">
+						<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+							<rect x="0" y="0" width="512" height="512" rx="118" fill="#f4f4f3"/>
+							${ARROWS}
+						</svg>
+					</div>
+					<div class="word">CONVERTRA</div>
+				</div>`;
+			break;
+	}
+</script>
+</body>
+</html>
