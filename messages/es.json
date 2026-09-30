@@ -8,7 +8,7 @@
 		"toggle_theme": "Cambiar tema"
 	},
 	"footer": {
-		"copyright": "© {year} VERT.",
+		"copyright": "© {year} Convertra.",
 		"source_code": "Código fuente",
 		"privacy_policy": "Política de privacidad",
 		"discord_server": "Servidor de Discord"
@@ -21,7 +21,7 @@
 			"convert": "convertir"
 		},
 		"cards": {
-			"title": "VERT soporta...",
+			"title": "Convertra soporta...",
 			"images": "Imágenes",
 			"audio": "Audio",
 			"documents": "Documentos",
@@ -150,7 +150,7 @@
 			"advanced_settings": "Configuraciones avanzadas",
 			"filename_format": "Formato del nombre de archivo",
 			"filename_description": "Esto va a determinar el nombre del archivo al ser descargado <b>sin incluir la extensión</b>. Puedes poner las siguientes plantillas en el formato, las cuales serán reemplazadas con la información que les corresponde: <b>%name%</b> para el nombre original, <b>%extension%</b> para la extensión original del archivo y <b>%date%</b> para la fecha de cuando el archivo fue convertido.",
-			"placeholder": "VERT_%name%",
+			"placeholder": "Convertra_%name%",
 			"default_format": "Formato de conversión predeterminado",
 			"default_format_enable": "Habilitar",
 			"default_format_disable": "Deshabilitar",
@@ -176,7 +176,7 @@
 			"loading": "cargando...",
 			"available": "disponible, id del commit {commitId}",
 			"unavailable": "no disponible (¿has comprobado la url?)",
-			"description": "<code>vertd</code> es un proyecto que actúa como un servidor intermediario (\"wrapper\") para FFmpeg. Permite convertir vídeos sin dejar de lado la conveniente interfaz web de VERT y, a la vez, aprovecha la potencia de tu GPU para hacerlo lo más rápido posible.",
+			"description": "<code>vertd</code> es un proyecto que actúa como un servidor intermediario (\"wrapper\") para FFmpeg. Permite convertir vídeos sin dejar de lado la conveniente interfaz web de Convertra y, a la vez, aprovecha la potencia de tu GPU para hacerlo lo más rápido posible.",
 			"hosting_info": "Alojamos una instancia pública para tu conveniencia, pero es bastante fácil alojar una propia en tu PC o servidor si sabes lo que estás haciendo. Puedes descargar los binarios del servidor [vertd_link]aquí[/vertd_link]. ¡El proceso de instalación será más fácil en el futuro, así que mantente atento!",
 			"instance": "Instancia",
 			"url_placeholder": "Ejemplo: http://localhost:24153",
@@ -212,7 +212,7 @@
 			"cache_cleared": "¡Caché borrada exitosamente!",
 			"cache_clear_error": "No se pudo borrar la caché.",
 			"site_data_title": "Gestión de datos del sitio",
-			"site_data_description": "Borra todos los datos del sitio, incluida la configuración y los archivos en caché, restableciendo VERT a su estado predeterminado y recargando la página.",
+			"site_data_description": "Borra todos los datos del sitio, incluida la configuración y los archivos en caché, restableciendo Convertra a su estado predeterminado y recargando la página.",
 			"clear_all_data": "Borrar todos los datos del sitio",
 			"clear_all_data_confirm_title": "¿Borrar todos los datos del sitio?",
 			"clear_all_data_confirm": "Esto restablecerá toda la configuración y la caché, y luego recargará la página. Esta acción no se puede deshacer.",
@@ -222,29 +222,28 @@
 		},
 		"language": {
 			"title": "Lenguaje",
-			"description": "Selecciona el lenguaje que prefieres usar para la interfaz de VERT."
+			"description": "Selecciona el lenguaje que prefieres usar para la interfaz de Convertra."
 		}
 	},
 	"about": {
 		"title": "Acerca de",
 		"why": {
-			"title": "¿Por qué VERT?",
+			"title": "¿Por qué Convertra?",
 			"description": "<b>Los conversores de archivos siempre nos han decepcionado.</b> Son feos, están llenos de anuncios y, lo más importante, son lentos. Decidimos solucionar este problema de una vez por todas creando una alternativa que resuelve todo eso, y más.<br/><br/>Todos los archivos (exceptuando vídeos) se convierten directamente en tu dispositivo; esto significa que no hay demoras por subir o bajar archivos de un servidor, y nunca tenemos acceso a los archivos que conviertes.<br/><br/>Los vídeos se suben a nuestro servidor ultra rápido equipado con una RTX 4000 Ada. Tus vídeos permanecen allí durante una hora si no los conviertes. Si los conviertes, el archivo se guarda durante una hora, o hasta que lo descargues. Luego, el archivo se elimina del servidor."
 		},
 		"sponsors": {
 			"title": "Patrocinadores",
-			"description": "¿Quieres apoyarnos? Contacta a un desarrollador en el servidor de [discord_link]Discord[/discord_link] o envía un correo a",
+			"description": "¿Quieres apoyarnos? Contacta a un desarrollador en el servidor de [discord_link]Discord[/discord_link].",
 			"email_copied": "¡Email copiado al portapapeles!"
 		},
 		"resources": {
 			"title": "Recursos",
 			"discord": "Discord",
-			"source": "Fuente",
-			"email": "Email"
+			"source": "Fuente"
 		},
 		"donate": {
-			"title": "Donar a VERT",
-			"description": "Con tu apoyo, podemos seguir manteniendo y mejorando VERT.",
+			"title": "Donar a Convertra",
+			"description": "Con tu apoyo, podemos seguir manteniendo y mejorando Convertra.",
 			"one_time": "Una sola vez",
 			"monthly": "Mensual",
 			"custom": "Personalizado",
@@ -254,10 +253,6 @@
 			"payment_failed": "Pago fallido: {message}{period} No se ha efectuado ningún cargo.",
 			"donation_error": "Ha ocurrido un error al procesar tu donación. Por favor, inténtalo de nuevo más tarde.",
 			"payment_error": "Ha ocurrido un error al obtener los detalles del pago. Por favor, inténtalo de nuevo más tarde.",
-			"donation_notice_official": "Las donaciones que realices aquí se destinan a la instancia oficial de VERT (vert.sh) y contribuyen a financiar el desarrollo del proyecto.",
-			"donation_notice_unofficial": "Las donaciones que realices aquí se destinan al operador de esta instancia de VERT. Si quieres apoyar a los desarrolladores oficiales de VERT, entonces visita [official_link]vert.sh[/official_link].",
-			"upstream_title": "Support upstream VERT too",
-			"upstream_body": "Convertra is a fork of VERT. Consider [vert_link]supporting the original project[/vert_link] as well.",
 			"vn_title": "Support via Vietnamese payment",
 			"vn_description": "Prefer local payment methods? You can transfer directly to the project bank account.",
 			"vn_bank": "Bank transfer",
@@ -265,18 +260,19 @@
 			"vn_momo": "Momo",
 			"vn_momo_detail": "Momo wallet transfers are welcome.",
 			"vn_qr": "Banking QR code",
-			"vn_qr_detail": "Scan the VietQR-style QR code from your banking app."
+			"vn_qr_detail": "Scan the VietQR-style QR code from your banking app.",
+			"donation_notice": "Las donaciones que realices aquí se destinan al operador de esta instancia de Convertra. Si quieres apoyar a los desarrolladores oficiales de Convertra, entonces visita [official_link]GitHub[/official_link]."
 		},
 		"credits": {
 			"title": "Créditos",
 			"contact_team": "Si te gustaría contactar al equipo de desarrollo, por favor usa el email que se encuentra en la tarjeta de \"Recursos\".",
 			"notable_contributors": "Colaboradores destacados",
-			"notable_description": "Queremos dar las gracias a las siguientes personas por sus importantes contribuciones a VERT.",
+			"notable_description": "Queremos dar las gracias a las siguientes personas por sus importantes contribuciones a Convertra.",
 			"github_contributors": "Contribuidores de GitHub",
 			"github_description": "¡Muchas gracias a todos los que han contribuido! [github_link]¿Quieres contribuir también?[/github_link]",
 			"no_contributors": "Parece que nadie ha contribuido todavía... [contribute_link]¡Sé el primero en hacerlo![/contribute_link]",
 			"libraries": "Librerías",
-			"libraries_description": "Muchas gracias a FFmpeg (audio, vídeo), ImageMagick (imágenes) y Pandoc (documentos) por mantener librerías excelentes por tantos años. VERT depende de ellas para proporcionar tus conversiones.",
+			"libraries_description": "Muchas gracias a FFmpeg (audio, vídeo), ImageMagick (imágenes) y Pandoc (documentos) por mantener librerías excelentes por tantos años. Convertra depende de ellas para proporcionar tus conversiones.",
 			"roles": {
 				"lead_developer": "Líder de desarrollo; implementación del backend de conversión e interfaz",
 				"developer": "Desarrollador; implementación de la interfaz",
@@ -305,11 +301,11 @@
 		"title": "Política de privacidad",
 		"summary": {
 			"title": "Resumen",
-			"description": "La política de privacidad de VERT es muy simple: no recopilamos ni almacenamos ningún dato sobre ti. No usamos cookies ni rastreadores, las analíticas son completamente privadas y todas las conversiones, excepto las de video, se realizan localmente en tu navegador. Los videos se eliminan después de descargarse, o después de una hora, salvo que nos des permiso explícito para almacenarlos; solo se usarán con fines de resolución de problemas. VERT autoaloja una instancia de Coolify para alojar el sitio web y vertd, usado para la conversión de video, además de una instancia de Plausible para analíticas completamente anónimas y agregadas. Usamos Stripe para procesar donaciones, por lo que Stripe puede recopilar algunos datos usados para la prevención de fraude.<br/><br/>Ten en cuenta que esto puede aplicarse solo a la instancia oficial de VERT en [vert_link]vert.sh[/vert_link]; las instancias de terceros pueden manejar tus datos de forma distinta."
+			"description": "La política de privacidad de Convertra es muy simple: no recopilamos ni almacenamos ningún dato sobre ti. No usamos cookies ni rastreadores, las analíticas son completamente privadas y todas las conversiones, excepto las de video, se realizan localmente en tu navegador. Los videos se eliminan después de descargarse, o después de una hora, salvo que nos des permiso explícito para almacenarlos; solo se usarán con fines de resolución de problemas. Convertra autoaloja una instancia de Coolify para alojar el sitio web y vertd, usado para la conversión de video, además de una instancia de Plausible para analíticas completamente anónimas y agregadas. Usamos Stripe para procesar donaciones, por lo que Stripe puede recopilar algunos datos usados para la prevención de fraude.<br/><br/>Ten en cuenta que esto puede aplicarse solo a la instancia oficial de Convertra en [site_link]GitHub[/site_link]; las instancias de terceros pueden manejar tus datos de forma distinta."
 		},
 		"conversions": {
 			"title": "Conversiones",
-			"description": "La mayoría de las conversiones, como imágenes, documentos y audio, se realizan completamente de forma local en tu dispositivo usando versiones WebAssembly de las herramientas correspondientes, por ejemplo, ImageMagick, Pandoc y FFmpeg. Esto significa que tus archivos nunca salen de tu dispositivo y nosotros nunca tendremos acceso a ellos.<br/><br/>Las conversiones de video se realizan en nuestros servidores porque requieren más potencia de procesamiento y todavía no pueden hacerse muy rápido en el navegador. Los videos que conviertes con VERT se eliminan después de descargarse, o después de una hora, salvo que nos des permiso explícito para almacenarlos por más tiempo únicamente con fines de resolución de problemas."
+			"description": "La mayoría de las conversiones, como imágenes, documentos y audio, se realizan completamente de forma local en tu dispositivo usando versiones WebAssembly de las herramientas correspondientes, por ejemplo, ImageMagick, Pandoc y FFmpeg. Esto significa que tus archivos nunca salen de tu dispositivo y nosotros nunca tendremos acceso a ellos.<br/><br/>Las conversiones de video se realizan en nuestros servidores porque requieren más potencia de procesamiento y todavía no pueden hacerse muy rápido en el navegador. Los videos que conviertes con Convertra se eliminan después de descargarse, o después de una hora, salvo que nos des permiso explícito para almacenarlos por más tiempo únicamente con fines de resolución de problemas."
 		},
 		"donations": {
 			"title": "Donaciones",
@@ -335,11 +331,11 @@
 		},
 		"contact": {
 			"title": "Contacto",
-			"description": "Para consultas, escríbenos a: [email_link]hello@vert.sh[/email_link]. Si estás usando una instancia de VERT de terceros, contacta al operador de esa instancia."
+			"description": "Para consultas, escríbenos a: [discord_link]Discord[/discord_link]. Si estás usando una instancia de Convertra de terceros, contacta al operador de esa instancia."
 		},
 		"last_updated": "Última actualización: 2025-10-29"
 	},
 	"toast": {
-		"insecure_context": "Estás visitando VERT en un contexto inseguro (como por ejemplo, accediendo mediante HTTP en lugar de HTTPS). Es posible que algunas funciones no funcionen como se espera."
+		"insecure_context": "Estás visitando Convertra en un contexto inseguro (como por ejemplo, accediendo mediante HTTP en lugar de HTTPS). Es posible que algunas funciones no funcionen como se espera."
 	}
 }

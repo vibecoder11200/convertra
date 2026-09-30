@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { GITHUB_URL_VERT, DISCORD_URL } from "$lib/util/consts";
+	import { GITHUB_URL_CONVERTRA, DISCORD_URL } from "$lib/util/consts";
 	import { m } from "$lib/paraglide/messages";
 
 	const commitHash =
@@ -23,7 +23,7 @@
 		<p>•</p>
 		<a
 			class="hover:underline font-normal"
-			href={GITHUB_URL_VERT}
+			href={GITHUB_URL_CONVERTRA}
 			target="_blank"
 		>
 			{m["footer.source_code"]()}
@@ -44,7 +44,7 @@
 			<p>•</p>
 			<a
 				class="hover:underline font-normal"
-				href="{GITHUB_URL_VERT}/commit/{commitHash}"
+				href="{GITHUB_URL_CONVERTRA}/commit/{commitHash}"
 				target="_blank"
 			>
 				{commitHash}

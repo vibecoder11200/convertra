@@ -16,6 +16,7 @@
 	import { error } from "$lib/util/logger";
 	import { ToastManager } from "$lib/util/toast.svelte";
 	import { DISABLE_ALL_EXTERNAL_REQUESTS } from "$lib/util/consts";
+	import { PUB_PLAUSIBLE_URL } from "$env/static/public";
 	import { addDialog } from "$lib/store/DialogProvider";
 
 	const { settings = $bindable() }: { settings: ISettings } = $props();
@@ -146,7 +147,8 @@
 								m["settings.privacy.plausible_description"](),
 								[
 									"https://plausible.io/privacy-focused-web-analytics",
-									"https://ats.vert.sh/vert.sh",
+									PUB_PLAUSIBLE_URL ||
+										"https://plausible.io/",
 								],
 							)}
 						</p>

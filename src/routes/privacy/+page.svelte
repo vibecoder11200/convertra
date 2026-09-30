@@ -2,6 +2,7 @@
 	import { m } from "$lib/paraglide/messages";
 	import { link, sanitize } from "$lib/store/index.svelte";
 	import { ShieldCheckIcon } from "lucide-svelte";
+	import { DISCORD_URL, GITHUB_URL_CONVERTRA } from "$lib/util/consts";
 </script>
 
 <div class="flex flex-col h-full items-center">
@@ -18,9 +19,9 @@
 			<p class="mb-4">
 				{@html sanitize(
 					link(
-						["vert_link"],
+						["site_link"],
 						m["privacy.summary.description"](),
-						["https://vert.sh"],
+						[GITHUB_URL_CONVERTRA],
 						[true],
 					),
 				)}
@@ -96,7 +97,7 @@
 					link(
 						["email_link"],
 						m["privacy.contact.description"](),
-						["mailto:hello@vert.sh"],
+						[DISCORD_URL],
 						[false],
 					),
 				)}

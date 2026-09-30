@@ -153,7 +153,7 @@
 	<div
 		class="w-full max-w-[1280px] flex flex-col md:flex-row gap-4 p-4 md:px-4 md:py-0"
 	>
-		<!-- Why VERT? & Credits -->
+		<!-- Why Convertra? & Credits -->
 		<div class="flex flex-col gap-4 flex-1">
 			{#if donationsEnabled}
 				<About.Donate />
@@ -162,7 +162,7 @@
 			<About.Sponsors />
 		</div>
 
-		<!-- Resources & Donate to VERT -->
+		<!-- Resources & Donate to Convertra -->
 		<div class="flex flex-col gap-4 flex-1">
 			<About.Resources />
 			<About.Credits {mainContribs} {notableContribs} {ghContribs} />

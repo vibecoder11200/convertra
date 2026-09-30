@@ -5,11 +5,11 @@
 	import { PUB_PLAUSIBLE_URL, PUB_HOSTNAME } from "$env/static/public";
 	import {
 		DISABLE_ALL_EXTERNAL_REQUESTS,
-		VERT_NAME,
+		APP_NAME,
 	} from "$lib/util/consts.js";
 	import * as Layout from "$lib/components/layout";
 	import * as Navbar from "$lib/components/layout/Navbar";
-	import featuredImage from "$lib/assets/VERT_Feature.webp";
+	import featuredImage from "$lib/assets/convertra-feature.webp";
 	import { Settings } from "$lib/sections/settings/index.svelte";
 	import {
 		files,
@@ -134,45 +134,45 @@
 </script>
 
 <svelte:head>
-	<title>{VERT_NAME}</title>
+	<title>{APP_NAME}</title>
 	<meta name="theme-color" content="#F2ABEE" />
 	<meta
 		name="title"
-		content="{VERT_NAME} — Free, fast, and awesome file converter"
+		content="{APP_NAME} — Free, fast, and awesome file converter"
 	/>
 	<meta
 		name="description"
-		content="With VERT, you can quickly convert any image, video, audio, and document file. No ads, no tracking, open source, and all processing (other than video) is done on your device."
+		content="With Convertra, you can quickly convert any image, video, audio, and document file. No ads, no tracking, open source, and all processing (other than video) is done on your device."
 	/>
-	<meta property="og:url" content="https://vert.sh" />
+	<meta property="og:url" content="https://{PUB_HOSTNAME}" />
 	<meta property="og:type" content="website" />
 	<meta
 		property="og:title"
-		content="{VERT_NAME} — Free, fast, and awesome file converter"
+		content="{APP_NAME} — Free, fast, and awesome file converter"
 	/>
 	<meta
 		property="og:description"
-		content="With VERT, you can quickly convert any image, video, audio, and document file. No ads, no tracking, open source, and all processing (other than video) is done on your device."
+		content="With Convertra, you can quickly convert any image, video, audio, and document file. No ads, no tracking, open source, and all processing (other than video) is done on your device."
 	/>
 	<meta property="og:image" content={featuredImage} />
 	<meta name="twitter:card" content="summary_large_image" />
-	<meta property="twitter:domain" content="vert.sh" />
-	<meta property="twitter:url" content="https://vert.sh" />
+	<meta property="twitter:domain" content={PUB_HOSTNAME} />
+	<meta property="twitter:url" content="https://{PUB_HOSTNAME}" />
 	<meta
 		property="twitter:title"
-		content="{VERT_NAME} — Free, fast, and awesome file converter"
+		content="{APP_NAME} — Free, fast, and awesome file converter"
 	/>
 	<meta
 		property="twitter:description"
-		content="With VERT, you can quickly convert any image, video, audio, and document file. No ads, no tracking, open source, and all processing (other than video) is done on your device."
+		content="With Convertra, you can quickly convert any image, video, audio, and document file. No ads, no tracking, open source, and all processing (other than video) is done on your device."
 	/>
 	<meta property="twitter:image" content={featuredImage} />
 	<link rel="manifest" href="/manifest.json" />
-	<link rel="canonical" href="https://vert.sh/" />
+	<link rel="canonical" href="https://{PUB_HOSTNAME}/" />
 	{#if enablePlausible}
 		<script
 			defer
-			data-domain={PUB_HOSTNAME || "vert.sh"}
+			data-domain={PUB_HOSTNAME}
 			src="{PUB_PLAUSIBLE_URL}/js/script.js"
 		></script>
 	{/if}

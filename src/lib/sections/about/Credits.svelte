@@ -3,7 +3,7 @@
 	import { HeartHandshakeIcon } from "lucide-svelte";
 	import {
 		DISABLE_ALL_EXTERNAL_REQUESTS,
-		GITHUB_URL_VERT,
+		GITHUB_URL_CONVERTRA,
 	} from "$lib/util/consts";
 	import { m } from "$lib/paraglide/messages";
 	import { link, sanitize } from "$lib/store/index.svelte";
@@ -105,7 +105,7 @@
 								link(
 									"github_link",
 									m["about.credits.github_description"](),
-									GITHUB_URL_VERT,
+									GITHUB_URL_CONVERTRA,
 									true,
 								),
 							)}
@@ -116,7 +116,7 @@
 								link(
 									"contribute_link",
 									m["about.credits.no_contributors"](),
-									GITHUB_URL_VERT,
+									GITHUB_URL_CONVERTRA,
 									true,
 								),
 							)}

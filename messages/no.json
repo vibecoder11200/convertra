@@ -8,7 +8,7 @@
 		"toggle_theme": "Bytt tema"
 	},
 	"footer": {
-		"copyright": "© {year} VERT.",
+		"copyright": "© {year} Convertra.",
 		"source_code": "Kildekode",
 		"discord_server": "Discord-server",
 		"privacy_policy": "Personvern"
@@ -21,7 +21,7 @@
 			"convert": "konvertere"
 		},
 		"cards": {
-			"title": "VERT støtter...",
+			"title": "Convertra støtter...",
 			"images": "Bilder",
 			"audio": "Lyd",
 			"documents": "Dokumenter",
@@ -150,7 +150,7 @@
 			"advanced_settings": "Avanserte innstillinger",
 			"filename_format": "Filnavnformat",
 			"filename_description": "Dette bestemmer navnet på filen ved nedlasting, <b>uten filendelsen.</b> Du kan bruke følgende maler i formatet, som vil bli erstattet med relevant informasjon: <b>%name%</b> for det opprinnelige filnavnet, <b>%extension%</b> for den opprinnelige filendelsen, og <b>%date%</b> for en dato når filen ble konvertert.",
-			"placeholder": "VERT_%name%",
+			"placeholder": "Convertra_%name%",
 			"default_format": "Standard konverteringsformat",
 			"default_format_enable": "Aktiver",
 			"default_format_disable": "Deaktiver",
@@ -212,7 +212,7 @@
 			"cache_cleared": "Cache tømt!",
 			"cache_clear_error": "Kunne ikke tømme cache.",
 			"site_data_title": "Nettsteddata-håndtering",
-			"site_data_description": "Tøm alle nettsteddata inkludert innstillinger og cachede filer, tilbakestill VERT til standard og last inn siden på nytt.",
+			"site_data_description": "Tøm alle nettsteddata inkludert innstillinger og cachede filer, tilbakestill Convertra til standard og last inn siden på nytt.",
 			"clear_all_data": "Tøm alle nettsteddata",
 			"clear_all_data_confirm_title": "Tøm alle nettsteddata?",
 			"clear_all_data_confirm": "Dette vil tilbakestille alle innstillinger og cache, og deretter laste inn siden på nytt. Denne handlingen kan ikke angres.",
@@ -222,29 +222,28 @@
 		},
 		"language": {
 			"title": "Språk",
-			"description": "Velg ønsket språk for VERT-grensesnittet."
+			"description": "Velg ønsket språk for Convertra-grensesnittet."
 		}
 	},
 	"about": {
 		"title": "Om",
 		"why": {
-			"title": "Hvorfor VERT?",
+			"title": "Hvorfor Convertra?",
 			"description": "<b>Filkonverterere har alltid skuffet oss.</b> De er stygge, fulle av annonser, og viktigst av alt; trege. Vi bestemte oss for å løse dette en gang for alle ved å lage et alternativ som løser alle disse problemene, og mer.<br/><br/>Alle ikke-video-filer konverteres helt på enheten; dette betyr at det ikke er noen forsinkelse mellom sending og mottak av filer fra en server, og vi får aldri tilgang til filene du konverterer.<br/><br/>Videofiler lastes opp til vår lynraske RTX 4000 Ada-server. Videoene dine blir liggende der i en time hvis du ikke konverterer dem. Hvis du konverterer filen, blir videoen liggende på serveren i en time, eller til den lastes ned. Filen blir deretter slettet fra serveren vår."
 		},
 		"sponsors": {
 			"title": "Sponsorer",
-			"description": "Vil du støtte oss? Kontakt en utvikler i [discord_link]Discord[/discord_link]-serveren, eller send en e-post til",
+			"description": "Vil du støtte oss? Kontakt en utvikler i [discord_link]Discord[/discord_link].",
 			"email_copied": "E-post kopiert til utklippstavlen!"
 		},
 		"resources": {
 			"title": "Ressurser",
 			"discord": "Discord",
-			"source": "Kilde",
-			"email": "E-post"
+			"source": "Kilde"
 		},
 		"donate": {
-			"title": "Doner til VERT",
-			"description": "Med din støtte kan vi fortsette å vedlikeholde og forbedre VERT.",
+			"title": "Doner til Convertra",
+			"description": "Med din støtte kan vi fortsette å vedlikeholde og forbedre Convertra.",
 			"one_time": "Engangs",
 			"monthly": "Månedlig",
 			"custom": "Egendefinert",
@@ -254,10 +253,6 @@
 			"payment_failed": "Betaling mislyktes: {message}{period} Du er ikke belastet.",
 			"donation_error": "En feil oppstod under behandlingen av donasjonen. Prøv igjen senere.",
 			"payment_error": "Feil ved henting av betalingsdetaljer. Prøv igjen senere.",
-			"donation_notice_official": "Donasjoner her går til den offisielle VERT-instansen (vert.sh) og hjelper til med å støtte utviklingen av prosjektet.",
-			"donation_notice_unofficial": "Donasjoner her går til operatøren av denne VERT-instansen. Hvis du ønsker å støtte de offisielle VERT-utviklerne, besøk [official_link]vert.sh[/official_link] i stedet.",
-			"upstream_title": "Support upstream VERT too",
-			"upstream_body": "Convertra is a fork of VERT. Consider [vert_link]supporting the original project[/vert_link] as well.",
 			"vn_title": "Support via Vietnamese payment",
 			"vn_description": "Prefer local payment methods? You can transfer directly to the project bank account.",
 			"vn_bank": "Bank transfer",
@@ -265,18 +260,19 @@
 			"vn_momo": "Momo",
 			"vn_momo_detail": "Momo wallet transfers are welcome.",
 			"vn_qr": "Banking QR code",
-			"vn_qr_detail": "Scan the VietQR-style QR code from your banking app."
+			"vn_qr_detail": "Scan the VietQR-style QR code from your banking app.",
+			"donation_notice": "Donasjoner her går til operatøren av denne Convertra-instansen. Hvis du ønsker å støtte de offisielle Convertra-utviklerne, besøk [official_link]GitHub[/official_link] i stedet."
 		},
 		"credits": {
 			"title": "Kreditering",
 			"contact_team": "Hvis du vil kontakte utviklingsteamet, bruk e-posten som finnes på \"Ressurser\"-kortet.",
 			"notable_contributors": "Merkbare bidragsytere",
-			"notable_description": "Vi vil takke disse personene for deres store bidrag til VERT.",
+			"notable_description": "Vi vil takke disse personene for deres store bidrag til Convertra.",
 			"github_contributors": "GitHub-bidragsytere",
 			"github_description": "Stor takk til alle disse for å hjelpe til! [github_link]Vil du også hjelpe?[/github_link]",
 			"no_contributors": "Ser ut som ingen har bidratt ennå... [contribute_link]bli den første til å bidra![/contribute_link]",
 			"libraries": "Biblioteker",
-			"libraries_description": "En stor takk til FFmpeg (lyd, video), ImageMagick (bilder) og Pandoc (dokumenter) for å vedlikeholde slike utmerkede biblioteker i så mange år. VERT er avhengig av dem for å gi deg konverteringene dine.",
+			"libraries_description": "En stor takk til FFmpeg (lyd, video), ImageMagick (bilder) og Pandoc (dokumenter) for å vedlikeholde slike utmerkede biblioteker i så mange år. Convertra er avhengig av dem for å gi deg konverteringene dine.",
 			"roles": {
 				"lead_developer": "Hovedutvikler; konverteringsbackend, UI-implementering",
 				"developer": "Utvikler; UI-implementering",
@@ -305,11 +301,11 @@
 		"title": "Personvern",
 		"summary": {
 			"title": "Sammendrag",
-			"description": "VERTs personvernerklæring er veldig enkel: vi samler eller lagrer ingen data om deg i det hele tatt. Vi bruker ikke informasjonskapsler eller sporere, og all konvertering (bortsett fra video) skjer lokalt i nettleseren din. Videoer slettes etter nedlasting eller etter én time, med mindre du eksplisitt gir tillatelse til å lagre dem; de vil kun bli brukt til feilsøking. VERT hoster selv en Coolify-instans for å hoste nettstedet og vertd (for videokonvertering), og en Plausible-instans for helt anonym og aggregert analyse.<br/><br/>Merk at dette kun gjelder den offisielle VERT-instansen på [vert_link]vert.sh[/vert_link]; tredjepartsinstanser kan håndtere dataene dine annerledes."
+			"description": "VERTs personvernerklæring er veldig enkel: vi samler eller lagrer ingen data om deg i det hele tatt. Vi bruker ikke informasjonskapsler eller sporere, og all konvertering (bortsett fra video) skjer lokalt i nettleseren din. Videoer slettes etter nedlasting eller etter én time, med mindre du eksplisitt gir tillatelse til å lagre dem; de vil kun bli brukt til feilsøking. Convertra hoster selv en Coolify-instans for å hoste nettstedet og vertd (for videokonvertering), og en Plausible-instans for helt anonym og aggregert analyse.<br/><br/>Merk at dette kun gjelder den offisielle Convertra-instansen på [site_link]GitHub[/site_link]; tredjepartsinstanser kan håndtere dataene dine annerledes."
 		},
 		"conversions": {
 			"title": "Konverteringer",
-			"description": "De fleste konverteringer (bilder, dokumenter, lyd) skjer helt lokalt på enheten din ved hjelp av WebAssembly-versjoner av relevante verktøy (f.eks. ImageMagick, Pandoc, FFmpeg). Dette betyr at filene dine aldri forlater enheten din, og vi får aldri tilgang til dem.<br/><br/>Videokonverteringer utføres på våre servere fordi de krever mer prosessorkraft og ikke kan gjøres raskt nok i nettleseren ennå. Videoer du konverterer med VERT slettes etter nedlasting eller etter én time, med mindre du eksplisitt gir tillatelse til å lagre dem lenger kun for feilsøking."
+			"description": "De fleste konverteringer (bilder, dokumenter, lyd) skjer helt lokalt på enheten din ved hjelp av WebAssembly-versjoner av relevante verktøy (f.eks. ImageMagick, Pandoc, FFmpeg). Dette betyr at filene dine aldri forlater enheten din, og vi får aldri tilgang til dem.<br/><br/>Videokonverteringer utføres på våre servere fordi de krever mer prosessorkraft og ikke kan gjøres raskt nok i nettleseren ennå. Videoer du konverterer med Convertra slettes etter nedlasting eller etter én time, med mindre du eksplisitt gir tillatelse til å lagre dem lenger kun for feilsøking."
 		},
 		"donations": {
 			"title": "Donasjoner",
@@ -335,11 +331,11 @@
 		},
 		"contact": {
 			"title": "Kontakt",
-			"description": "For spørsmål, send oss en e-post på: [email_link]hello@vert.sh[/email_link]. Hvis du bruker en tredjepartsinstans av VERT, kontakt verten for den instansen i stedet."
+			"description": "For spørsmål, send oss en e-post på: [discord_link]Discord[/discord_link]. Hvis du bruker en tredjepartsinstans av Convertra, kontakt verten for den instansen i stedet."
 		},
 		"last_updated": "Sist oppdatert: 2025-10-29"
 	},
 	"toast": {
-		"insecure_context": "Du besøker VERT i en usikker kontekst (f.eks. tilgang via HTTP i stedet for HTTPS). Noen funksjoner kan ikke fungere som forventet."
+		"insecure_context": "Du besøker Convertra i en usikker kontekst (f.eks. tilgang via HTTP i stedet for HTTPS). Noen funksjoner kan ikke fungere som forventet."
 	}
 }

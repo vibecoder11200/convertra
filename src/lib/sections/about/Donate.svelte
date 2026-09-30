@@ -10,16 +10,7 @@
 	import { goto } from "$app/navigation";
 	import { page } from "$app/state";
 	import { PUB_DONATION_URL, PUB_STRIPE_KEY } from "$env/static/public";
-	// please do not change these!
-	const OFFICIAL_DONATION_URL = atob("aHR0cHM6Ly9kb25hdGlvbnMudmVydC5zaA==");
-	const OFFICIAL_STRIPE_KEY = atob(
-		"cGtfbGl2ZV81MVRsclBhRlRQamtoRUdCU3U1S3d5NWpKUVl4Y1g1eVVVSFhpSDVnN1h6dmIwTkt6RHFib29jMTI2SGpsVzM1dVVrZkFnUU4ycnVFb0N1eVF5bm94cEthQTAwb2pGZ1ExMTY=",
-	);
-	const isOfficial =
-		PUB_DONATION_URL === OFFICIAL_DONATION_URL &&
-		PUB_STRIPE_KEY === OFFICIAL_STRIPE_KEY;
-
-	// import { PUB_STRIPE_KEY, PUB_DONATION_API } from "$env/static/public";
+	import { GITHUB_URL_CONVERTRA } from "$lib/util/consts";
 	import { fade } from "$lib/util/animation";
 	import FancyInput from "$lib/components/functional/FancyInput.svelte";
 	import Panel from "$lib/components/visual/Panel.svelte";
@@ -37,7 +28,6 @@
 	import { quintOut } from "svelte/easing";
 	import { m } from "$lib/paraglide/messages";
 	import { ToastManager } from "$lib/util/toast.svelte";
-	import { log } from "$lib/util/logger";
 
 	let amount = $state(1);
 	let customAmount = $state("");
@@ -111,20 +101,6 @@
 
 	const payDuration = 400;
 	const transition = "cubic-bezier(0.23, 1, 0.320, 1)";
-
-	onMount(async () => {
-		if (!isOfficial) {
-			log(
-				["about", "donate"],
-				"donations are being sent to an unofficial VERT instance - PUB_DONATION_URL and/or PUB_STRIPE_KEY have been changed.",
-			);
-		} else {
-			log(
-				["about", "donate"],
-				"donations are being sent to the official VERT instance.",
-			);
-		}
-	});
 
 	const donate = async () => {
 		if (!stripe || !clientSecret || !elements) return;
@@ -375,38 +351,16 @@
 	</div>
 
 	<p class="text-sm font-normal text-muted">
-		{#if isOfficial}
-			{m["about.donate.donation_notice_official"]()}
-		{:else}
-			{@html sanitize(
-				link(
-					"official_link",
-					m["about.donate.donation_notice_unofficial"](),
-					"https://vert.sh",
-					true,
-					"",
-				),
-			)}
-		{/if}
+		{@html sanitize(
+			link(
+				"official_link",
+				m["about.donate.donation_notice"](),
+				GITHUB_URL_CONVERTRA,
+				true,
+				"",
+			),
+		)}
 	</p>
-
-	<!-- D8: support upstream VERT alongside Convertra -->
-	<div class="flex flex-col gap-2 pt-2 border-t border-separator">
-		<h3 class="text-lg font-bold">
-			{m["about.donate.upstream_title"]()}
-		</h3>
-		<p class="text-sm font-normal text-muted">
-			{@html sanitize(
-				link(
-					"vert_link",
-					m["about.donate.upstream_body"](),
-					"https://github.com/VERT-sh/VERT",
-					true,
-					"",
-				),
-			)}
-		</p>
-	</div>
 
 	<!-- D8a: Vietnamese payment methods -->
 	<div class="flex flex-col gap-3">

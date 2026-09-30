@@ -8,7 +8,7 @@
 		"toggle_theme": "Promjeni izgled"
 	},
 	"footer": {
-		"copyright": "© {year} VERT.",
+		"copyright": "© {year} Convertra.",
 		"source_code": "Source kod",
 		"discord_server": "Discord server"
 	},
@@ -20,7 +20,7 @@
 			"convert": "pretvori"
 		},
 		"cards": {
-			"title": "VERT podržava...",
+			"title": "Convertra podržava...",
 			"images": "Slike",
 			"audio": "Audio",
 			"documents": "Dokumente",
@@ -112,7 +112,7 @@
 			"title": "Pretvaranje",
 			"filename_format": "Način imenovanja datoteke",
 			"filename_description": "Ovo će odrediti ime datoteke pri preuzimanju, <b>ali ne i nastavak.</b> Možete staviti navedene prijedloge u način imenovanja, koji će biti zamijenjeni sa relevatnim informacijama: <b>%name%</b> za originalni naziv datoteke, <b>%extension%</b> za originalni nastavak, i <b>%date%</b> za datum kada je datoteka bila pretvorena.",
-			"placeholder": "VERT_%name%",
+			"placeholder": "Convertra_%name%",
 			"default_format": "Zadan format za pretvaranje",
 			"default_format_description": "Ovo će promijeniti zadani format koji je izabran kada prenesete datoteku te vrste.",
 			"default_format_image": "Slike",
@@ -166,23 +166,22 @@
 	"about": {
 		"title": "O stranici",
 		"why": {
-			"title": "Zašto baš VERT?",
+			"title": "Zašto baš Convertra?",
 			"description": "<b>Pretvarači datoteka su nas uvijek razočarali.</b> Izuzetno su ružni, prepuni reklama, i najvažnije; spori! Odlučili smo riješiti problem jednom i zauvijek praveći alternativu koja riješava sve ove probleme, i više.<br/><br/>Sve datoteke koji nisu videozapisi su pretvoreni direktno na Vašem uređaju; To znači da nema nikakve stanke između slanja i primanja datoteka sa servera, i nikada ne dobijemo šansu gurati nos u vaše datoteke koje pretvarate. <br/><br/>Videozapisi se prenose na naše izuzetno brze RTX 4000 Ada servere. Vaši videozapisi tamo ostano sat vremena ako ih ne pretvorite. Ako ih i pretvorite, videozapis će ostati na serveru na sat vremena, ili dok se ne preuzme. Datoteka će zatim biti obrisana sa našeg servera."
 		},
 		"sponsors": {
 			"title": "Sponzori",
-			"description": "Želite li nas podržati? Kontaktirajte developera na [discord_link]Discord[/discord_link] serveru, ili pošaljite mail na",
+			"description": "Želite li nas podržati? Kontaktirajte developera na [discord_link]Discord[/discord_link].",
 			"email_copied": "Email kopiran u međuspremnik!"
 		},
 		"resources": {
 			"title": "Resursi",
 			"discord": "Discord",
-			"source": "Source kod",
-			"email": "Email"
+			"source": "Source kod"
 		},
 		"donate": {
 			"title": "Donirajte nam",
-			"description": "Sa vašom podrškom mi možemo nastaviti održavati i poboljšavati VERT.",
+			"description": "Sa vašom podrškom mi možemo nastaviti održavati i poboljšavati Convertra.",
 			"one_time": "Jednokratno",
 			"monthly": "Mjesečno",
 			"custom": "Prilagođeno",
@@ -192,8 +191,6 @@
 			"payment_failed": "Plaćanje neuspjelo: {message}{period} Niste naplaćeni.",
 			"donation_error": "Dogodila se pogreška pri obradi donacije. Molimo pokušajte kasnije.",
 			"payment_error": "Dogodila se pogreška pri prihvaćanju detalja o naplati. Molimo pokušajte kasnije.",
-			"upstream_title": "Support upstream VERT too",
-			"upstream_body": "Convertra is a fork of VERT. Consider [vert_link]supporting the original project[/vert_link] as well.",
 			"vn_title": "Support via Vietnamese payment",
 			"vn_description": "Prefer local payment methods? You can transfer directly to the project bank account.",
 			"vn_bank": "Bank transfer",
@@ -212,7 +209,7 @@
 			"github_description": "Velike zahvale svim ovim ljudima koji su nam pomogli! [github_link]Želiš nam i ti pomoći?[/github_link]",
 			"no_contributors": "Čini se kako nitko nije još doprinio... [contribute_link]budite prvi koji će doprinjeti![/contribute_link]",
 			"libraries": "Biblioteke",
-			"libraries_description": "Velike zahvale prema FFmpeg (audio, video), ImageMagick (slike) i Pandoc (dokumenti) što su održavali tako odlične biblioteke svih ovih godina. VERT se oslanja na njih da bi Vam pružili pretvorbu.",
+			"libraries_description": "Velike zahvale prema FFmpeg (audio, video), ImageMagick (slike) i Pandoc (dokumenti) što su održavali tako odlične biblioteke svih ovih godina. Convertra se oslanja na njih da bi Vam pružili pretvorbu.",
 			"roles": {
 				"lead_developer": "Glavni developer; Pretvarački backend, UI implementacija",
 				"developer": "Developer; UI implementacija",

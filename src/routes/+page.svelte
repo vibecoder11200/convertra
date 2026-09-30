@@ -205,7 +205,7 @@
 											>
 												<span>
 													<a
-														href="https://github.com/VERT-sh/VERT/blob/main/docs/VIDEO_CONVERSION.md"
+														href="https://github.com/vibecoder11200/convertra/blob/main/docs/VIDEO_CONVERSION.md"
 														target="_blank"
 														rel="noopener noreferrer"
 													>
