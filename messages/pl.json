@@ -177,7 +177,7 @@
 			"available": "dostępna, commit id {commitId}",
 			"unavailable": "niedostępna (czy url jest poprawny?)",
 			"description": "Projekt <code>vertd</code> jest serwerową nakładką na FFmpeg. To pozwala ci konwertować wideo za pomocą interfejsu sieciowego Convertra, nadal będąc w stanie wykorzystywać moc swojego procesora graficznego (GPU) w celu jak najszybszej konwersji.",
-			"hosting_info": "Dla twojej wygody hostujemy publiczną instancję, jednak ustawienie hosta na twoim własnym komputerze lub serwerze jest stosunkowo proste, jeśli wiesz, co robisz. Możesz pobrać binaria serwera [vertd_link]tutaj[/vertd_link] - w przyszłości proces tej konfiguracji będzie łatwiejszy, więc czekajcie na więcej informacji!",
+			"hosting_info": "Możesz pobrać binaria serwera [vertd_link]tutaj[/vertd_link] - w przyszłości proces tej konfiguracji będzie łatwiejszy, więc czekajcie na więcej informacji!",
 			"instance": "Instancja",
 			"url_placeholder": "Przykładowo: http://localhost:24153",
 			"conversion_speed": "Prędkość konwersji",
@@ -189,11 +189,7 @@
 				"medium": "Średnia",
 				"fast": "Szybka",
 				"ultra_fast": "Ultra szybka"
-			},
-			"auto_instance": "Auto (zalecana)",
-			"eu_instance": "Falkenstein, Niemcy",
-			"us_instance": "Washington, USA",
-			"custom_instance": "Własna"
+			}
 		},
 		"privacy": {
 			"title": "Prywatność i dane",

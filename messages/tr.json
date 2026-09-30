@@ -144,7 +144,7 @@
 			"available": "uygun, işlem no: {commitId}",
 			"unavailable": "uygun değil (url doğru mu?)",
 			"description": "<code>vertd</code> projesi, FFmpeg için bir sunucu sarmalayıcısıdır (server wrapper). Bu ayar, Convertra'in web arayüzünün kullanım kolaylığı ile videoları dönüştürmenize olanak sağlarken, ekran kartınızın gücünden yararlanarak işlemi mümkün olan en hızlı şekilde yapmanızı sağlar.",
-			"hosting_info": "Kolaylık sağlaması açısından herkese açık bir dönüştürücü sunuyoruz, ancak kendi bilgisayarınızda veya sunucunuzda kendi dönüştürücünüzü kurmak da oldukça kolaydır. Sunucu binary dosyalarını [vertd_link]buradan[/vertd_link] indirebilirsiniz. Kurulum işlemini gelecekte daha kolay hale getirmeye çalışıyoruz, bu nedenle bizi takip etmeyi unutmayın!",
+			"hosting_info": "Sunucu binary dosyalarını [vertd_link]buradan[/vertd_link] indirebilirsiniz. Kurulum işlemini gelecekte daha kolay hale getirmeye çalışıyoruz, bu nedenle bizi takip etmeyi unutmayın!",
 			"instance": "Sunucu",
 			"url_placeholder": "Örneğin: http://localhost:24153",
 			"conversion_speed": "Dönüştürme hızı",
@@ -156,11 +156,7 @@
 				"medium": "Orta",
 				"fast": "Hızlı",
 				"ultra_fast": "En Hızlı"
-			},
-			"auto_instance": "Otomatik (önerilen)",
-			"eu_instance": "Falkenstein, Germany",
-			"us_instance": "Washington, USA",
-			"custom_instance": "Özel"
+			}
 		},
 		"privacy": {
 			"title": "Gizlilik & kişisel veriler",

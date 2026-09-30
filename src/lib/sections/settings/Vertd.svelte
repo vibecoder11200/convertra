@@ -8,7 +8,7 @@
 	import { vertdLoaded } from "$lib/store/index.svelte";
 	import { m } from "$lib/paraglide/messages";
 	import { link, sanitize } from "$lib/store/index.svelte";
-	import { VertdInstance, type VertdInner } from "./vertdSettings.svelte";
+	import { VertdInstance } from "./vertdSettings.svelte";
 
 	let vertdCommit = $state<string | null>(null);
 	let abortController: AbortController | null = null;
@@ -23,9 +23,11 @@
 		vertdCommit = "loading";
 		VertdInstance.instance
 			.url()
-			.then((u) => fetch(`${u}/api/version`, { signal }))
+			.then((u) =>
+				u ? fetch(`${u}/api/version`, { signal }) : undefined,
+			)
 			.then((res) => {
-				if (!res.ok) throw new Error("bad response");
+				if (!res || !res.ok) throw new Error("bad response");
 				vertdLoaded.set(false);
 				return res.json();
 			})
@@ -88,58 +90,11 @@
 					<p class="text-base font-bold">
 						{m["settings.vertd.instance"]()}
 					</p>
-					<Dropdown
-						options={[
-							m["settings.vertd.auto_instance"](),
-							m["settings.vertd.eu_instance"](),
-							m["settings.vertd.us_instance"](),
-							m["settings.vertd.custom_instance"](),
-						]}
-						onselect={(selected) => {
-							let inner: VertdInner;
-							switch (selected) {
-								case m["settings.vertd.auto_instance"]():
-									inner = { type: "auto" };
-									break;
-								case m["settings.vertd.eu_instance"]():
-									inner = { type: "eu" };
-									break;
-								case m["settings.vertd.us_instance"]():
-									inner = { type: "us" };
-									break;
-								case m["settings.vertd.custom_instance"]():
-									inner = {
-										type: "custom",
-									};
-									break;
-								default:
-									inner = { type: "auto" };
-							}
-							VertdInstance.instance.set(inner);
-						}}
-						selected={(() => {
-							switch (VertdInstance.instance.innerData().type) {
-								case "auto":
-									return m["settings.vertd.auto_instance"]();
-								case "eu":
-									return m["settings.vertd.eu_instance"]();
-								case "us":
-									return m["settings.vertd.us_instance"]();
-								case "custom":
-									return m[
-										"settings.vertd.custom_instance"
-									]();
-							}
-						})()}
-						settingsStyle
+					<input
+						type="text"
+						placeholder={m["settings.vertd.url_placeholder"]()}
+						bind:value={settings.vertdURL}
 					/>
-					{#if VertdInstance.instance.innerData().type === "custom"}
-						<input
-							type="text"
-							placeholder={m["settings.vertd.url_placeholder"]()}
-							bind:value={settings.vertdURL}
-						/>
-					{/if}
 				</div>
 				<div class="flex flex-col gap-4">
 					<div class="flex flex-col gap-2">

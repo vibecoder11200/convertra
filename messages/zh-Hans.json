@@ -166,7 +166,7 @@
 			"available": "可用（提交 ID {commitId}）",
 			"unavailable": "不可用（URL 正确吗？）",
 			"description": "<code>vertd</code>项目是 FFmpeg 的服务器包装器。这允许你通过 Convertra 网页界面方便地转换视频，同时仍能利用 GPU 的强大性能以尽可能快的速度完成转换。",
-			"hosting_info": "我们为你提供了一个公共实例以方便使用，但如果你知道如何操作，在自己的电脑或服务器上托管也很容易。你可以在[vertd_link]这里[/vertd_link]下载服务器二进制文件 - 设置过程将来会变得更简单，敬请期待！",
+			"hosting_info": "你可以在[vertd_link]这里[/vertd_link]下载服务器二进制文件 - 设置过程将来会变得更简单，敬请期待！",
 			"instance": "实例",
 			"url_placeholder": "例如：http://localhost:24153",
 			"conversion_speed": "转换速度",
@@ -178,11 +178,7 @@
 				"medium": "中等",
 				"fast": "快",
 				"ultra_fast": "超快"
-			},
-			"auto_instance": "自动（推荐）",
-			"eu_instance": "德国法尔肯施泰因",
-			"us_instance": "美国华盛顿",
-			"custom_instance": "自定义"
+			}
 		},
 		"privacy": {
 			"title": "隐私与数据",

@@ -177,7 +177,7 @@
 			"available": "disponible, id del commit {commitId}",
 			"unavailable": "no disponible (¿has comprobado la url?)",
 			"description": "<code>vertd</code> es un proyecto que actúa como un servidor intermediario (\"wrapper\") para FFmpeg. Permite convertir vídeos sin dejar de lado la conveniente interfaz web de Convertra y, a la vez, aprovecha la potencia de tu GPU para hacerlo lo más rápido posible.",
-			"hosting_info": "Alojamos una instancia pública para tu conveniencia, pero es bastante fácil alojar una propia en tu PC o servidor si sabes lo que estás haciendo. Puedes descargar los binarios del servidor [vertd_link]aquí[/vertd_link]. ¡El proceso de instalación será más fácil en el futuro, así que mantente atento!",
+			"hosting_info": "Puedes descargar los binarios del servidor [vertd_link]aquí[/vertd_link]. ¡El proceso de instalación será más fácil en el futuro, así que mantente atento!",
 			"instance": "Instancia",
 			"url_placeholder": "Ejemplo: http://localhost:24153",
 			"conversion_speed": "Velocidad de conversión",
@@ -189,11 +189,7 @@
 				"medium": "Medio",
 				"fast": "Rápido",
 				"ultra_fast": "Súper rápido"
-			},
-			"auto_instance": "Automático (recomendado)",
-			"eu_instance": "Falkenstein, Alemania",
-			"us_instance": "Washington, EE. UU.",
-			"custom_instance": "Personalizado"
+			}
 		},
 		"privacy": {
 			"title": "Privacidad y datos",

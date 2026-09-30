@@ -177,7 +177,7 @@
 			"available": "dostupné, commit id {commitId}",
 			"unavailable": "nedostupné (je URL správná?)",
 			"description": "Projekt <code>vertd</code> je serverový obal pro FFmpeg. To vám umožňuje konvertovat videa prostřednictvím pohodlného webového rozhraní Convertra a zároveň využívat sílu vašeho GPU, abyste to udělali co nejrychleji.",
-			"hosting_info": "Pro vaše pohodlí hostujeme veřejnou instanci, ale pokud víte, co děláte, je docela snadné si ji hostovat sami na vašem PC nebo serveru. Serverové binárky si můžete stáhnout [vertd_link]zde[/vertd_link] - proces nastavení bude v budoucnu jednodušší, takže zůstaňte naladěni!",
+			"hosting_info": "Serverové binárky si můžete stáhnout [vertd_link]zde[/vertd_link] - proces nastavení bude v budoucnu jednodušší, takže zůstaňte naladěni!",
 			"instance": "Instance",
 			"url_placeholder": "Příklad: http://localhost:24153",
 			"conversion_speed": "Rychlost konverze",
@@ -189,11 +189,7 @@
 				"medium": "Střední",
 				"fast": "Rychlá",
 				"ultra_fast": "Ultra rychlá"
-			},
-			"auto_instance": "Automaticky (doporučeno)",
-			"eu_instance": "Falkenstein, Německo",
-			"us_instance": "Washington, USA",
-			"custom_instance": "Vlastní"
+			}
 		},
 		"privacy": {
 			"title": "Soukromí a data",

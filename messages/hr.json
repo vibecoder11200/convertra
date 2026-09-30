@@ -137,7 +137,7 @@
 			"available": "dostupno, commit id {commitId}",
 			"unavailable": "nedostupno (Je li URL točan?)",
 			"description": "<code>vertd</code> projekt je serverski omot za FFmpeg. Ovo omogućuje da pretvarate videozapise sa lakoćom VERTovog web sučelja, dok još uvijek možete iskoristiti snagu vašeg GPU da odradi što brže moguće.",
-			"hosting_info": "Mi držimo javnu instancu za Vašu lakoću, ali je veoma lako hostati na Vašem računalu ili serveru ako znate što radite. Možete preuzeti serverske programe [vertd_link]ovdje[/vertd_link] - Proces namještanja će biti lakši u budućnosti, pa njuškajte malo za nove vijesti!",
+			"hosting_info": "Možete preuzeti serverske programe [vertd_link]ovdje[/vertd_link] - Proces namještanja će biti lakši u budućnosti, pa njuškajte malo za nove vijesti!",
 			"instance_url": "URL instance",
 			"url_placeholder": "Na primjer: http://localhost:24153",
 			"conversion_speed": "Brzina pretvaranja",

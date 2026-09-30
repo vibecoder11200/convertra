@@ -1,7 +1,6 @@
 import { PUB_VERTD_URL } from "$env/static/public";
 import type { ConversionBitrate } from "$lib/converters/ffmpeg.svelte";
 import type { ConversionSpeed } from "$lib/converters/vertd.svelte";
-import { VertdInstance } from "./vertdSettings.svelte";
 
 export { default as Appearance } from "./Appearance.svelte";
 export { default as Conversion } from "./Conversion.svelte";
@@ -56,12 +55,10 @@ export class Settings {
 
 	public save() {
 		localStorage.setItem("settings", JSON.stringify(this.settings));
-		VertdInstance.instance.save();
 	}
 
 	public load() {
 		try {
-			VertdInstance.instance.load();
 			const ls = localStorage.getItem("settings");
 			if (!ls) return;
 			const settings: ISettings = JSON.parse(ls);

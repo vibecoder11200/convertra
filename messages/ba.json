@@ -177,7 +177,7 @@
 			"available": "dostupan, commit id {commitId}",
 			"unavailable": "nedostupan (da li je URL tačan?)",
 			"description": "<code>vertd</code> je serverski omotač za FFmpeg, omogućava brzo konvertovanje videa koristeći vaš GPU putem Convertra web interfejsa.",
-			"hosting_info": "Imamo javnu instancu radi praktičnosti, ali možete lako hostati svoju. Preuzmite server [vertd_link]ovdje[/vertd_link].",
+			"hosting_info": "Preuzmite server [vertd_link]ovdje[/vertd_link].",
 			"instance": "Instanca",
 			"url_placeholder": "Primjer: http://localhost:24153",
 			"conversion_speed": "Brzina konverzije",
@@ -189,11 +189,7 @@
 				"medium": "Srednje",
 				"fast": "Brzo",
 				"ultra_fast": "Ultra brzo"
-			},
-			"auto_instance": "Auto (preporučeno)",
-			"eu_instance": "Falkenstein, Njemačka",
-			"us_instance": "Washington, SAD",
-			"custom_instance": "Prilagođeno"
+			}
 		},
 		"privacy": {
 			"title": "Privatnost i podaci",

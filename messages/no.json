@@ -177,7 +177,7 @@
 			"available": "tilgjengelig, commit id {commitId}",
 			"unavailable": "utilgjengelig (er url-en riktig?)",
 			"description": "<code>vertd</code>-prosjektet er en server-wrapper for FFmpeg. Dette lar deg konvertere videoer gjennom VERTs webgrensesnitt, samtidig som du kan bruke kraften til GPU-en din for å gjøre det så raskt som mulig.",
-			"hosting_info": "Vi hoster en offentlig instans for din bekvemmelighet, men det er ganske enkelt å hoste din egen på PC-en eller serveren din hvis du vet hva du gjør. Du kan laste ned server-binærfiler [vertd_link]her[/vertd_link] - prosessen med å sette dette opp vil bli enklere i fremtiden, så følg med!",
+			"hosting_info": "Du kan laste ned server-binærfiler [vertd_link]her[/vertd_link] - prosessen med å sette dette opp vil bli enklere i fremtiden, så følg med!",
 			"instance": "Instans",
 			"url_placeholder": "Eksempel: http://localhost:24153",
 			"conversion_speed": "Konverteringshastighet",
@@ -189,11 +189,7 @@
 				"medium": "Middels",
 				"fast": "Rask",
 				"ultra_fast": "Ekstremt rask"
-			},
-			"auto_instance": "Auto (anbefalt)",
-			"eu_instance": "Falkenstein, Tyskland",
-			"us_instance": "Washington, USA",
-			"custom_instance": "Egendefinert"
+			}
 		},
 		"privacy": {
 			"title": "Personvern og data",

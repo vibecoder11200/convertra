@@ -177,7 +177,7 @@
 			"available": "sẵn sàng, mã commit {commitId}",
 			"unavailable": "không khả dụng (kiểm tra lại URL nhé?)",
 			"description": "Dự án <code>vertd</code> đóng vai trò là trình chủ (server wrapper) cho FFmpeg. Điều này giúp bạn chuyển đổi video thuận tiện ngay trên giao diện web của Convertra, mà vẫn tận dụng được sức mạnh GPU để xử lý nhanh nhất có thể.",
-			"hosting_info": "Chúng mình có sẵn một máy chủ công khai để bạn dùng ngay cho tiện, nhưng nếu bạn 'có nghề' thì việc tự chạy server riêng trên máy tính cá nhân cũng rất đơn giản. Bạn có thể tải bộ cài server [vertd_link]tại đây[/vertd_link] - quy trình cài đặt sẽ sớm được tối ưu hơn trong tương lai, cùng chờ xem nhé!",
+			"hosting_info": "Bạn có thể tải bộ cài server [vertd_link]tại đây[/vertd_link] - quy trình cài đặt sẽ sớm được tối ưu hơn trong tương lai, cùng chờ xem nhé!",
 			"instance": "Máy chủ (Instance)",
 			"url_placeholder": "Ví dụ: http://localhost:24153",
 			"conversion_speed": "Tốc độ chuyển đổi",
@@ -189,11 +189,7 @@
 				"medium": "Trung bình",
 				"fast": "Nhanh",
 				"ultra_fast": "Siêu tốc"
-			},
-			"auto_instance": "Tự động (khuyên dùng)",
-			"eu_instance": "Falkenstein, Đức",
-			"us_instance": "Washington, Hoa Kỳ",
-			"custom_instance": "Tùy chỉnh"
+			}
 		},
 		"privacy": {
 			"title": "Quyền riêng tư & Dữ liệu",

@@ -96,9 +96,9 @@
 		if (!DISABLE_ALL_EXTERNAL_REQUESTS) {
 			VertdInstance.instance
 				.url()
-				.then((u) => fetch(`${u}/api/version`))
+				.then((u) => (u ? fetch(`${u}/api/version`) : undefined))
 				.then((res) => {
-					if (res.ok) $vertdLoaded = true;
+					if (res && res.ok) $vertdLoaded = true;
 				});
 		}
 

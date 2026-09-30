@@ -144,7 +144,7 @@
 			"available": "利用可能（コミットID {commitId}）",
 			"unavailable": "利用不可（URLが正しいですか？）",
 			"description": "<code>vertd</code>プロジェクトはFFmpegのサーバーラッパーです。これにより、GPUの性能を活かして高速に変換しつつ、Convertraのウェブインターフェイスから簡単に動画を変換できます。",
-			"hosting_info": "私たちは利便性のために公開インスタンスをホストしていますが、自分のPCやサーバーでも簡単にホストできます。バイナリは[vertd_link]こちら[/vertd_link]からダウンロードできます。今後さらにセットアップが簡単になる予定です！",
+			"hosting_info": "バイナリは[vertd_link]こちら[/vertd_link]からダウンロードできます。今後さらにセットアップが簡単になる予定です！",
 			"instance": "インスタンス",
 			"url_placeholder": "例: http://localhost:24153",
 			"conversion_speed": "変換速度",
@@ -156,11 +156,7 @@
 				"medium": "普通",
 				"fast": "速い",
 				"ultra_fast": "超高速"
-			},
-			"auto_instance": "自動（推奨）",
-			"eu_instance": "ドイツ・ファルケンシュタイン",
-			"us_instance": "アメリカ・ワシントン",
-			"custom_instance": "カスタム"
+			}
 		},
 		"privacy": {
 			"title": "プライバシーとデータ",
