@@ -25,3 +25,4 @@ vite.config.ts.timestamp-*
 
 # mupdf wasm (copied by postinstall)
 static/mupdf-wasm.wasm
+.playwright-mcp/
