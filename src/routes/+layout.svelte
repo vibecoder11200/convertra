@@ -135,7 +135,16 @@
 
 <svelte:head>
 	<title>{APP_NAME}</title>
-	<meta name="theme-color" content="#F2ABEE" />
+	<meta
+		name="theme-color"
+		media="(prefers-color-scheme: light)"
+		content="#D0F1EE"
+	/>
+	<meta
+		name="theme-color"
+		media="(prefers-color-scheme: dark)"
+		content="#151A1E"
+	/>
 	<meta
 		name="title"
 		content="{APP_NAME} — Free, fast, and awesome file converter"

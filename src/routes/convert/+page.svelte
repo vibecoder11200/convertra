@@ -169,8 +169,8 @@
 				const onlyType = converters[0];
 				if (onlyType === "imagemagick") type = "blue";
 				else if (onlyType === "ffmpeg") type = "purple";
-				else if (onlyType === "vertd") type = "red";
-				else if (onlyType === "pandoc") type = "green";
+				else if (onlyType === "vertd") type = "coral";
+				else if (onlyType === "pandoc") type = "amber";
 			}
 		}
 
@@ -394,9 +394,9 @@
 									style="background: var({isAudio
 										? '--bg-gradient-purple-alt'
 										: isVideo
-											? '--bg-gradient-red-alt'
+											? '--bg-gradient-coral-alt'
 											: isDocument
-												? '--bg-gradient-green-alt'
+												? '--bg-gradient-amber-alt'
 												: '--bg-gradient-blue-alt'})"
 								>
 									{#if isAudio}
@@ -555,9 +555,9 @@
 											: '!scale-100'} p-0 w-14 h-14 text-black {isAudio
 											? 'bg-accent-purple'
 											: isVideo
-												? 'bg-accent-red'
+												? 'bg-accent-coral'
 												: isDocument
-													? 'bg-accent-green'
+													? 'bg-accent-amber'
 													: 'bg-accent-blue'}"
 										disabled={!files.ready}
 										onclick={() =>

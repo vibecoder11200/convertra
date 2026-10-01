@@ -142,7 +142,7 @@
 					{m["upload.title"]()}
 				</h1>
 				<p
-					class="font-normal px-5 md:p-0 text-lg md:text-xl text-black text-muted dynadark:text-muted"
+					class="font-normal px-5 md:p-0 text-lg md:text-xl text-muted"
 				>
 					{m["upload.subtitle"]()}
 				</p>
@@ -168,8 +168,8 @@
 								class={clsx("icon-container", {
 									"bg-accent-blue": key === "Images",
 									"bg-accent-purple": key === "Audio",
-									"bg-accent-green": key === "Documents",
-									"bg-accent-red": key === "Video",
+									"bg-accent-amber": key === "Documents",
+									"bg-accent-coral": key === "Video",
 								})}
 							>
 								<Icon size="20" />
@@ -214,7 +214,7 @@
 														]()}
 													</a>
 													<span
-														class="text-red-500 -ml-0.5"
+														class="text-failure -ml-0.5"
 														>*</span
 													>
 												</span>
@@ -263,10 +263,10 @@
 																formatName,
 															)}
 														>
-															{formatName}<span
-																class="text-red-500"
-																>*</span
-															>
+														{formatName}<span
+															class="text-failure"
+															>*</span
+														>
 														</Tooltip>
 													{:else}
 														{formatName}
