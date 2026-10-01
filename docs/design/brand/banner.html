@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<style>
+	@font-face {
+		font-family: "Radio Canada Big";
+		font-weight: 600;
+		src: url("../../node_modules/@fontsource/radio-canada-big/files/radio-canada-big-latin-600-normal.woff2")
+			format("woff2");
+	}
+	* { margin: 0; padding: 0; box-sizing: border-box; }
+	html, body { width: 2048px; height: 274px; background: transparent; overflow: hidden; }
+	.banner {
+		width: 2048px; height: 274px;
+		background: #151a1e;
+		border-radius: 60px;
+		display: flex; align-items: center; justify-content: center; gap: 48px;
+	}
+	.tile {
+		width: 192px; height: 192px; border-radius: 48px;
+		background: #35d4bf;
+		display: grid; place-items: center;
+	}
+	.tile svg { width: 116px; height: 116px; }
+	.word {
+		font-family: "Radio Canada Big", sans-serif;
+		font-weight: 600;
+		font-size: 138px;
+		line-height: 1;
+		color: #ffffff;
+		letter-spacing: 0.015em;
+		transform: translateY(-6px);
+	}
+</style>
+</head>
+<body>
+	<div class="banner">
+		<div class="tile">
+			<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+				<g fill="#0E161B" stroke="#0E161B" stroke-width="22" stroke-linejoin="round">
+					<path d="M120,162 H344 V140 L416,190 L344,240 V218 H120 Z" />
+					<path d="M392,294 H168 V272 L96,322 L168,372 V350 H392 Z" />
+				</g>
+			</svg>
+		</div>
+		<div class="word">CONVERTRA</div>
+	</div>
+</body>
+</html>

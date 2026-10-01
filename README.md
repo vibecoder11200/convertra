@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/bf441748-0ec5-4c8a-b3e5-11301ee3f0bd" alt="Convertra logo" height="100">
+  <img src="static/banner.png" alt="Convertra" width="480">
 </p>
 <h1 align="center">Convertra</h1>
 

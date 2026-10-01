@@ -26,3 +26,8 @@ vite.config.ts.timestamp-*
 # mupdf wasm (copied by postinstall)
 static/mupdf-wasm.wasm
 .playwright-mcp/
+
+# Design render intermediates (regenerate via docs/design/brand/build.sh)
+docs/design/live-*.png
+docs/design/check-*.png
+docs/design/brand/*-render.png
