@@ -35,6 +35,11 @@
 
 	let scrollPositions = new Map<string, number>();
 
+	// canonical/og:url/twitter:url need a configured hostname - an empty
+	// PUB_HOSTNAME would render broken "https:///" URLs that SvelteKit's
+	// prerender crawler also fails to parse (Invalid URL)
+	const canonicalBase = PUB_HOSTNAME ? `https://${PUB_HOSTNAME}` : "";
+
 	beforeNavigate((nav) => {
 		if (!nav.from || !$isMobile) return;
 		scrollPositions.set(nav.from.url.pathname, window.scrollY);
@@ -153,7 +158,9 @@
 		name="description"
 		content="With Convertra, you can quickly convert any image, video, audio, and document file. No ads, no tracking, open source, and all processing (other than video) is done on your device."
 	/>
-	<meta property="og:url" content="https://{PUB_HOSTNAME}" />
+	{#if canonicalBase}
+		<meta property="og:url" content={canonicalBase} />
+	{/if}
 	<meta property="og:type" content="website" />
 	<meta
 		property="og:title"
@@ -165,8 +172,10 @@
 	/>
 	<meta property="og:image" content={featuredImage} />
 	<meta name="twitter:card" content="summary_large_image" />
-	<meta property="twitter:domain" content={PUB_HOSTNAME} />
-	<meta property="twitter:url" content="https://{PUB_HOSTNAME}" />
+	{#if canonicalBase}
+		<meta property="twitter:domain" content={PUB_HOSTNAME} />
+		<meta property="twitter:url" content={canonicalBase} />
+	{/if}
 	<meta
 		property="twitter:title"
 		content="{APP_NAME} — Free, fast, and awesome file converter"
@@ -177,7 +186,9 @@
 	/>
 	<meta property="twitter:image" content={featuredImage} />
 	<link rel="manifest" href="/manifest.json" />
-	<link rel="canonical" href="https://{PUB_HOSTNAME}/" />
+	{#if canonicalBase}
+		<link rel="canonical" href="{canonicalBase}/" />
+	{/if}
 	{#if enablePlausible}
 		<script
 			defer
