@@ -129,8 +129,7 @@
 		<h2 class="text-2xl font-bold">
 			<ChartColumnIcon
 				size="40"
-				class="inline-block -mt-1 mr-2 bg-accent-blue p-2 rounded-full"
-				color="black"
+				class="inline-block -mt-1 mr-2 bg-accent p-2 rounded-full text-on-accent"
 			/>
 			{m["settings.privacy.title"]()}
 		</h2>

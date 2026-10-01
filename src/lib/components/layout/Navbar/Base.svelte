@@ -107,7 +107,7 @@
 		href={item.url}
 		aria-label={item.name}
 		class={clsx(
-			"min-w-16 md:min-w-32 h-full relative z-10 rounded-xl flex flex-1 items-center justify-center gap-3 overflow-hidden",
+			"min-w-16 md:min-w-28 h-full relative z-10 rounded-xl flex flex-1 items-center justify-center gap-3 overflow-hidden",
 			{
 				"bg-panel-highlight":
 					item.activeMatch(page.url.pathname) && !browser,
@@ -184,12 +184,16 @@
 			></div>
 		{/if}
 		<a
-			class="w-28 h-full bg-accent rounded-xl items-center justify-center hidden md:flex"
+			class="h-full pl-3 pr-4 hidden md:flex items-center justify-center gap-2.5 rounded-xl hover:bg-panel-highlight duration-200"
 			href="/"
+			aria-label="Convertra"
 		>
-			<div class="h-5 w-full">
+			<div class="h-6 w-6 text-[--accent] flex-shrink-0">
 				<Logo />
 			</div>
+			<span class="font-display font-semibold text-lg tracking-tight">
+				Convertra
+			</span>
 		</a>
 		{#each items as item, i (item.url)}
 			{@render link(item, i)}

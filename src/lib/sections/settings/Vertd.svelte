@@ -53,8 +53,7 @@
 		<h2 class="text-2xl font-bold">
 			<ServerIcon
 				size="40"
-				class="inline-block -mt-1 mr-2 bg-accent-red p-2 rounded-full overflow-visible"
-				color="black"
+				class="inline-block -mt-1 mr-2 bg-accent p-2 rounded-full overflow-visible text-on-accent"
 			/>
 			{m["settings.vertd.title"]()}
 		</h2>

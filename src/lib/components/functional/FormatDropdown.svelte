@@ -473,7 +473,7 @@
 						<button
 							class="w-full p-2 text-center rounded-xl
 							{format === selected
-								? 'bg-accent text-black'
+								? 'bg-accent text-on-accent'
 								: format === from
 									? 'bg-separator'
 									: 'hover:bg-panel'}"
@@ -495,7 +495,7 @@
 			{#if file?.name.toLowerCase().endsWith(".zip")}
 				<div class="border-t border-separator text-base p-2">
 					<button
-						class="w-full p-2 text-center rounded-lg bg-accent text-black"
+						class="w-full p-2 text-center rounded-lg bg-accent text-on-accent"
 						onclick={() => extract()}
 					>
 						{m["convert.archive_file.extract"]()}

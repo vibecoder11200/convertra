@@ -183,9 +183,9 @@
 	<div class="flex flex-col gap-3">
 		<h2 class="text-2xl font-bold flex items-center">
 			<div
-				class="rounded-full bg-accent-red p-2 inline-block mr-3 w-10 h-10"
+				class="rounded-full bg-accent p-2 inline-block mr-3 w-10 h-10"
 			>
-				<HeartIcon color="black" />
+				<HeartIcon class="text-on-accent" />
 			</div>
 			{m["about.donate.title"]()}
 		</h2>
@@ -212,7 +212,7 @@
 					"btn flex-1 p-4 rounded-lg flex items-center justify-center",
 					{
 						"!scale-100": !$effects,
-						"bg-accent-red text-black": type === "one-time",
+						"bg-accent text-on-accent": type === "one-time",
 					},
 				)}
 			>
@@ -227,7 +227,7 @@
 					"btn flex-1 p-4 rounded-lg flex items-center justify-center",
 					{
 						"!scale-100": !$effects,
-						"bg-accent-red text-black": type === "monthly",
+						"bg-accent text-on-accent": type === "monthly",
 					},
 				)}
 			>
@@ -243,7 +243,7 @@
 						"btn p-4 rounded-lg flex items-center justify-center",
 						{
 							"!scale-100": !$effects,
-							"bg-accent-red text-black": amount === preset,
+							"bg-accent text-on-accent": amount === preset,
 						},
 					)}
 					style={i === 2 ? "grid-column: 3;" : ""}
@@ -274,7 +274,7 @@
 			}}
 			onclick={paymentClick}
 			class={clsx(
-				"btn flex-1 p-3 relative rounded-3xl bg-accent-red border-2 border-accent-red h-14 text-black",
+				"btn flex-1 p-3 relative rounded-3xl bg-accent border-2 border-accent h-14 text-on-accent",
 				{
 					"h-[450px] rounded-2xl bg-transparent cursor-auto !scale-100 -mt-10 -mb-2":
 						paymentState !== "prepay",
@@ -322,7 +322,7 @@
 								disabled={!stripe ||
 									!clientSecret ||
 									!enablePay}
-								class="btn w-full h-12 bg-accent-red text-black rounded-full mt-4"
+								class="btn w-full h-12 bg-accent text-on-accent rounded-full mt-4"
 								onclick={donate}
 							>
 								{m["about.donate.donate_amount"]({
