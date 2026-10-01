@@ -18,7 +18,8 @@
 		"subtitle": "All image, audio, and document processing is done on your device. Videos are converted on our lightning-fast servers. No file size limit, no ads, and completely open source.",
 		"uploader": {
 			"text": "Drop or click to {action}",
-			"convert": "convert"
+			"convert": "convert",
+			"hint": "Drag & drop, paste with Ctrl+V, or click to browse"
 		},
 		"cards": {
 			"title": "Convertra supports...",

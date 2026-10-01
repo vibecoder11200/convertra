@@ -76,5 +76,8 @@
 				action: m["upload.uploader.convert"](),
 			})}
 		</h2>
+		<p class="text-center text-sm font-normal text-muted mt-1">
+			{m["upload.uploader.hint"]()}
+		</p>
 	</Panel>
 </button>

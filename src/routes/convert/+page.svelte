@@ -188,7 +188,7 @@
 	{@const isAudio = currentConverter?.name === "ffmpeg"}
 	{@const isVideo = currentConverter?.name === "vertd"}
 	{@const isDocument = currentConverter?.name === "pandoc"}
-	<Panel class="p-5 flex flex-col min-w-0 gap-4 relative">
+	<Panel class="p-5 flex flex-col min-w-0 gap-4 relative min-h-[16rem]">
 		<div class="flex-shrink-0 h-8 w-full flex items-center gap-2">
 			{#if !converters.length}
 				<Tooltip
@@ -377,218 +377,203 @@
 					</p>
 				</div>
 			{:else}
-				<div class="flex flex-row justify-between">
-					<div
-						class="flex gap-4 w-full h-[152px] overflow-hidden relative"
-					>
-						<div class="w-1/2 h-full overflow-hidden rounded-xl">
-							{#if file.blobUrl}
-								<img
-									class="object-cover w-full h-full"
-									src={file.blobUrl}
-									alt={file.name}
-								/>
-							{:else}
-								<div
-									class="w-full h-full flex items-center justify-center text-black"
-									style="background: var({isAudio
-										? '--bg-gradient-purple-alt'
-										: isVideo
-											? '--bg-gradient-coral-alt'
-											: isDocument
-												? '--bg-gradient-amber-alt'
-												: '--bg-gradient-blue-alt'})"
-								>
-									{#if isAudio}
-										<FileMusicIcon size="56" />
-									{:else if isVideo}
-										<FileVideo2 size="56" />
-									{:else if isDocument}
-										<BookText size="56" />
-									{:else}
-										<ImageOffIcon size="56" />
-									{/if}
-								</div>
-							{/if}
-						</div>
-					</div>
-					<div
-						class="absolute top-16 right-0 mr-4 pl-2 h-[calc(100%-83px)] w-[calc(50%-38px)] pr-4 pb-1 flex items-center justify-center aspect-square"
-					>
-						<div
-							class="w-[122px] h-fit flex flex-col gap-2 items-center justify-center"
-						>
-							<FormatDropdown
-								{categories}
-								from={file.from}
-								bind:selected={file.to}
-								onselect={(option) =>
-									handleSelect(option, file)}
-								{file}
+				<div class="flex flex-col items-center gap-4 flex-grow">
+					<div class="w-full h-36 rounded-xl overflow-hidden">
+						{#if file.blobUrl}
+							<img
+								class="object-cover w-full h-full"
+								src={file.blobUrl}
+								alt={file.name}
 							/>
-							{#if currentConverter?.name === "pdf-lib" || currentConverter?.name === "pdf-render"}
-								{@const opts = getPdfOptions(file.id)}
-								<div
-									class="w-full flex flex-col gap-1.5 items-stretch text-sm"
-								>
-									{#if currentConverter?.name === "pdf-lib"}
+						{:else}
+							<div
+								class="w-full h-full flex items-center justify-center text-black"
+								style="background: var({isAudio
+									? '--bg-gradient-purple-alt'
+									: isVideo
+										? '--bg-gradient-coral-alt'
+										: isDocument
+											? '--bg-gradient-amber-alt'
+											: '--bg-gradient-blue-alt'})"
+							>
+								{#if isAudio}
+									<FileMusicIcon size="56" />
+								{:else if isVideo}
+									<FileVideo2 size="56" />
+								{:else if isDocument}
+									<BookText size="56" />
+								{:else}
+									<ImageOffIcon size="56" />
+								{/if}
+							</div>
+						{/if}
+					</div>
+					<div class="flex flex-col items-center gap-2 w-full">
+						<FormatDropdown
+							{categories}
+							from={file.from}
+							bind:selected={file.to}
+							onselect={(option) => handleSelect(option, file)}
+							{file}
+						/>
+						{#if currentConverter?.name === "pdf-lib" || currentConverter?.name === "pdf-render"}
+							{@const opts = getPdfOptions(file.id)}
+							<div
+								class="w-full flex flex-col gap-1.5 items-stretch text-sm"
+							>
+								{#if currentConverter?.name === "pdf-lib"}
+									<label class="text-muted">
+										{m["convert.pdf.split_range"]()}
+										<input
+											class="w-full input"
+											placeholder="e.g. 2-5"
+											bind:value={opts.range}
+										/>
+									</label>
+									{#if file.to === ".pdf"}
 										<label class="text-muted">
-											{m["convert.pdf.split_range"]()}
+											{m[
+												"convert.pdf.compress_quality"
+											]()}: {opts.quality}%
 											<input
-												class="w-full input"
-												placeholder="e.g. 2-5"
-												bind:value={opts.range}
+												class="w-full"
+												type="range"
+												min="30"
+												max="100"
+												bind:value={opts.quality}
 											/>
-										</label>
-										{#if file.to === ".pdf"}
-											<label class="text-muted">
-												{m[
-													"convert.pdf.compress_quality"
-												]()}: {opts.quality}%
-												<input
-													class="w-full"
-													type="range"
-													min="30"
-													max="100"
-													bind:value={opts.quality}
-												/>
-											</label>
-										{/if}
-									{:else}
-										<label class="text-muted">
-											{m["convert.pdf.render_scale"]()}
-											<select
-												class="input w-full"
-												bind:value={opts.scale}
-											>
-												<option value={1}>72dpi</option>
-												<option value={2}>144dpi</option
-												>
-												<option value={3}>216dpi</option
-												>
-											</select>
 										</label>
 									{/if}
-								</div>
-							{:else if currentConverter?.name === "webcodecs"}
-								{@const vopts = getVideoOptions(file.id)}
-								<div
-									class="w-full flex flex-col gap-1.5 items-stretch text-sm"
-								>
+								{:else}
 									<label class="text-muted">
-										{m["convert.video.trim"]()}
-										<div class="flex items-center gap-2">
-											<input
-												class="input w-full"
-												type="number"
-												min="0"
-												max="60"
-												value={vopts.start}
-												onchange={(e) =>
-													(vopts.start = Number(
-														(
-															e.currentTarget as HTMLInputElement
-														).value,
-													))}
-											/>
-											<span>–</span>
-											<input
-												class="input w-full"
-												type="number"
-												min="0"
-												max="60"
-												value={vopts.end}
-												onchange={(e) =>
-													(vopts.end = Number(
-														(
-															e.currentTarget as HTMLInputElement
-														).value,
-													))}
-											/>
-										</div>
-									</label>
-									<label class="text-muted">
-										{m["convert.video.fps"]()}
-										<input
+										{m["convert.pdf.render_scale"]()}
+										<select
 											class="input w-full"
-											type="number"
-											min="1"
-											max="30"
-											value={vopts.fps}
-											onchange={(e) =>
-												(vopts.fps = Number(
-													(
-														e.currentTarget as HTMLInputElement
-													).value,
-												))}
-										/>
+											bind:value={opts.scale}
+										>
+											<option value={1}>72dpi</option>
+											<option value={2}>144dpi</option>
+											<option value={3}>216dpi</option>
+										</select>
 									</label>
-									<label class="text-muted">
-										{m["convert.video.width"]()}
-										<input
-											class="input w-full"
-											type="number"
-											min="64"
-											max="1920"
-											step="16"
-											value={vopts.width}
-											onchange={(e) =>
-												(vopts.width = Number(
-													(
-														e.currentTarget as HTMLInputElement
-													).value,
-												))}
-										/>
-									</label>
-								</div>
-							{/if}
-							<div
-								class="w-full flex items-center justify-between"
-							>
-								<Tooltip
-									text={m["convert.tooltips.convert_file"]()}
-									position="bottom"
-								>
-									<button
-										class="btn {$effects
-											? ''
-											: '!scale-100'} p-0 w-14 h-14 text-black {isAudio
-											? 'bg-accent-purple'
-											: isVideo
-												? 'bg-accent-coral'
-												: isDocument
-													? 'bg-accent-amber'
-													: 'bg-accent-blue'}"
-										disabled={!files.ready}
-										onclick={() =>
-											currentConverter?.name ===
-												"pdf-lib" ||
-											currentConverter?.name ===
-												"pdf-render"
-												? convertPdf(file)
-												: currentConverter?.name ===
-													  "webcodecs"
-													? convertVideo(file)
-													: file.convert()}
-									>
-										<RotateCwIcon size="24" />
-									</button>
-								</Tooltip>
-								<Tooltip
-									text={m["convert.tooltips.download_file"]()}
-									position="bottom"
-								>
-									<button
-										class="btn {$effects
-											? ''
-											: '!scale-100'} p-0 w-14 h-14"
-										onclick={file.download}
-										disabled={!file.result}
-									>
-										<DownloadIcon size="24" />
-									</button>
-								</Tooltip>
+								{/if}
 							</div>
+						{:else if currentConverter?.name === "webcodecs"}
+							{@const vopts = getVideoOptions(file.id)}
+							<div
+								class="w-full flex flex-col gap-1.5 items-stretch text-sm"
+							>
+								<label class="text-muted">
+									{m["convert.video.trim"]()}
+									<div class="flex items-center gap-2">
+										<input
+											class="input w-full"
+											type="number"
+											min="0"
+											max="60"
+											value={vopts.start}
+											onchange={(e) =>
+												(vopts.start = Number(
+													(
+														e.currentTarget as HTMLInputElement
+													).value,
+												))}
+										/>
+										<span>–</span>
+										<input
+											class="input w-full"
+											type="number"
+											min="0"
+											max="60"
+											value={vopts.end}
+											onchange={(e) =>
+												(vopts.end = Number(
+													(
+														e.currentTarget as HTMLInputElement
+													).value,
+												))}
+										/>
+									</div>
+								</label>
+								<label class="text-muted">
+									{m["convert.video.fps"]()}
+									<input
+										class="input w-full"
+										type="number"
+										min="1"
+										max="30"
+										value={vopts.fps}
+										onchange={(e) =>
+											(vopts.fps = Number(
+												(
+													e.currentTarget as HTMLInputElement
+												).value,
+											))}
+									/>
+								</label>
+								<label class="text-muted">
+									{m["convert.video.width"]()}
+									<input
+										class="input w-full"
+										type="number"
+										min="64"
+										max="1920"
+										step="16"
+										value={vopts.width}
+										onchange={(e) =>
+											(vopts.width = Number(
+												(
+													e.currentTarget as HTMLInputElement
+												).value,
+											))}
+									/>
+								</label>
+							</div>
+						{/if}
+						<div
+							class="flex items-center justify-center gap-4 mt-auto"
+						>
+							<Tooltip
+								text={m["convert.tooltips.convert_file"]()}
+								position="bottom"
+							>
+								<button
+									class="btn {$effects
+										? ''
+										: '!scale-100'} p-0 w-14 h-14 text-black {isAudio
+										? 'bg-accent-purple'
+										: isVideo
+											? 'bg-accent-coral'
+											: isDocument
+												? 'bg-accent-amber'
+												: 'bg-accent-blue'}"
+									disabled={!files.ready}
+									onclick={() =>
+										currentConverter?.name === "pdf-lib" ||
+										currentConverter?.name === "pdf-render"
+											? convertPdf(file)
+											: currentConverter?.name ===
+												  "webcodecs"
+												? convertVideo(file)
+												: file.convert()}
+								>
+									<RotateCwIcon size="24" />
+								</button>
+							</Tooltip>
+							<Tooltip
+								text={m["convert.tooltips.download_file"]()}
+								position="bottom"
+							>
+								<button
+									class="btn {$effects
+										? ''
+										: '!scale-100'} p-0 w-14 h-14"
+									onclick={file.download}
+									disabled={!file.result}
+								>
+									<DownloadIcon size="24" />
+								</button>
+							</Tooltip>
 						</div>
 					</div>
 				</div>
@@ -597,27 +582,23 @@
 	</Panel>
 {/snippet}
 
-<div class="flex flex-col justify-center items-center gap-8 -mt-4 px-4 md:p-0">
-	<div class="max-w-[778px] w-full">
+<div
+	class="flex flex-col justify-center items-center gap-8 -mt-4 px-4 md:p-0 max-md:pb-80"
+>
+	<div class="max-w-6xl w-full">
 		<ConversionPanel />
 	</div>
 
 	<div
-		class="w-full max-w-[778px] grid grid-cols-1 md:grid-cols-2 auto-rows-[240px] gap-4 md:p-0"
+		class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:p-0"
 	>
 		{#each files.files as file, i (file.id)}
-			{#if files.files.length >= 2 && i === 1}
-				<Uploader
-					class="w-full h-full col-start-1 row-start-1 md:col-start-2"
-				/>
-			{/if}
 			{@render fileItem(file, i)}
-			{#if files.files.length < 2}
-				<Uploader class="w-full h-full" />
-			{/if}
 		{/each}
 		{#if files.files.length === 0}
-			<Uploader class="w-full h-full col-span-2" />
+			<Uploader class="w-full h-full md:col-span-2 xl:col-span-3" />
+		{:else}
+			<Uploader class="w-full h-full" />
 		{/if}
 	</div>
 </div>

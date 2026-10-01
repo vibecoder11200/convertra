@@ -18,7 +18,8 @@
 		"subtitle": "Mọi khâu xử lý ảnh hay tài liệu đều diễn ra ngay trên thiết bị, video thì được đẩy lên server chạy nhanh như chớp. Thoải mái đổi file không lo giới hạn dung lượng, sạch bóng quảng cáo và quan trọng là open source 100%.",
 		"uploader": {
 			"text": "Kéo thả hoặc nhấn để {action}",
-			"convert": "chuyển đổi"
+			"convert": "chuyển đổi",
+			"hint": "Kéo thả, dán (Ctrl+V) hoặc bấm để chọn file"
 		},
 		"cards": {
 			"title": "Convertra hỗ trợ...",
