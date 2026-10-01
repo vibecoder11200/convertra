@@ -2,7 +2,6 @@
 	import { m } from "$lib/paraglide/messages";
 	import { link, sanitize } from "$lib/store/index.svelte";
 	import { ShieldCheckIcon } from "lucide-svelte";
-	import { DISCORD_URL, GITHUB_URL_CONVERTRA } from "$lib/util/consts";
 </script>
 
 <div class="flex flex-col h-full items-center">
@@ -17,14 +16,7 @@
 		<div class="bg-panel rounded-2xl p-6 shadow-panel text-lg font-normal">
 			<h2 class="text-2xl mb-3">{m["privacy.summary.title"]()}</h2>
 			<p class="mb-4">
-				{@html sanitize(
-					link(
-						["site_link"],
-						m["privacy.summary.description"](),
-						[GITHUB_URL_CONVERTRA],
-						[true],
-					),
-				)}
+				{@html sanitize(m["privacy.summary.description"]())}
 			</p>
 
 			<h2 class="text-2xl mb-3">{m["privacy.conversions.title"]()}</h2>
@@ -92,16 +84,7 @@
 			</p>
 
 			<h3 class="text-xl mt-4 mb-2">{m["privacy.contact.title"]()}</h3>
-			<p class="mb-0">
-				{@html sanitize(
-					link(
-						["email_link"],
-						m["privacy.contact.description"](),
-						[DISCORD_URL],
-						[false],
-					),
-				)}
-			</p>
+			<p class="mb-0">{m["privacy.contact.description"]()}</p>
 
 			<p class="text-sm text-muted mt-6">{m["privacy.last_updated"]()}</p>
 		</div>

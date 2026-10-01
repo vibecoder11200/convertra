@@ -9,8 +9,6 @@
 	},
 	"footer": {
 		"copyright": "© {year} Convertra.",
-		"source_code": "Source code",
-		"discord_server": "Discord server",
 		"privacy_policy": "Privacy policy"
 	},
 	"upload": {
@@ -44,7 +42,7 @@
 			"partial_support": "This format can only be converted as {direction}.",
 			"direction_input": "input (from)",
 			"direction_output": "output (to)",
-			"video_server_processing": "Video uploads to a server for processing by default, learn how to set it up locally here."
+			"video_server_processing": "Video uploads to a server for processing by default."
 		}
 	},
 	"convert": {
@@ -228,16 +226,6 @@
 			"title": "Why Convertra?",
 			"description": "<b>File converters have always disappointed us.</b> They're ugly, riddled with ads, and most importantly; slow. We decided to solve this problem once and for all by making an alternative that solves all those problems, and more.<br/><br/>All non-video files are converted completely on-device; this means that there's no delay between sending and receiving the files from a server, and we never get to snoop on the files you convert.<br/><br/>Video files get uploaded to our lightning-fast RTX 4000 Ada server. Your videos stay on there for an hour if you do not convert them. If you do convert the file, the video will stay on the server for an hour, or until it is downloaded. The file will then be deleted from our server."
 		},
-		"sponsors": {
-			"title": "Sponsors",
-			"description": "Want to support us? Contact a developer in the [discord_link]Discord[/discord_link].",
-			"email_copied": "Email copied to clipboard!"
-		},
-		"resources": {
-			"title": "Resources",
-			"discord": "Discord",
-			"source": "Source"
-		},
 		"donate": {
 			"title": "Donate to Convertra",
 			"description": "With your support, we can keep maintaining and improving Convertra.",
@@ -258,28 +246,7 @@
 			"vn_momo_detail": "Momo wallet transfers are welcome.",
 			"vn_qr": "Banking QR code",
 			"vn_qr_detail": "Scan the VietQR-style QR code from your banking app.",
-			"donation_notice": "Your donations here go to the operator of this Convertra instance. If you wish to support the official Convertra developers, please visit [official_link]GitHub[/official_link] instead."
-		},
-		"credits": {
-			"title": "Credits",
-			"contact_team": "If you would like to contact the development team, please use the email found on the \"Resources\" card.",
-			"notable_contributors": "Notable contributors",
-			"notable_description": "We'd like to thank these people for their major contributions to Convertra.",
-			"github_contributors": "GitHub contributors",
-			"github_description": "Big thanks to all these people for helping out! [github_link]Want to help too?[/github_link]",
-			"no_contributors": "Seems like no one has contributed yet... [contribute_link]be the first to contribute![/contribute_link]",
-			"libraries": "Libraries",
-			"libraries_description": "A big thanks to FFmpeg (audio, video), ImageMagick (images) and Pandoc (documents) for maintaining such excellent libraries for so many years. Convertra relies on them to provide you with your conversions.",
-			"roles": {
-				"lead_developer": "Lead developer; conversion backend, UI implementation",
-				"developer": "Developer; UI implementation",
-				"designer": "Designer; UX, branding, marketing",
-				"docker_ci": "Maintaining Docker & CI support",
-				"former_cofounder": "Former co-founder & designer"
-			}
-		},
-		"errors": {
-			"github_contributors": "Error fetching GitHub contributors"
+			"donation_notice": "Your donations here go to the operator of this Convertra instance."
 		}
 	},
 	"workers": {
@@ -298,7 +265,7 @@
 		"title": "Privacy Policy",
 		"summary": {
 			"title": "Summary",
-			"description": "Convertra's privacy policy is very simple: we do not collect or store any data on you at all. We don't use cookies or trackers, analytics are completely private, and all conversions (except videos) happen locally on your browser. Videos are deleted after being downloaded, or an hour, unless explicitly given permission by you to be stored; it will only be used for the purpose of troubleshooting. Convertra self-hosts a Coolify instance for hosting the website and vertd (for video conversion), and a Plausible instance for completely anonymous and aggregated analytics. We use Stripe to process donations, which may collect some data used for fraud prevention.<br/><br/>Note this may only apply to the official Convertra instance at [site_link]GitHub[/site_link]; third-party instances may handle your data differently."
+			"description": "Convertra's privacy policy is very simple: we do not collect or store any data on you at all. We don't use cookies or trackers, analytics are completely private, and all conversions (except videos) happen locally on your browser. Videos are deleted after being downloaded, or an hour, unless explicitly given permission by you to be stored; it will only be used for the purpose of troubleshooting. Convertra self-hosts a Coolify instance for hosting the website and vertd (for video conversion), and a Plausible instance for completely anonymous and aggregated analytics. We use Stripe to process donations, which may collect some data used for fraud prevention.<br/><br/>Note this may only apply to the official Convertra instance; third-party instances may handle your data differently."
 		},
 		"conversions": {
 			"title": "Conversions",
@@ -328,7 +295,7 @@
 		},
 		"contact": {
 			"title": "Contact",
-			"description": "For questions, contact us on [discord_link]Discord[/discord_link]. If you are using a third-party instance of Convertra, please contact the hoster of that instance instead."
+			"description": "If you are using a third-party instance of Convertra, please contact the hoster of that instance."
 		},
 		"last_updated": "Last updated: 2025-10-29"
 	},

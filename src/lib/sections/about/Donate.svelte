@@ -10,11 +10,10 @@
 	import { goto } from "$app/navigation";
 	import { page } from "$app/state";
 	import { PUB_DONATION_URL, PUB_STRIPE_KEY } from "$env/static/public";
-	import { GITHUB_URL_CONVERTRA } from "$lib/util/consts";
 	import { fade } from "$lib/util/animation";
 	import FancyInput from "$lib/components/functional/FancyInput.svelte";
 	import Panel from "$lib/components/visual/Panel.svelte";
-	import { effects, link, sanitize } from "$lib/store/index.svelte";
+	import { effects } from "$lib/store/index.svelte";
 	import { loadStripe } from "@stripe/stripe-js/pure";
 	import { type Stripe, type StripeElements } from "@stripe/stripe-js";
 	import clsx from "clsx";
@@ -182,9 +181,7 @@
 <Panel class="flex flex-col gap-8 p-6">
 	<div class="flex flex-col gap-3">
 		<h2 class="text-2xl font-bold flex items-center">
-			<div
-				class="rounded-full bg-accent p-2 inline-block mr-3 w-10 h-10"
-			>
+			<div class="rounded-full bg-accent p-2 inline-block mr-3 w-10 h-10">
 				<HeartIcon class="text-on-accent" />
 			</div>
 			{m["about.donate.title"]()}
@@ -351,15 +348,7 @@
 	</div>
 
 	<p class="text-sm font-normal text-muted">
-		{@html sanitize(
-			link(
-				"official_link",
-				m["about.donate.donation_notice"](),
-				GITHUB_URL_CONVERTRA,
-				true,
-				"",
-			),
-		)}
+		{m["about.donate.donation_notice"]()}
 	</p>
 
 	<!-- D8a: Vietnamese payment methods -->

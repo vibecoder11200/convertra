@@ -9,9 +9,7 @@
 
 <Panel class="flex flex-col gap-3 p-6 min-h-[280px]">
 	<h2 class="text-2xl font-bold flex items-center">
-		<div
-			class="rounded-full bg-accent p-2 inline-block mr-3 w-10 h-10"
-		>
+		<div class="rounded-full bg-accent p-2 inline-block mr-3 w-10 h-10">
 			<PiggyBankIcon class="text-on-accent" />
 		</div>
 		{m["about.sponsors.title"]()}

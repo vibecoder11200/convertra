@@ -196,15 +196,9 @@
 												]()}
 											>
 												<span>
-													<a
-														href="https://github.com/vibecoder11200/convertra/blob/main/docs/VIDEO_CONVERSION.md"
-														target="_blank"
-														rel="noopener noreferrer"
-													>
-														{m[
-															"upload.cards.video_server_processing"
-														]()}
-													</a>
+													{m[
+														"upload.cards.video_server_processing"
+													]()}
 													<span
 														class="text-failure -ml-0.5"
 														>*</span

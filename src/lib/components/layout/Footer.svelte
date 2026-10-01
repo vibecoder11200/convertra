@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { GITHUB_URL_CONVERTRA, DISCORD_URL } from "$lib/util/consts";
 	import { m } from "$lib/paraglide/messages";
 
 	const commitHash =
@@ -21,34 +20,12 @@
 	>
 		<p>{m["footer.copyright"]({ year })}</p>
 		<p>•</p>
-		<a
-			class="hover:underline font-normal"
-			href={GITHUB_URL_CONVERTRA}
-			target="_blank"
-		>
-			{m["footer.source_code"]()}
-		</a>
-		<p>•</p>
-		<a
-			class="hover:underline font-normal"
-			href={DISCORD_URL}
-			target="_blank"
-		>
-			{m["footer.discord_server"]()}
-		</a>
-		<p>•</p>
 		<a class="hover:underline font-normal" href="/privacy/">
 			{m["footer.privacy_policy"]()}
 		</a>
 		{#if commitHash}
 			<p>•</p>
-			<a
-				class="hover:underline font-normal"
-				href="{GITHUB_URL_CONVERTRA}/commit/{commitHash}"
-				target="_blank"
-			>
-				{commitHash}
-			</a>
+			<p>{commitHash}</p>
 		{/if}
 	</div>
 
