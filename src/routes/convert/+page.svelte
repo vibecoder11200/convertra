@@ -5,7 +5,7 @@
 	import Panel from "$lib/components/visual/Panel.svelte";
 	import ProgressBar from "$lib/components/visual/ProgressBar.svelte";
 	import Tooltip from "$lib/components/visual/Tooltip.svelte";
-	import { categories, converters } from "$lib/converters";
+	import { categories } from "$lib/converters";
 	import {
 		effects,
 		files,
@@ -190,7 +190,7 @@
 	{@const isDocument = currentConverter?.name === "pandoc"}
 	<Panel class="p-5 flex flex-col min-w-0 gap-4 relative min-h-[16rem]">
 		<div class="flex-shrink-0 h-8 w-full flex items-center gap-2">
-			{#if !converters.length}
+			{#if !file.converters.length}
 				<Tooltip
 					text={m["convert.tooltips.unknown_file"]()}
 					position="bottom"

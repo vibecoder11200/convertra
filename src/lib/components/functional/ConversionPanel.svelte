@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { effects, files } from "$lib/store/index.svelte";
+	import type { VertFile } from "$lib/types";
 	import { FolderArchiveIcon, RefreshCw, Trash2Icon } from "lucide-svelte";
 	import Panel from "../visual/Panel.svelte";
 	import Dropdown from "./Dropdown.svelte";
@@ -11,6 +12,42 @@
 
 	const length = $derived(files.files.length);
 	const progress = $derived(files.files.filter((f) => f.result).length);
+
+	// converters that can actually read the file - output-only formats don't
+	// count (e.g. pdf-render lists .png as an output only, so it must not be
+	// considered a .png input converter, otherwise .png and .jpg files that
+	// both go through imagemagick would look "different")
+	const readableConverters = (f: VertFile) =>
+		f.converters
+			.filter(
+				(c) =>
+					f.isZip() ||
+					c.supportedFormats.find((x) => x.name === f.from)
+						?.fromSupported,
+			)
+			.map((c) => c.name)
+			.sort()
+			.join(",");
+
+	// check if all files have the same converters
+	// video and audio together still have this dropdown disabled because audio has just ffmpeg (video has vertd & ffmpeg), even tho it can convert between video and audio
+	const sameConverters = $derived(
+		files.files.length > 0 &&
+			files.files.every((f) => f.converters.length) &&
+			files.files.every(
+				(f) =>
+					readableConverters(f) ===
+					readableConverters(files.files[0]),
+			),
+	);
+
+	// show the shared target format once every file agrees on one
+	const setAllLabel = $derived(
+		files.files.length > 0 &&
+			files.files.every((f) => f.to === files.files[0].to)
+			? files.files[0].to
+			: "",
+	);
 </script>
 
 <Panel
@@ -59,9 +96,7 @@
 				{m["convert.panel.set_all_to"]()}
 			</p>
 			<div class="max-md:w-full w-48 md:max-w-[6.5rem]">
-				<!-- check if all files have the same converters -->
-				<!-- video and audio together still have this dropdown disabled because audio has just ffmpeg (video has vertd & ffmpeg), even tho it can convert between video and audio  -->
-				{#if files.files.length > 0 && files.files.every((f) => f.converters.length) && files.files.every((f) => JSON.stringify(f.converters) === JSON.stringify(files.files[0].converters))}
+				{#if sameConverters}
 					<FormatDropdown
 						onselect={(r) =>
 							files.files.forEach((f) => {
@@ -69,6 +104,7 @@
 								f.result = null;
 							})}
 						{categories}
+						selected={setAllLabel}
 						dropdownSize={"large"}
 					/>
 				{:else}

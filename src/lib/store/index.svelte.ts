@@ -35,6 +35,10 @@ class Files {
 
 	private _addThumbnail = async (file: VertFile) => {
 		this.thumbnailQueue.add(async () => {
+			// archives have no meaningful thumbnail - skip instead of
+			// failing to decode the zip blob as an image (noisy console error)
+			if (file.isZip()) return;
+
 			const isAudio = converters
 				.find((c) => c.name === "ffmpeg")
 				?.supportedFormats.filter((f) => f.isNative)
@@ -76,8 +80,11 @@ class Files {
 						false,
 					);
 				}
-			} catch (e) {
-				error(["files"], e);
+			} catch {
+				error(
+					["files"],
+					`thumbnail generation failed for ${file.name}`,
+				);
 			}
 		});
 	};
@@ -215,6 +222,10 @@ class Files {
 
 				this.files.push(vf);
 				this._addThumbnail(vf);
+
+				// warm the converter engine like the regular file path in _add(),
+				// otherwise the zip can never be converted (stuck on "not ready")
+				vf.converters[0].warm?.();
 
 				ToastManager.add({
 					type: "success",
