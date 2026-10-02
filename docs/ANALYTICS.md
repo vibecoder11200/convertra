@@ -11,7 +11,7 @@ Convertra ships a provider-agnostic analytics layer (`src/lib/analytics/`) that 
 
 ## 1. Deploy Umami on the VPS
 
-A self-contained stack lives at [`deploy/umami/docker-compose.yml`](../deploy/umami/docker-compose.yml): Umami (pinned tag) + `postgres:15-alpine`, healthchecks on both services, data in a named volume, port bound to `127.0.0.1` only (TLS is the reverse proxy's job).
+A self-contained stack lives at [`deploy/umami/docker-compose.yml`](../deploy/umami/docker-compose.yml): Umami (pinned by image digest) + `postgres:15-alpine`, healthchecks on both services, data in a named volume, port bound to `127.0.0.1` only (TLS is the reverse proxy's job).
 
 ```shell
 cd deploy/umami
@@ -136,10 +136,17 @@ cat umami-backup.sql | docker compose exec -T db psql -U umami umami
 
 **Using a shared Postgres instead of the bundled one:** drop the `db` service and set `DATABASE_URL` in the Umami service to the shared instance's URL — a one-line change.
 
-**Upgrading Umami** (image tag is pinned on purpose):
+**Upgrading Umami** (the image is pinned by digest on purpose — ghcr publishes no version tags, only `latest`):
 
-1. Read the release notes between your tag and the target: <https://github.com/umami-software/umami/releases>.
-2. Bump the tag in `deploy/umami/docker-compose.yml`.
-3. `docker compose pull && docker compose up -d` (migrations run automatically on boot).
+1. Read the release notes since your pinned version: <https://github.com/umami-software/umami/releases>.
+2. Resolve the digest of the release you want and verify its version:
+    ```shell
+    docker pull ghcr.io/umami-software/umami:latest
+    docker buildx imagetools inspect ghcr.io/umami-software/umami:latest   # copy the index Digest
+    docker run --rm --entrypoint sh ghcr.io/umami-software/umami:latest \
+        -c "node -e \"console.log(require('/app/package.json').version)\""
+    ```
+3. Replace the digest in `deploy/umami/docker-compose.yml` with the one you copied.
+4. `docker compose pull && docker compose up -d` (migrations run automatically on boot).
 
 Keep at least **v3.2.0** — Convertra's SPA-pageview fallback relies on `data-auto-pageview` from that release.

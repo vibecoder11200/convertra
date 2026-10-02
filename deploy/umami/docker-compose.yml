@@ -2,12 +2,15 @@
 # (~300MB total: app + bundled Postgres). See docs/ANALYTICS.md for the full
 # deploy guide. Secrets live in a sibling git-ignored `.env` (see .env.example).
 #
-# The image tag is PINNED: check https://github.com/umami-software/umami/releases
-# before upgrading (docs/ANALYTICS.md documents the upgrade procedure).
+# The image is PINNED BY DIGEST: ghcr.io/umami-software/umami publishes no
+# version tags (only `latest`), so immutability comes from the manifest digest.
+# Digest sha256:85909af… resolves to v3.4.0 (2026-10). Check
+# https://github.com/umami-software/umami/releases before upgrading —
+# docs/ANALYTICS.md documents the procedure (inspect → verify version → bump).
 # Convertra requires Umami >= v3.2.0.
 services:
     umami:
-        image: ghcr.io/umami-software/umami:v3.4.0
+        image: ghcr.io/umami-software/umami@sha256:85909afc45bdcda1917394594a087421fdbb05610fded0fa9f6fb861abb2f367
         ports:
             - "127.0.0.1:3001:3000" # loopback only; the reverse proxy terminates TLS
         environment:
