@@ -192,8 +192,8 @@
 		},
 		"privacy": {
 			"title": "Privacy & data",
-			"plausible_title": "Plausible analytics",
-			"plausible_description": "We use [plausible_link]Plausible[/plausible_link], a privacy-focused analytics tool, to gather completely anonymous statistics. All data is anonymized and aggregated, and no identifiable information is ever sent or stored. You can view the analytics [analytics_link]here[/analytics_link] and choose to opt out below.",
+			"analytics_title": "Analytics",
+			"analytics_description": "We use [plausible_link]Plausible[/plausible_link] and/or [umami_link]Umami[/umami_link], privacy-focused analytics tools, to gather completely anonymous, aggregated statistics. They are cookieless, all data is anonymized and aggregated, and no identifiable information is ever sent or stored. You can choose to opt out below.",
 			"opt_in": "Opt-in",
 			"opt_out": "Opt-out",
 			"cache_title": "Cache management",
@@ -265,7 +265,7 @@
 		"title": "Privacy Policy",
 		"summary": {
 			"title": "Summary",
-			"description": "Convertra's privacy policy is very simple: we do not collect or store any data on you at all. We don't use cookies or trackers, analytics are completely private, and all conversions (except videos) happen locally on your browser. Videos are deleted after being downloaded, or an hour, unless explicitly given permission by you to be stored; it will only be used for the purpose of troubleshooting. Convertra self-hosts a Coolify instance for hosting the website and vertd (for video conversion), and a Plausible instance for completely anonymous and aggregated analytics. We use Stripe to process donations, which may collect some data used for fraud prevention.<br/><br/>Note this may only apply to the official Convertra instance; third-party instances may handle your data differently."
+			"description": "Convertra's privacy policy is simple: all conversions (except videos) happen locally on your browser, and analytics are anonymous, aggregated, and cookieless — you can opt out of them in the settings at any time. Videos are deleted after being downloaded, or an hour, unless explicitly given permission by you to be stored; it will only be used for the purpose of troubleshooting. Convertra self-hosts a Coolify instance for hosting the website and vertd (for video conversion), and self-hosted analytics (Plausible and/or Umami) for completely anonymous and aggregated statistics. We use Stripe to process donations, which may collect some data used for fraud prevention.<br/><br/>Note this may only apply to the official Convertra instance; third-party instances may handle your data differently."
 		},
 		"conversions": {
 			"title": "Conversions",
@@ -287,7 +287,7 @@
 		},
 		"analytics": {
 			"title": "Analytics",
-			"description": "We self-host a Plausible instance for completely anonymous and aggregated analytics. Plausible does not use cookies and complies with all major privacy regulations (GDPR/CCPA/PECR). You can opt out of analytics in the \"Privacy & data\" section in [settings_link]settings[/settings_link] and read more about Plausible's privacy practices [plausible_link]here[/plausible_link]."
+			"description": "We use privacy-focused analytics (Plausible and/or self-hosted Umami) for completely anonymous and aggregated statistics. They do not use cookies and comply with all major privacy regulations (GDPR/CCPA/PECR). You can opt out of analytics in the \"Privacy & data\" section in [settings_link]settings[/settings_link] and read more about Plausible's and Umami's privacy practices [plausible_link]here[/plausible_link] and [umami_link]here[/umami_link]."
 		},
 		"local_storage": {
 			"title": "Local Storage",

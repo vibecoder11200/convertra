@@ -24,7 +24,7 @@
 	const handleFileChange = () => {
 		if (!fileInput) return;
 		const oldLength = files.files.length;
-		files.add(fileInput.files);
+		files.add(fileInput.files, "picker");
 		if (oldLength !== files.files.length) goto("/convert");
 	};
 

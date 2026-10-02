@@ -7,6 +7,8 @@ services:
             args:
                 PUB_HOSTNAME: ${PUB_HOSTNAME:-localhost:5173}
                 PUB_PLAUSIBLE_URL: ${PUB_PLAUSIBLE_URL:-}
+                PUB_UMAMI_URL: ${PUB_UMAMI_URL:-}
+                PUB_UMAMI_WEBSITE_ID: ${PUB_UMAMI_WEBSITE_ID:-}
                 PUB_ENV: ${PUB_ENV:-production}
                 PUB_DISABLE_ALL_EXTERNAL_REQUESTS: ${PUB_DISABLE_ALL_EXTERNAL_REQUESTS:-false}
                 PUB_VERTD_URL: ${PUB_VERTD_URL:-}

@@ -319,10 +319,11 @@
 					return null;
 				}
 			})
-			.filter(Boolean);
+			.filter((f): f is VertFile => Boolean(f));
 
 		files.files = files.files.filter((f) => f !== file);
-		newFiles.forEach((f) => files.add(f));
+		// one aggregated call: a per-file loop would emit N x {count:1} file_select events
+		files.add(newFiles, "zip");
 	};
 
 	onMount(() => {

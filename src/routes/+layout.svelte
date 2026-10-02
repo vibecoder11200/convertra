@@ -2,7 +2,12 @@
 	import { onMount } from "svelte";
 	import { goto, beforeNavigate, afterNavigate } from "$app/navigation";
 
-	import { PUB_PLAUSIBLE_URL, PUB_HOSTNAME } from "$env/static/public";
+	import {
+		PUB_PLAUSIBLE_URL,
+		PUB_UMAMI_URL,
+		PUB_UMAMI_WEBSITE_ID,
+		PUB_HOSTNAME,
+	} from "$env/static/public";
 	import {
 		DISABLE_ALL_EXTERNAL_REQUESTS,
 		APP_NAME,
@@ -11,6 +16,14 @@
 	import * as Navbar from "$lib/components/layout/Navbar";
 	import featuredImage from "$lib/assets/convertra-feature.webp";
 	import { Settings } from "$lib/sections/settings/index.svelte";
+	import {
+		analyticsEnabled,
+		createPlausibleStub,
+		purgeAnalyticsBuffer,
+		providers,
+		UMAMI_SCRIPT_PATH,
+		type AnalyticsVia,
+	} from "$lib/analytics/index";
 	import {
 		files,
 		isMobile,
@@ -30,7 +43,7 @@
 	import { log } from "$lib/util/logger.js";
 
 	let { children } = $props();
-	let enablePlausible = $state(false);
+	let analyticsActive = $state(false);
 	let isAprilFools = $state(false);
 
 	let scrollPositions = new Map<string, number>();
@@ -53,12 +66,18 @@
 		window.scrollTo(0, scrollY);
 	});
 
+	// add() is not awaited: regular files push synchronously, so the length
+	// comparison right after reflects what was added
+	const addFiles = (list: FileList | null | undefined, via: AnalyticsVia) => {
+		const oldLength = files.files.length;
+		files.add(list, via);
+		if (oldLength !== files.files.length) goto("/convert");
+	};
+
 	const dropFiles = (e: DragEvent) => {
 		e.preventDefault();
 		dropping.set(false);
-		const oldLength = files.files.length;
-		files.add(e.dataTransfer?.files);
-		if (oldLength !== files.files.length) goto("/convert");
+		addFiles(e.dataTransfer?.files, "drop");
 	};
 
 	const handleDrag = (e: DragEvent, drag: boolean) => {
@@ -70,9 +89,7 @@
 		const clipboardData = e.clipboardData;
 		if (!clipboardData || !clipboardData.files.length) return;
 		e.preventDefault();
-		const oldLength = files.files.length;
-		files.add(clipboardData.files);
-		if (oldLength !== files.files.length) goto("/convert");
+		addFiles(clipboardData.files, "paste");
 	};
 
 	onMount(() => {
@@ -127,13 +144,17 @@
 	});
 
 	$effect(() => {
-		enablePlausible =
-			!!PUB_PLAUSIBLE_URL &&
-			Settings.instance.settings.plausible &&
-			!DISABLE_ALL_EXTERNAL_REQUESTS;
-		if (!enablePlausible && browser) {
-			// reset pushState on opt-out so that plausible stops firing events on page navigation
+		analyticsActive = analyticsEnabled();
+		if (!analyticsActive && browser) {
+			// opt-out teardown: removing the <script> does not unload an
+			// already-executed tracker, so restore the History methods
+			// (stops popstate/replaceState pageviews, e.g. the Back button)
+			// and re-arm no-op stubs so orphaned trackers' entry points die.
 			history.pushState = History.prototype.pushState;
+			history.replaceState = History.prototype.replaceState;
+			window.plausible = createPlausibleStub();
+			window.umami = undefined;
+			purgeAnalyticsBuffer(); // buffered pre-opt-out events are dropped, not deferred
 		}
 	});
 </script>
@@ -156,7 +177,7 @@
 	/>
 	<meta
 		name="description"
-		content="With Convertra, you can quickly convert any image, video, audio, and document file. No ads, no tracking, open source, and all processing (other than video) is done on your device."
+		content="With Convertra, you can quickly convert any image, video, audio, and document file. No ads, open source, and all processing (other than video) is done on your device. Analytics are anonymous, aggregated, and cookieless — opt out in Settings."
 	/>
 	{#if canonicalBase}
 		<meta property="og:url" content={canonicalBase} />
@@ -168,7 +189,7 @@
 	/>
 	<meta
 		property="og:description"
-		content="With Convertra, you can quickly convert any image, video, audio, and document file. No ads, no tracking, open source, and all processing (other than video) is done on your device."
+		content="With Convertra, you can quickly convert any image, video, audio, and document file. No ads, open source, and all processing (other than video) is done on your device. Analytics are anonymous, aggregated, and cookieless — opt out in Settings."
 	/>
 	<meta property="og:image" content={featuredImage} />
 	<meta name="twitter:card" content="summary_large_image" />
@@ -182,18 +203,25 @@
 	/>
 	<meta
 		property="twitter:description"
-		content="With Convertra, you can quickly convert any image, video, audio, and document file. No ads, no tracking, open source, and all processing (other than video) is done on your device."
+		content="With Convertra, you can quickly convert any image, video, audio, and document file. No ads, open source, and all processing (other than video) is done on your device. Analytics are anonymous, aggregated, and cookieless — opt out in Settings."
 	/>
 	<meta property="twitter:image" content={featuredImage} />
 	<link rel="manifest" href="/manifest.json" />
 	{#if canonicalBase}
 		<link rel="canonical" href="{canonicalBase}/" />
 	{/if}
-	{#if enablePlausible}
+	{#if analyticsActive && providers.plausible}
 		<script
 			defer
 			data-domain={PUB_HOSTNAME}
 			src="{PUB_PLAUSIBLE_URL}/js/script.js"
+		></script>
+	{/if}
+	{#if analyticsActive && providers.umami}
+		<script
+			defer
+			data-website-id={PUB_UMAMI_WEBSITE_ID}
+			src="{PUB_UMAMI_URL}{UMAMI_SCRIPT_PATH}"
 		></script>
 	{/if}
 	{#if isAprilFools}

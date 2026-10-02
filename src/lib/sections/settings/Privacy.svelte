@@ -16,7 +16,6 @@
 	import { error } from "$lib/util/logger";
 	import { ToastManager } from "$lib/util/toast.svelte";
 	import { DISABLE_ALL_EXTERNAL_REQUESTS } from "$lib/util/consts";
-	import { PUB_PLAUSIBLE_URL } from "$env/static/public";
 	import { addDialog } from "$lib/store/DialogProvider";
 
 	const { settings = $bindable() }: { settings: ISettings } = $props();
@@ -138,27 +137,27 @@
 				<div class="flex flex-col gap-4">
 					<div class="flex flex-col gap-2">
 						<p class="text-base font-bold">
-							{m["settings.privacy.plausible_title"]()}
+							{m["settings.privacy.analytics_title"]()}
 						</p>
 						<p class="text-sm text-muted font-normal">
 							{@html link(
-								["plausible_link", "analytics_link"],
-								m["settings.privacy.plausible_description"](),
+								["plausible_link", "umami_link"],
+								m["settings.privacy.analytics_description"](),
 								[
 									"https://plausible.io/privacy-focused-web-analytics",
-									PUB_PLAUSIBLE_URL ||
-										"https://plausible.io/",
+									"https://umami.is/docs",
 								],
+								[true, true],
 							)}
 						</p>
 					</div>
 					<div class="flex flex-col gap-3 w-full">
 						<div class="flex gap-3 w-full">
 							<button
-								onclick={() => (settings.plausible = true)}
+								onclick={() => (settings.analytics = true)}
 								class="btn {$effects
 									? ''
-									: '!scale-100'} {settings.plausible
+									: '!scale-100'} {settings.analytics
 									? 'selected'
 									: ''} flex-1 p-4 rounded-lg text-black dynadark:text-white flex items-center justify-center"
 							>
@@ -167,10 +166,10 @@
 							</button>
 
 							<button
-								onclick={() => (settings.plausible = false)}
+								onclick={() => (settings.analytics = false)}
 								class="btn {$effects
 									? ''
-									: '!scale-100'} {settings.plausible
+									: '!scale-100'} {settings.analytics
 									? ''
 									: 'selected'} flex-1 p-4 rounded-lg text-black dynadark:text-white flex items-center justify-center"
 							>

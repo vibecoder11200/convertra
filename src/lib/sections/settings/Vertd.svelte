@@ -9,6 +9,7 @@
 	import { m } from "$lib/paraglide/messages";
 	import { link, sanitize } from "$lib/store/index.svelte";
 	import { VertdInstance } from "./vertdSettings.svelte";
+	import { trackEvent } from "$lib/analytics/index";
 
 	let vertdCommit = $state<string | null>(null);
 	let abortController: AbortController | null = null;
@@ -155,6 +156,10 @@
 									settings.vertdSpeed = "ultraFast";
 									break;
 							}
+							trackEvent("settings_change", {
+								key: "vertdSpeed",
+								value: settings.vertdSpeed,
+							});
 						}}
 					/>
 				</div>

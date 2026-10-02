@@ -58,13 +58,14 @@
 			<p class="mb-4">
 				{@html sanitize(
 					link(
-						["settings_link", "plausible_link"],
+						["settings_link", "plausible_link", "umami_link"],
 						m["privacy.analytics.description"](),
 						[
 							"/settings",
 							"https://plausible.io/privacy-focused-web-analytics",
+							"https://umami.is/docs",
 						],
-						[false, true],
+						[false, true, true],
 					),
 				)}
 			</p>

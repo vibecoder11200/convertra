@@ -5,6 +5,7 @@ import { m } from "$lib/paraglide/messages";
 import { ToastManager } from "$lib/util/toast.svelte";
 import type { Component } from "svelte";
 import { MAX_ARRAY_BUFFER_SIZE } from "$lib/store/index.svelte";
+import { trackEvent } from "$lib/analytics/index";
 
 export class VertFile {
 	public id: string = Math.random().toString(36).slice(2, 8);
@@ -120,22 +121,39 @@ export class VertFile {
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	public async convert(...args: any[]) {
-		if (!this.converters.length) throw new Error("No converters found");
-		const converter = this.findConverter();
-		if (!converter) throw new Error("No converter found");
-		this.result = null;
-		this.progress = 0;
-		this.processing = true;
-		this.cancelled = false;
+		// converter resolution lives inside the try so the most common failure
+		// class (no/unsupported converter) still emits convert_fail
+		let converter: Converter | undefined;
 		let res;
 		try {
+			if (!this.converters.length) throw new Error("No converters found");
+			converter = this.findConverter();
+			if (!converter) throw new Error("No converter found");
+			const props = {
+				from_format: this.from,
+				to_format: this.to,
+				converter: converter.name,
+				size_bytes: this.file.size,
+			};
+			trackEvent("convert_start", props);
+			this.result = null;
+			this.progress = 0;
+			this.processing = true;
+			this.cancelled = false;
 			// for zips: extract > convert each > re-zip
 			// else convert normally
 			res = this.isZip()
 				? await this.convertZip(converter)
 				: await converter.convert(this, this.to, ...args);
 			this.result = res;
+			trackEvent("convert_complete", props);
 		} catch (err) {
+			trackEvent("convert_fail", {
+				from_format: this.from,
+				to_format: this.to,
+				converter: converter?.name ?? "none",
+				reason: this.cancelled ? "cancelled" : "error",
+			});
 			if (!this.cancelled) this.toastErr(err);
 			this.result = null;
 		}
@@ -325,6 +343,12 @@ export class VertFile {
 		a.click();
 		URL.revokeObjectURL(blob);
 		a.remove();
+		// a.click() has no success callback, so the event honestly reports a
+		// click, not a result; the !this.result early-throw emits nothing
+		trackEvent("download_click", {
+			from_format: this.from,
+			to_format: to,
+		});
 	}
 
 	public hash(): Promise<string> {

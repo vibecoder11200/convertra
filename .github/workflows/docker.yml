@@ -66,4 +66,6 @@ jobs:
                       PUB_ENV=production
                       PUB_HOSTNAME=${{ vars.PUB_HOSTNAME || '' }}
                       PUB_PLAUSIBLE_URL=${{ vars.PUB_PLAUSIBLE_URL || '' }}
+                      PUB_UMAMI_URL=${{ vars.PUB_UMAMI_URL || '' }}
+                      PUB_UMAMI_WEBSITE_ID=${{ vars.PUB_UMAMI_WEBSITE_ID || '' }}
                       PUB_DISABLE_ALL_EXTERNAL_REQUESTS=false

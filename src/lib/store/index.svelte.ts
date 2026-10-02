@@ -11,6 +11,7 @@ import { m } from "$lib/paraglide/messages";
 import sanitizeHtml from "sanitize-html";
 import { ToastManager } from "$lib/util/toast.svelte";
 import { GB } from "$lib/util/consts";
+import { trackEvent, type AnalyticsVia } from "$lib/analytics/index";
 
 class Files {
 	public files = $state<VertFile[]>([]);
@@ -160,7 +161,13 @@ class Files {
 		}
 	}
 
-	private async _handleZipFile(file: File): Promise<void> {
+	/** Returns the number of VertFiles actually added (zip-as-one: 1;
+	 * extracted archives: the summed results of `_add` — never entries.length,
+	 * since entries can be dropped). Throws on processing errors. */
+	private async _handleZipFile(
+		file: File,
+		via: AnalyticsVia,
+	): Promise<number> {
 		try {
 			log(["files"], `extracting zip file: ${file.name}`);
 			ToastManager.add({
@@ -234,13 +241,16 @@ class Files {
 						filename: file.name,
 					}),
 				});
+				return 1;
 			} else {
 				// mixed converters/incompatible files - extract all individually
+				let added = 0;
 				for (const { filename, data } of entries) {
-					this._add(
+					added += await this._add(
 						new File([new Uint8Array(data)], filename, {
 							type: "application/octet-stream",
 						}),
+						via,
 					);
 				}
 
@@ -252,6 +262,7 @@ class Files {
 						ignore_count: 0,
 					}),
 				});
+				return added;
 			}
 		} catch (e) {
 			error(["files"], `error processing zip file: ${e}`);
@@ -260,10 +271,16 @@ class Files {
 	}
 
 	private _warningShown = false;
-	private async _add(file: VertFile | File) {
+	/** Adds a file; returns an explicit count of VertFiles added on EVERY
+	 * exit (0 on drop paths: extensionless entry, no output format, errors). */
+	private async _add(
+		file: VertFile | File,
+		via: AnalyticsVia,
+	): Promise<number> {
 		if (file instanceof VertFile) {
 			this.files.push(file);
 			this._addThumbnail(file);
+			return 1;
 		} else {
 			// if zip, extract and add contents
 			const isZip =
@@ -273,8 +290,7 @@ class Files {
 
 			if (isZip) {
 				try {
-					await this._handleZipFile(file);
-					return;
+					return await this._handleZipFile(file, via);
 				} catch (err) {
 					error(["files"], `error extracting zip file: ${err}`);
 					ToastManager.add({
@@ -284,7 +300,7 @@ class Files {
 							error: String(err),
 						}),
 					});
-					return;
+					return 0;
 				}
 			}
 
@@ -292,7 +308,7 @@ class Files {
 			const format = "." + file.name.split(".").pop()?.toLowerCase();
 			if (!format) {
 				log(["files"], `no extension found for ${file.name}`);
-				return;
+				return 0;
 			}
 			const converter = converters
 				.sort(byNative(format))
@@ -302,12 +318,12 @@ class Files {
 			if (!converter) {
 				log(["files"], `no converter found for ${file.name}`);
 				this.files.push(new VertFile(file, format));
-				return;
+				return 1;
 			}
 			const to = converter.formatStrings().find((f) => f !== format);
 			if (!to) {
 				log(["files"], `no output format found for ${file.name}`);
-				return;
+				return 0;
 			}
 			const vf = new VertFile(file, to);
 			this.files.push(vf);
@@ -365,15 +381,31 @@ class Files {
 				];
 				addDialog(title, message, buttons, "warning");
 			}
+			return 1;
 		}
 	}
 
-	public add(file: VertFile | null | undefined): void;
-	public add(file: File | null | undefined): void;
-	public add(file: File[] | null | undefined): void;
-	public add(file: VertFile[] | null | undefined): void;
-	public add(file: FileList | null | undefined): void;
 	public add(
+		file: VertFile | null | undefined,
+		via?: AnalyticsVia,
+	): Promise<void>;
+	public add(
+		file: File | null | undefined,
+		via?: AnalyticsVia,
+	): Promise<void>;
+	public add(
+		file: File[] | null | undefined,
+		via?: AnalyticsVia,
+	): Promise<void>;
+	public add(
+		file: VertFile[] | null | undefined,
+		via?: AnalyticsVia,
+	): Promise<void>;
+	public add(
+		file: FileList | null | undefined,
+		via?: AnalyticsVia,
+	): Promise<void>;
+	public async add(
 		file:
 			| VertFile
 			| File
@@ -382,15 +414,19 @@ class Files {
 			| FileList
 			| null
 			| undefined,
+		via: AnalyticsVia = "picker",
 	) {
-		if (!file) return;
-		if (Array.isArray(file) || file instanceof FileList) {
-			for (const f of file) {
-				this._add(f);
-			}
-		} else {
-			this._add(file);
-		}
+		if (!file) return; // null/undefined tolerance: callers pass e.dataTransfer?.files and fileInput.files
+		const items: (VertFile | File)[] = Array.isArray(file)
+			? [...file]
+			: file instanceof FileList
+				? Array.from(file)
+				: [file];
+		// single chokepoint: exactly one file_select per add() call, with the
+		// true number of VertFiles added (zips: 1 zip-as-one, N extracted)
+		const results = await Promise.all(items.map((f) => this._add(f, via)));
+		const count = results.reduce((sum, n) => sum + n, 0);
+		if (count > 0) trackEvent("file_select", { count, via });
 	}
 
 	public async convertAll() {
@@ -443,6 +479,10 @@ class Files {
 		a.click();
 		URL.revokeObjectURL(url);
 		a.remove();
+		// downloadAll() builds its own zip and never goes through
+		// VertFile.download(); a.click() has no success callback
+		if (dlFiles.length > 0)
+			trackEvent("download_click", { count: dlFiles.length });
 	}
 }
 

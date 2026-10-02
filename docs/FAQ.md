@@ -25,7 +25,7 @@ Yes. Check out the [Video Conversion](./VIDEO_CONVERSION.md) page.
 
 ### What about analytics?
 
-We use [Plausible](https://plausible.io/privacy-focused-web-analytics), a privacy-focused analytics tool, to gather completely anonymous statistics. All data is anonymized and aggregated, and no identifiable information is ever sent or stored. You can view the analytics on your Plausible dashboard and choose to opt out in the Settings page.
+We use privacy-focused analytics — [Plausible](https://plausible.io/privacy-focused-web-analytics) and/or self-hosted [Umami](https://umami.is/docs) — to gather completely anonymous, aggregated statistics. They are cookieless, no identifiable information is ever sent or stored, and events only contain formats, sizes, and counts (never file names). You can opt out in the Settings page at any time. Self-hosters can run their own Umami instance with our [deploy kit](./ANALYTICS.md).
 
 ### Is it possible to fully prevent Convertra from making requests to external services?
 

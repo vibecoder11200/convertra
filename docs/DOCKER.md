@@ -21,11 +21,15 @@ docker build -t convertra \
     --build-arg PUB_ENV=production \
     --build-arg PUB_HOSTNAME=example.com \
     --build-arg PUB_PLAUSIBLE_URL=https://plausible.example.com \
+    --build-arg PUB_UMAMI_URL=https://analytics.example.com \
+    --build-arg PUB_UMAMI_WEBSITE_ID=<umami-website-id> \
     --build-arg PUB_VERTD_URL=https://vertd.example.com \
     --build-arg PUB_DONATION_URL=https://donations.example.com \
 	--build-arg PUB_DISABLE_ALL_EXTERNAL_REQUESTS=false \
     --build-arg PUB_STRIPE_KEY="" .
 ```
+
+Analytics is opt-in per provider: leave `PUB_PLAUSIBLE_URL` / `PUB_UMAMI_URL` empty (or omit them) to disable each one. See [ANALYTICS.md](./ANALYTICS.md) for the full self-hosted Umami guide.
 
 You can then run it by using:
 

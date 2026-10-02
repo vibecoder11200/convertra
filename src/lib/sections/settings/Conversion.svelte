@@ -21,9 +21,18 @@
 	import FormatDropdown from "$lib/components/functional/FormatDropdown.svelte";
 	import { categories } from "$lib/converters";
 	import clsx from "clsx";
+	import { trackEvent } from "$lib/analytics/index";
 
 	const { settings = $bindable() }: { settings: ISettings } = $props();
 	let showAdvanced = $state(false);
+
+	const setSetting = (
+		key: "useDefaultFormat" | "metadata",
+		value: boolean,
+	) => {
+		settings[key] = value;
+		trackEvent("settings_change", { key, value });
+	};
 </script>
 
 <Panel class="flex flex-col gap-8 p-6">
@@ -98,7 +107,10 @@
 								<div class="flex gap-3 w-full">
 									<button
 										onclick={() =>
-											(settings.useDefaultFormat = true)}
+											setSetting(
+												"useDefaultFormat",
+												true,
+											)}
 										class="btn {$effects
 											? ''
 											: '!scale-100'} {settings.useDefaultFormat
@@ -116,7 +128,10 @@
 
 									<button
 										onclick={() =>
-											(settings.useDefaultFormat = false)}
+											setSetting(
+												"useDefaultFormat",
+												false,
+											)}
 										class="btn {$effects
 											? ''
 											: '!scale-100'} {settings.useDefaultFormat
@@ -214,7 +229,7 @@
 								<div class="flex gap-3 w-full">
 									<button
 										onclick={() =>
-											(settings.metadata = true)}
+											setSetting("metadata", true)}
 										class="btn {$effects
 											? ''
 											: '!scale-100'} {settings.metadata
@@ -230,7 +245,7 @@
 
 									<button
 										onclick={() =>
-											(settings.metadata = false)}
+											setSetting("metadata", false)}
 										class="btn {$effects
 											? ''
 											: '!scale-100'} {settings.metadata
