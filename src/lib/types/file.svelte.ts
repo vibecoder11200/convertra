@@ -121,6 +121,9 @@ export class VertFile {
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	public async convert(...args: any[]) {
+		// reset a stale cancel from a previous attempt first, so a resolution
+		// failure below is never mislabeled reason:"cancelled"
+		this.cancelled = false;
 		// converter resolution lives inside the try so the most common failure
 		// class (no/unsupported converter) still emits convert_fail
 		let converter: Converter | undefined;
@@ -139,7 +142,6 @@ export class VertFile {
 			this.result = null;
 			this.progress = 0;
 			this.processing = true;
-			this.cancelled = false;
 			// for zips: extract > convert each > re-zip
 			// else convert normally
 			res = this.isZip()

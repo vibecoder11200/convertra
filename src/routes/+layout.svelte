@@ -4,7 +4,6 @@
 
 	import {
 		PUB_PLAUSIBLE_URL,
-		PUB_UMAMI_URL,
 		PUB_UMAMI_WEBSITE_ID,
 		PUB_HOSTNAME,
 	} from "$env/static/public";
@@ -21,7 +20,8 @@
 		createPlausibleStub,
 		purgeAnalyticsBuffer,
 		providers,
-		UMAMI_SCRIPT_PATH,
+		setTrackerOptOut,
+		UMAMI_SCRIPT_SRC,
 		type AnalyticsVia,
 	} from "$lib/analytics/index";
 	import {
@@ -146,15 +146,20 @@
 	$effect(() => {
 		analyticsActive = analyticsEnabled();
 		if (!analyticsActive && browser) {
-			// opt-out teardown: removing the <script> does not unload an
-			// already-executed tracker, so restore the History methods
-			// (stops popstate/replaceState pageviews, e.g. the Back button)
-			// and re-arm no-op stubs so orphaned trackers' entry points die.
+			// opt-out teardown. Removing the <script> does not unload an
+			// already-executed tracker: Plausible keeps its own popstate
+			// listener (Back-button pageviews) and Umami keeps sending until
+			// its disabled flag is set, so arm the trackers' per-send opt-out
+			// flags (setTrackerOptOut), restore the History methods, and
+			// re-arm no-op stubs so the orphaned entry points die.
+			setTrackerOptOut(true);
 			history.pushState = History.prototype.pushState;
 			history.replaceState = History.prototype.replaceState;
 			window.plausible = createPlausibleStub();
 			window.umami = undefined;
 			purgeAnalyticsBuffer(); // buffered pre-opt-out events are dropped, not deferred
+		} else if (browser) {
+			setTrackerOptOut(false); // clear leftover flags (e.g. after "clear all data")
 		}
 	});
 </script>
@@ -221,7 +226,7 @@
 		<script
 			defer
 			data-website-id={PUB_UMAMI_WEBSITE_ID}
-			src="{PUB_UMAMI_URL}{UMAMI_SCRIPT_PATH}"
+			src={UMAMI_SCRIPT_SRC}
 		></script>
 	{/if}
 	{#if isAprilFools}

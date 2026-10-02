@@ -20,6 +20,15 @@ import { Settings } from "$lib/sections/settings/store.svelte";
 // snippet from the deployed dashboard (Settings → Website → Tracking code).
 export const UMAMI_SCRIPT_PATH = "/script.js";
 
+// Full tracker script URL; a trailing slash in PUB_UMAMI_URL is tolerated.
+export const UMAMI_SCRIPT_SRC = `${PUB_UMAMI_URL.replace(/\/+$/, "")}${UMAMI_SCRIPT_PATH}`;
+
+if (browser && PUB_UMAMI_URL && !PUB_UMAMI_WEBSITE_ID) {
+	console.warn(
+		"[analytics] PUB_UMAMI_URL is set but PUB_UMAMI_WEBSITE_ID is empty — Umami stays disabled",
+	);
+}
+
 export type AnalyticsEventName =
 	| "convert_start"
 	| "convert_complete"
@@ -134,7 +143,34 @@ export function trackEvent(
 		else (buffer[p] ??= []).push([name, data]);
 	}
 	tryFlush();
-	retryTimer ??= setInterval(tryFlush, 300);
+	if (!retryTimer) {
+		// fresh retry episode: the attempt budget restarts (a past bounded stop
+		// must not disable delivery for the rest of the session)
+		retryAttempts = 0;
+		retryTimer = setInterval(tryFlush, 300);
+	}
+}
+
+/**
+ * Per-send opt-out flags honored by the tracker scripts themselves (verified
+ * against the plausible script.js and the umami v3.4.0 tracker source):
+ * removing the injected <script> and restoring the History methods cannot
+ * stop an already-executed tracker's own popstate/engagement listeners, but
+ * these flags are re-checked on every event/send, so beacons stop immediately.
+ */
+export function setTrackerOptOut(optedOut: boolean) {
+	if (!browser) return;
+	try {
+		if (optedOut) {
+			localStorage.setItem("plausible_ignore", "true");
+			localStorage.setItem("umami.disabled", "1");
+		} else {
+			localStorage.removeItem("plausible_ignore");
+			localStorage.removeItem("umami.disabled");
+		}
+	} catch {
+		// localStorage unavailable — the flags are best-effort hardening
+	}
 }
 
 /**

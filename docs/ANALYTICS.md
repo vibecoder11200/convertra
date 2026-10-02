@@ -118,7 +118,8 @@ Build with an empty `PUB_PLAUSIBLE_URL=` (and keep `PUB_UMAMI_*` set). Remove th
 
 ## 5. Opt-out behavior
 
-- The **Privacy & data** section in Settings has a single Analytics opt-in/opt-out toggle; opting out stops all providers immediately (including pageviews triggered by the Back button) and buffered, not-yet-transmitted events are dropped rather than sent.
+- The **Privacy & data** section in Settings has a single Analytics opt-in/opt-out toggle. Opting out removes the tracker scripts, restores the History methods, re-arms no-op stubs, and — most importantly — sets the trackers' own per-send opt-out flags (`plausible_ignore` in localStorage for Plausible, `umami.disabled` for Umami), which both scripts re-check on every send. This stops pageviews immediately, including those triggered by the Back button on an already-loaded tracker. Buffered, not-yet-transmitted events are dropped rather than sent.
+- Known residual: if Plausible was loaded *before* opting out, its engagement flush can emit a single last beacon (containing the last visited URL) on the next tab hide, which its `plausible_ignore` flag does not guard. Umami has no equivalent residual.
 - `PUB_DISABLE_ALL_EXTERNAL_REQUESTS=true` disables analytics (and every other external request) at build time; the Settings toggle section is hidden in that mode.
 
 ## 6. Operations

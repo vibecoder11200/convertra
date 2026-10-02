@@ -21,9 +21,13 @@
 
 		const savedSettings = localStorage.getItem("settings");
 		if (savedSettings) {
-			const parsedSettings = JSON.parse(savedSettings);
-			if (JSON.stringify(parsedSettings) === JSON.stringify(settings))
-				return;
+			try {
+				const parsedSettings = JSON.parse(savedSettings);
+				if (JSON.stringify(parsedSettings) === JSON.stringify(settings))
+					return;
+			} catch {
+				// corrupt blob: fall through and overwrite it with the live settings
+			}
 		}
 
 		try {
