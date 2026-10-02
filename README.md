@@ -50,17 +50,17 @@ bun run dev            # or: bun run build && bun run preview
 
 All public config is `PUB_*` prefixed (see `.env.example`):
 
-| Variable                              | Purpose                                                     |
-| ------------------------------------- | ----------------------------------------------------------- |
-| `PUB_HOSTNAME`                        | Hostname for analytics tracking                             |
-| `PUB_PLAUSIBLE_URL`                   | Plausible instance URL (empty disables Plausible)           |
+| Variable                              | Purpose                                                                          |
+| ------------------------------------- | -------------------------------------------------------------------------------- |
+| `PUB_HOSTNAME`                        | Hostname for analytics tracking                                                  |
+| `PUB_PLAUSIBLE_URL`                   | Plausible instance URL (empty disables Plausible)                                |
 | `PUB_UMAMI_URL`                       | Umami instance URL (empty disables Umami) — see [Analytics](./docs/ANALYTICS.md) |
-| `PUB_UMAMI_WEBSITE_ID`                | Umami website ID (required when `PUB_UMAMI_URL` is set)     |
-| `PUB_ENV`                             | `development`, `production`, or `nightly`                   |
-| `PUB_VERTD_URL`                       | URL of the vertd daemon for video conversion                |
-| `PUB_DISABLE_ALL_EXTERNAL_REQUESTS`   | `true` disables vertd/Stripe/analytics (privacy/air-gapped) |
-| `PUB_DISABLE_FAILURE_BLOCKS`          | `true` disables blocking repeated failed video conversions  |
-| `PUB_DONATION_URL` / `PUB_STRIPE_KEY` | Donation links (Stripe)                                     |
+| `PUB_UMAMI_WEBSITE_ID`                | Umami website ID (required when `PUB_UMAMI_URL` is set)                          |
+| `PUB_ENV`                             | `development`, `production`, or `nightly`                                        |
+| `PUB_VERTD_URL`                       | URL of the vertd daemon for video conversion                                     |
+| `PUB_DISABLE_ALL_EXTERNAL_REQUESTS`   | `true` disables vertd/Stripe/analytics (privacy/air-gapped)                      |
+| `PUB_DISABLE_FAILURE_BLOCKS`          | `true` disables blocking repeated failed video conversions                       |
+| `PUB_DONATION_URL` / `PUB_STRIPE_KEY` | Donation links (Stripe)                                                          |
 
 ## Documentation
 
