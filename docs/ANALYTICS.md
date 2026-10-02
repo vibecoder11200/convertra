@@ -108,6 +108,18 @@ Both providers receive identical events (no file names, no error strings — onl
 
 In Umami, these appear under your website → **Events**. Pageviews work out of the box; Umami's tracker follows client-side (SPA) navigation automatically.
 
+### Testing locally
+
+Plausible's script silently drops **all** events when the page hostname is `localhost` (or any localhost-equivalent) — this is upstream behavior, not a Convertra bug. To test end-to-end against a local Plausible, serve Convertra under a hostname that resolves to `127.0.0.1` but doesn't look like localhost, for example:
+
+```shell
+# localtest.me resolves to 127.0.0.1 via public DNS
+PUB_HOSTNAME=convertra.localtest.me docker compose up -d --build
+# then open http://convertra.localtest.me:3000/
+```
+
+Umami's tracker has no such restriction and beacons fine from `localhost`.
+
 ## 4. Plausible (supported alternative / parallel)
 
 Set `PUB_PLAUSIBLE_URL` (and `PUB_HOSTNAME`) to keep using Plausible. If both URLs are set, both trackers inject and both receive the same events — they run independently. Custom events only show in the Plausible dashboard after you configure matching goals; the raw events are sent regardless (visible in the network tab as `/api/event` calls).
