@@ -4,7 +4,7 @@ Convertra ships a provider-agnostic analytics layer (`src/lib/analytics/`) that 
 
 **Umami is the documented default**: it runs comfortably on a small VPS (~200–400MB RAM with its bundled Postgres), unlike Plausible CE whose ClickHouse dependency needs ≥2GB. Plausible remains fully supported — just set `PUB_PLAUSIBLE_URL` instead (or as well).
 
-- Minimum supported Umami version: **v3.2.0** (the SPA pageview fallback uses `data-auto-pageview`, introduced in 3.2.0).
+- Umami auto-tracks SPA (client-side) navigation via its own History hook — Convertra ships **no SPA-pageview fallback** and needs none; verified against **v3.4.0**. Stay on a recent v3.x.
 - Env vars are baked into the Convertra image **at build time** — changing them means rebuilding the image (see [DOCKER.md](./DOCKER.md)).
 
 ---
@@ -77,9 +77,9 @@ docker build -t convertra \
     .
 ```
 
-Or in the repo-root [`docker-compose.yml`](../docker-compose.yml) environment:
+Or in a root `.env` next to [`docker-compose.yml`](../docker-compose.yml) — compose passes it to the image build as a build arg:
 
-```yaml
+```env
 PUB_UMAMI_URL=https://analytics.example.com
 PUB_UMAMI_WEBSITE_ID=<your-website-id>
 ```
@@ -161,4 +161,4 @@ cat umami-backup.sql | docker compose exec -T db psql -U umami umami
 3. Replace the digest in `deploy/umami/docker-compose.yml` with the one you copied.
 4. `docker compose pull && docker compose up -d` (migrations run automatically on boot).
 
-Keep at least **v3.2.0** — Convertra's SPA-pageview fallback relies on `data-auto-pageview` from that release.
+Convertra ships no SPA-pageview fallback — Umami auto-tracks client-side navigation natively (verified against v3.4.0), so stay on a recent v3.x release.

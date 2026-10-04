@@ -7,7 +7,8 @@
 # Digest sha256:85909af… resolves to v3.4.0 (2026-10). Check
 # https://github.com/umami-software/umami/releases before upgrading —
 # docs/ANALYTICS.md documents the procedure (inspect → verify version → bump).
-# Convertra requires Umami >= v3.2.0.
+# Convertra is verified with Umami v3.4.0 — SPA pageviews are native (no
+# Convertra-side fallback exists or is needed).
 services:
     umami:
         image: ghcr.io/umami-software/umami@sha256:85909afc45bdcda1917394594a087421fdbb05610fded0fa9f6fb861abb2f367

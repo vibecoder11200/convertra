@@ -136,6 +136,8 @@
 							}
 						})()}
 						onselect={(selected) => {
+							// re-selecting the current speed must not count as a change
+							const previous = settings.vertdSpeed;
 							switch (selected) {
 								case m["settings.vertd.speeds.very_slow"]():
 									settings.vertdSpeed = "verySlow";
@@ -156,10 +158,12 @@
 									settings.vertdSpeed = "ultraFast";
 									break;
 							}
-							trackEvent("settings_change", {
-								key: "vertdSpeed",
-								value: settings.vertdSpeed,
-							});
+							if (settings.vertdSpeed !== previous) {
+								trackEvent("settings_change", {
+									key: "vertdSpeed",
+									value: settings.vertdSpeed,
+								});
+							}
 						}}
 					/>
 				</div>
