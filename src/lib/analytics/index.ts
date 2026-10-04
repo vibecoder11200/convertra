@@ -137,7 +137,9 @@ function send<E extends AnalyticsEventName>(
 ) {
 	if (provider === "plausible")
 		window.plausible?.(name, {
-			props: data as Record<string, string | number | boolean> | undefined,
+			props: data as
+				| Record<string, string | number | boolean>
+				| undefined,
 		});
 	else
 		window.umami?.track(
