@@ -36,9 +36,16 @@ class Files {
 
 	private _addThumbnail = async (file: VertFile) => {
 		this.thumbnailQueue.add(async () => {
-			// archives have no meaningful thumbnail - skip instead of
-			// failing to decode the zip blob as an image (noisy console error)
-			if (file.isZip()) return;
+			// archives and zip-container formats (epub/cbz/xlsx/ods) have no
+			// meaningful thumbnail - skip instead of failing to decode the
+			// zip blob as an image (noisy console error)
+			if (
+				file.isZip() ||
+				[".cbz", ".epub", ".xlsx", ".ods", ".xls"].includes(
+					file.from,
+				)
+			)
+				return;
 
 			const isAudio = converters
 				.find((c) => c.name === "ffmpeg")

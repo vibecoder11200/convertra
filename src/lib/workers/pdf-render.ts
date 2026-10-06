@@ -71,6 +71,14 @@ self.onmessage = async (e: MessageEvent<RenderRequest>) => {
 				} finally {
 					pixmap.destroy();
 				}
+				// a failed page decode renders blank and encodes to nothing —
+				// feeding zero bytes to pdf-lib/images produces cryptic
+				// downstream errors, so fail with the page number instead
+				if (bytes.length === 0) {
+					throw new Error(
+						`Page ${p + 1} could not be rendered to an image (undecodable or empty page content)`,
+					);
+				}
 				outputs.push({
 					name: `page_${p + 1}.${emitFormat}`,
 					bytes,
