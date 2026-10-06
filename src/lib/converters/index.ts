@@ -7,6 +7,7 @@ import { MagickConverter } from "./magick.svelte";
 import { MuPDFConverter } from "./mupdf.svelte";
 import { PdfLibConverter } from "./pdf-lib.svelte";
 import { PdfRenderConverter } from "./pdf-render.svelte";
+import { SheetjsConverter } from "./sheetjs.svelte";
 import { WebCodecsConverter } from "./video.svelte";
 import { DISABLE_ALL_EXTERNAL_REQUESTS } from "$lib/util/consts";
 
@@ -27,6 +28,9 @@ const getConverters = (): Converter[] => {
 	// Client-side video->GIF/WebM for short clips (D7/D13). vertd stays the
 	// full video path.
 	converters.push(new WebCodecsConverter());
+	// last: it claims common text formats (csv/tsv/html/json) as inputs and
+	// must never shadow pandoc, which precedes it in this array
+	converters.push(new SheetjsConverter());
 	return converters;
 };
 
@@ -98,6 +102,12 @@ categories.doc.formats =
 				?.supportedFormats.filter(
 					(f) => f.toSupported && f.name === ".cbz",
 				)
+				.map((f) => f.name) || []),
+			// spreadsheets (xlsx/ods are new names; csv/tsv/html/md already
+			// exist and dedupe in this Set)
+			...(converters
+				.find((c) => c.name === "sheetjs")
+				?.supportedFormats.filter((f) => f.toSupported)
 				.map((f) => f.name) || []),
 		]),
 	) || [];
