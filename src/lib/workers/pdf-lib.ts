@@ -136,12 +136,15 @@ async function handleImageToPdf(job: ImageToPdfRequest) {
 			const png = await canvas.convertToBlob({ type: "image/png" });
 			image = await doc.embedPng(new Uint8Array(await png.arrayBuffer()));
 		}
-		const page = doc.addPage([image.width, image.height]);
+		// normalize pixel dimensions to pdf points at 96 dpi — otherwise a
+		// 4000px photo produces a ~1.4m-wide page
+		const pt = (px: number) => (px * 72) / 96;
+		const page = doc.addPage([pt(image.width), pt(image.height)]);
 		page.drawImage(image, {
 			x: 0,
 			y: 0,
-			width: image.width,
-			height: image.height,
+			width: pt(image.width),
+			height: pt(image.height),
 		});
 	}
 	const bytes = await doc.save();

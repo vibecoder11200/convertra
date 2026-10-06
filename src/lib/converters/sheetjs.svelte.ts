@@ -21,10 +21,13 @@ export class SheetjsConverter extends Converter {
 	}
 
 	public async convert(input: VertFile, to: string): Promise<VertFile> {
+		// read the buffer before spawning the worker so a read failure
+		// can't leak the worker
+		const data = new Uint8Array(await input.file.arrayBuffer());
+
 		const worker = new Worker(SheetjsWorker, { type: "module" });
 		this.activeConversions.set(input.id, worker);
 
-		const data = new Uint8Array(await input.file.arrayBuffer());
 		worker.postMessage({
 			type: "convert",
 			id: input.id,
@@ -74,9 +77,11 @@ export class SheetjsConverter extends Converter {
 		new FormatInfo("tsv", true, true),
 		// read-only sources
 		new FormatInfo("xls", true, false),
-		new FormatInfo("html", true, false), // html table input
-		new FormatInfo("json", true, false), // array of records/arrays
+		// json both ways: records/arrays in, records out
+		new FormatInfo("json", true, true),
 		// output-only targets
 		new FormatInfo("md", false, true), // markdown table
+		// html both ways: table input scrape + table output
+		new FormatInfo("html", true, true),
 	];
 }

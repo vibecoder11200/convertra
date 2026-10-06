@@ -310,17 +310,28 @@ class Files {
 				log(["files"], `no extension found for ${file.name}`);
 				return 0;
 			}
-			const converter = converters
-				.sort(byNative(format))
-				.find((converter) =>
-					converter.formatStrings().includes(format),
-				);
+			// prefer converters that can actually read the format (some list
+			// a name as output-only, e.g. mupdf's .md); sort a copy so the
+			// shared registry order is never mutated
+			const readable = converters.filter((c) =>
+				c.supportedFormats.find(
+					(f) => f.name === format && f.fromSupported,
+				),
+			);
+			const converter =
+				readable.sort(byNative(format)).at(0) ??
+				converters
+					.slice()
+					.sort(byNative(format))
+					.find((c) => c.formatStrings().includes(format));
 			if (!converter) {
 				log(["files"], `no converter found for ${file.name}`);
 				this.files.push(new VertFile(file, format));
 				return 1;
 			}
-			const to = converter.formatStrings().find((f) => f !== format);
+			const to = converter.supportedFormats.find(
+				(f) => f.name !== format && f.toSupported,
+			)?.name;
 			if (!to) {
 				log(["files"], `no output format found for ${file.name}`);
 				return 0;

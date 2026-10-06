@@ -56,16 +56,18 @@ export class PdfRenderConverter extends Converter {
 					? "application/vnd.comicbook+zip"
 					: "application/pdf";
 
+		// read the buffer before spawning the worker so a read failure
+		// can't leak the worker
+		const data = new Uint8Array(await input.file.arrayBuffer());
+
 		const worker = new Worker(PdfRenderWorker, { type: "module" });
 		this.activeConversions.set(input.id, worker);
-
-		const data = new Uint8Array(await input.file.arrayBuffer());
 		worker.postMessage({
 			type: "render",
 			id: input.id,
 			data,
 			sourceType,
-			format: target as "png" | "jpeg" | "webp" | "pdf",
+			format: target as "png" | "jpeg" | "webp" | "pdf" | "cbz",
 			quality,
 			scale,
 			range,
@@ -111,23 +113,29 @@ export class PdfRenderConverter extends Converter {
 		const parts = result.output as { name: string; bytes: Uint8Array }[];
 		if (parts.length === 0) throw new Error("No pages rendered");
 
-		// mupdf emits PNG for the webp request (it has no WebP export), so
-		// transcode to WebP via the browser's canvas encoder. png/jpeg bytes
-		// come straight from the worker and only need correct naming.
+		// mupdf emits PNG for the webp/cbz requests (it has no WebP export,
+		// and comic archives hold image pages), so transcode WebP via the
+		// browser's canvas encoder. png/jpeg bytes come straight from the
+		// worker and only need correct naming.
 		const files = await Promise.all(
 			parts.map(async (p) => {
-				const ext = p.name.split(".").pop() ?? target;
-				const outName = p.name.replace(/\.[^.]+$/, `.${target}`);
+				const ext = p.name.split(".").pop() ?? "png";
+				// cbz archives must contain image entries — keep page_N.png
+				const outExt = target === "cbz" ? "png" : target;
+				const outName = p.name.replace(
+					/\.[^.]+$/,
+					`.${outExt}`,
+				);
 				let blob: Blob;
 				if (target === "webp" && ext !== "webp") {
 					blob = await this.transcodeToWebP(p.bytes);
 				} else {
 					blob = new Blob([p.bytes as unknown as BlobPart], {
-						type: `image/${target}`,
+						type: `image/${target === "cbz" ? "png" : target}`,
 					});
 				}
 				return new File([blob as unknown as BlobPart], outName, {
-					type: `image/${target}`,
+					type: `image/${target === "cbz" ? "png" : target}`,
 				});
 			}),
 		);
@@ -190,6 +198,12 @@ export class PdfRenderConverter extends Converter {
 		// runs on the browser main thread (not in a worker) when the mupdf path
 		// failed on a complex PDF. Produces the same zipped-image output shape.
 		const target = to.startsWith(".") ? to.slice(1) : to;
+		if (target === "pdf") {
+			// the fallback only rasterizes; it cannot assemble a pdf
+			throw new Error("pdfjs fallback cannot produce pdf output");
+		}
+		// cbz archives hold png pages regardless of the archive extension
+		const imageType = target === "cbz" ? "png" : target;
 		const { getDocument } = await import("pdfjs-dist/legacy/build/pdf.mjs");
 		const loadingTask = getDocument({
 			data: await input.file.arrayBuffer(),
@@ -209,7 +223,7 @@ export class PdfRenderConverter extends Converter {
 			const outFiles: File[] = [];
 			const width = Math.max(2, String(pdf.numPages).length);
 			const outName = (p: number) =>
-				`page_${String(p).padStart(width, "0")}.${target}`;
+				`page_${String(p).padStart(width, "0")}.${imageType}`;
 
 			for (const pageNum of pageNums) {
 				const page = await pdf.getPage(pageNum);
@@ -228,15 +242,17 @@ export class PdfRenderConverter extends Converter {
 							b
 								? resolve(b)
 								: reject(
-										new Error(`Failed to encode ${target}`),
+										new Error(
+											`Failed to encode ${imageType}`,
+										),
 									),
-						`image/${target}`,
+						`image/${imageType}`,
 						0.85,
 					);
 				});
 				outFiles.push(
 					new File([blob as unknown as BlobPart], outName(pageNum), {
-						type: `image/${target}`,
+						type: `image/${imageType}`,
 					}),
 				);
 				canvas.remove();
@@ -245,6 +261,15 @@ export class PdfRenderConverter extends Converter {
 			await loadingTask.destroy();
 			const { createZip } = await import("$lib/util/zip");
 			const zipBytes = await createZip(outFiles);
+			if (target === "cbz") {
+				return new VertFile(
+					new File(
+						[zipBytes as unknown as BlobPart],
+						`${baseName(input.name)}.cbz`,
+					),
+					".cbz",
+				);
+			}
 			return new VertFile(
 				new File(
 					[zipBytes as unknown as BlobPart],

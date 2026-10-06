@@ -8,7 +8,8 @@ interface RenderRequest {
 	id: string;
 	data: Uint8Array;
 	sourceType: "application/pdf" | "application/epub+zip" | "application/vnd.comicbook+zip";
-	format: "png" | "jpeg" | "webp" | "pdf";
+	// "cbz" behaves like "png" (comic archives hold png pages)
+	format: "png" | "jpeg" | "webp" | "pdf" | "cbz";
 	scale: number; // render scale (1 = 72dpi, 2 = 144dpi, ...)
 	quality?: number; // JPEG quality (0-100), default 85
 	range: "all" | { from: number; to: number };

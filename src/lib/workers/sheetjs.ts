@@ -61,7 +61,9 @@ function aoaToMarkdown(aoa: unknown[][]): string {
 	const cell = (v: unknown) =>
 		String(v ?? "").replace(/\r?\n/g, "<br>").replace(/\|/g, "\\|");
 	const rows = aoa.map((row) => row.map(cell));
-	const width = Math.max(...rows.map((r) => r.length));
+	// reduce, not Math.max(...spread) — huge sheets overflow the argument
+	// count limit
+	const width = rows.reduce((w, r) => Math.max(w, r.length), 0);
 	const lines: string[] = [];
 	const header = rows[0];
 	while (header.length < width) header.push("");

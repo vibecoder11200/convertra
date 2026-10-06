@@ -22,10 +22,12 @@ export class PdfLibConverter extends Converter {
 		to: string,
 		...args: unknown[]
 	): Promise<VertFile> {
+		// read the buffer before spawning the worker so a read failure
+		// can't leak the worker
+		const data = new Uint8Array(await input.file.arrayBuffer());
+
 		const worker = new Worker(PdfLibWorker, { type: "module" });
 		this.activeConversions.set(input.id, worker);
-
-		const data = new Uint8Array(await input.file.arrayBuffer());
 
 		// image -> pdf: the input is an image, not a pdf document
 		const IMAGE_EXTS = [

@@ -433,6 +433,11 @@
 								{m["convert.pdf.reflow_note"]()}
 							</p>
 						{/if}
+						{#if currentConverter?.name === "pandoc+pdf-render"}
+							<p class="text-xs text-muted text-center w-full">
+								{m["convert.pdf.raster_note"]()}
+							</p>
+						{/if}
 						{#if file.from === ".pdf" && file.to === ".md"}
 							<p class="text-xs text-muted text-center w-full">
 								{m["convert.pdf.scan_note"]()}

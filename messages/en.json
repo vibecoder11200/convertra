@@ -51,7 +51,8 @@
 			"compress_quality": "Compress quality",
 			"render_scale": "Render scale",
 			"reflow_note": "PDF text is extracted and re-typeset in the target format; the original page layout is not preserved.",
-			"scan_note": "Scanned PDFs contain images of text, not text — those convert to empty files."
+			"scan_note": "Scanned PDFs contain images of text, not text — those convert to empty files.",
+			"raster_note": "This route renders each page as an image, so the PDF has no selectable text and its quality is fixed at render time."
 		},
 		"archive_file": {
 			"extract": "Extract archive",

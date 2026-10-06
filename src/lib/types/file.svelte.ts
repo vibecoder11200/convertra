@@ -57,11 +57,15 @@ export class VertFile {
 				return false;
 			}
 
+			// name presence is not enough — a converter may list a format as
+			// input-only or output-only (e.g. pdf-lib lists .png as an input
+			// for image->pdf, pdf-render as an output). Match each side
+			// against an entry that actually supports that direction.
 			const theirFrom = converter.supportedFormats.find(
-				(f) => f.name === this.from,
+				(f) => f.name === this.from && f.fromSupported,
 			);
 			const theirTo = converter.supportedFormats.find(
-				(f) => f.name === this.to,
+				(f) => f.name === this.to && f.toSupported,
 			);
 			if (!theirFrom || !theirTo) return false;
 			if (!theirFrom.isNative && !theirTo.isNative) return false;

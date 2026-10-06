@@ -118,6 +118,9 @@ export const byNative = (format: string) => {
 		const bFormat = b.supportedFormats.find((f) => f.name === format);
 
 		if (aFormat && bFormat) {
+			// must return 0 on ties: an inconsistent comparator makes the
+			// result order engine-dependent (and .sort mutates in place)
+			if (aFormat.isNative === bFormat.isNative) return 0;
 			return aFormat.isNative ? -1 : 1;
 		}
 		return 0;
