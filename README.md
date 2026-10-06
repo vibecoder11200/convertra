@@ -7,8 +7,9 @@ Convertra is a **privacy-first, fully client-side file converter**. It converts 
 
 Convertra keeps the "no upload, runs in your browser" promise across images,
 audio, and documents, and goes further: **full PDF support**
-(merge/split/compress/text/image) and **client-side video → GIF/WebM** via
-WebCodecs.
+(merge/split/compress/text/image, EPUB/CBZ → PDF), **images → PDF**, and
+**spreadsheets** (xlsx/xls/ods ⇄ csv/json/...) — all client-side — plus
+**client-side video → GIF/WebM** via WebCodecs.
 
 Convertra is built in Svelte and TypeScript.
 
@@ -23,9 +24,13 @@ Convertra is built in Svelte and TypeScript.
 - Convert files directly on your device using WebAssembly\*
 - No file or file size limits (bounded by available device memory)
 - Convert images, audio, documents, and video\*
-- Supports over **250+** file formats
-- **PDF tooling**: merge, split, compress, extract text/markdown, and render to
-  image — all client-side
+- Supports **90+** file formats (65+ fully offline, without the video daemon)
+- **PDF tooling**: merge, split, compress, extract text/markdown/html, render
+  to image or CBZ, and convert EPUB/CBZ → PDF — all client-side
+- **Images → PDF**: jpg/png embed losslessly; webp/gif/avif/bmp decode in-browser
+- **Spreadsheets**: xlsx/xls/ods ⇄ csv/tsv/json/html/md via SheetJS
+- **Documents**: md/docx/html/odt/epub/... ⇄ each other, plus pptx, typst,
+  latex and jats output via pandoc
 - **Video → GIF / WebM** fully client-side (WebCodecs) for short clips
 - Conversion settings
 - User-friendly interface built with Svelte

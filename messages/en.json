@@ -49,7 +49,9 @@
 		"pdf": {
 			"split_range": "Split range",
 			"compress_quality": "Compress quality",
-			"render_scale": "Render scale"
+			"render_scale": "Render scale",
+			"reflow_note": "PDF text is extracted and re-typeset in the target format; the original page layout is not preserved.",
+			"scan_note": "Scanned PDFs contain images of text, not text — those convert to empty files."
 		},
 		"archive_file": {
 			"extract": "Extract archive",

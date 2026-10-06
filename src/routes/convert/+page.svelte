@@ -45,6 +45,18 @@
 		return pdfOptions[id];
 	};
 
+	// pdf sources reflow into these targets: the text is extracted and
+	// re-typeset by pandoc, so the original page layout is not preserved
+	const PDF_REFLOW_TARGETS = [
+		".docx",
+		".odt",
+		".rtf",
+		".md",
+		".html",
+		".pptx",
+		".epub",
+	];
+
 	// Per-file client-side video options (trim start/end, fps, width).
 	const videoOptions = $state<
 		Record<
@@ -416,7 +428,17 @@
 							onselect={(option) => handleSelect(option, file)}
 							{file}
 						/>
-						{#if currentConverter?.name === "pdf-lib" || currentConverter?.name === "pdf-render"}
+						{#if file.from === ".pdf" && PDF_REFLOW_TARGETS.includes(file.to)}
+							<p class="text-xs text-muted text-center w-full">
+								{m["convert.pdf.reflow_note"]()}
+							</p>
+						{/if}
+						{#if file.from === ".pdf" && file.to === ".md"}
+							<p class="text-xs text-muted text-center w-full">
+								{m["convert.pdf.scan_note"]()}
+							</p>
+						{/if}
+						{#if (currentConverter?.name === "pdf-lib" && file.from === ".pdf") || currentConverter?.name === "pdf-render"}
 							{@const opts = getPdfOptions(file.id)}
 							<div
 								class="w-full flex flex-col gap-1.5 items-stretch text-sm"
