@@ -164,6 +164,12 @@ export class PandocConverter extends Converter {
 		new FormatInfo("epub", true, true),
 		new FormatInfo("odt", true, true),
 		new FormatInfo("docbook", true, true),
+		// output-only targets (pandoc writers verified working in the
+		// self-hosted pandoc.wasm build — see .testfiles/pandoc-try.mjs)
+		new FormatInfo("pptx", false, true),
+		new FormatInfo("typ", false, true), // typst
+		new FormatInfo("tex", false, true), // latex
+		new FormatInfo("jats", false, true),
 	];
 }
 
