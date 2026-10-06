@@ -28,13 +28,7 @@ const epub = zipSync(
 );
 writeFileSync(`${dir}/sample.epub`, epub);
 
-// 2) CBZ: two png pages (reuse repo test pngs, pad to valid minimal png)
-const { PNG } = await import("pngjs").catch(() => ({ PNG: null }));
-let png1, png2;
-if (PNG) {
-	// not installed in this repo — skip to fallback
-}
-// fallback: minimal 1x1 white PNGs (hardcoded valid png bytes)
+// 2) CBZ: two png pages — minimal 1x1 white PNGs (hardcoded valid png bytes)
 const minPng = Buffer.from(
 	"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=",
 	"base64",
@@ -76,13 +70,55 @@ const pdf = await PDFDocument.create();
 const body = await pdf.embedFont(StandardFonts.Helvetica);
 const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
 const page = pdf.addPage([595, 842]);
-page.drawText("Quarterly Report", { x: 72, y: 760, size: 26, font: bold, color: rgb(0, 0, 0) });
-page.drawText("Summary of Results", { x: 72, y: 700, size: 15, font: bold, color: rgb(0, 0, 0) });
-page.drawText("Revenue grew by twelve percent year over year.", { x: 72, y: 680, size: 11, font: body, color: rgb(0, 0, 0) });
-page.drawText("- First bullet point", { x: 72, y: 650, size: 11, font: body, color: rgb(0, 0, 0) });
-page.drawText("- Second bullet point", { x: 72, y: 635, size: 11, font: body, color: rgb(0, 0, 0) });
-page.drawText("Next Steps", { x: 72, y: 600, size: 14, font: bold, color: rgb(0, 0, 0) });
-page.drawText("Expand the pilot program to new markets.", { x: 72, y: 580, size: 11, font: body, color: rgb(0, 0, 0) });
+page.drawText("Quarterly Report", {
+	x: 72,
+	y: 760,
+	size: 26,
+	font: bold,
+	color: rgb(0, 0, 0),
+});
+page.drawText("Summary of Results", {
+	x: 72,
+	y: 700,
+	size: 15,
+	font: bold,
+	color: rgb(0, 0, 0),
+});
+page.drawText("Revenue grew by twelve percent year over year.", {
+	x: 72,
+	y: 680,
+	size: 11,
+	font: body,
+	color: rgb(0, 0, 0),
+});
+page.drawText("- First bullet point", {
+	x: 72,
+	y: 650,
+	size: 11,
+	font: body,
+	color: rgb(0, 0, 0),
+});
+page.drawText("- Second bullet point", {
+	x: 72,
+	y: 635,
+	size: 11,
+	font: body,
+	color: rgb(0, 0, 0),
+});
+page.drawText("Next Steps", {
+	x: 72,
+	y: 600,
+	size: 14,
+	font: bold,
+	color: rgb(0, 0, 0),
+});
+page.drawText("Expand the pilot program to new markets.", {
+	x: 72,
+	y: 580,
+	size: 11,
+	font: body,
+	color: rgb(0, 0, 0),
+});
 writeFileSync(`${dir}/doc.pdf`, new Uint8Array(await pdf.save()));
 
 // 5) CSV

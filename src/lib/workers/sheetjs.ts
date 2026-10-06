@@ -59,7 +59,9 @@ async function readWorkbook(
 function aoaToMarkdown(aoa: unknown[][]): string {
 	if (aoa.length === 0) return "";
 	const cell = (v: unknown) =>
-		String(v ?? "").replace(/\r?\n/g, "<br>").replace(/\|/g, "\\|");
+		String(v ?? "")
+			.replace(/\r?\n/g, "<br>")
+			.replace(/\|/g, "\\|");
 	const rows = aoa.map((row) => row.map(cell));
 	// reduce, not Math.max(...spread) — huge sheets overflow the argument
 	// count limit
@@ -107,7 +109,9 @@ async function handleConvert(req: ConvertRequest) {
 					input: new TextEncoder().encode(p.text),
 				})),
 			);
-			const buf = new Uint8Array(await new Response(zipped).arrayBuffer());
+			const buf = new Uint8Array(
+				await new Response(zipped).arrayBuffer(),
+			);
 			self.postMessage({
 				type: "finished",
 				output: buf,

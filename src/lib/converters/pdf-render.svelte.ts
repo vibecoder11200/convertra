@@ -75,9 +75,7 @@ export class PdfRenderConverter extends Converter {
 
 		const result = await new Promise<{
 			type: string;
-			output?:
-				| Uint8Array
-				| { name: string; bytes: Uint8Array }[];
+			output?: Uint8Array | { name: string; bytes: Uint8Array }[];
 			zip?: boolean;
 			single?: boolean;
 			error?: string;
@@ -122,10 +120,7 @@ export class PdfRenderConverter extends Converter {
 				const ext = p.name.split(".").pop() ?? "png";
 				// cbz archives must contain image entries — keep page_N.png
 				const outExt = target === "cbz" ? "png" : target;
-				const outName = p.name.replace(
-					/\.[^.]+$/,
-					`.${outExt}`,
-				);
+				const outName = p.name.replace(/\.[^.]+$/, `.${outExt}`);
 				let blob: Blob;
 				if (target === "webp" && ext !== "webp") {
 					blob = await this.transcodeToWebP(p.bytes);

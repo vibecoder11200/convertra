@@ -112,7 +112,8 @@ async function handleCompress(job: CompressRequest) {
 	});
 }
 
-const isJpeg = (d: Uint8Array) => d[0] === 0xff && d[1] === 0xd8 && d[2] === 0xff;
+const isJpeg = (d: Uint8Array) =>
+	d[0] === 0xff && d[1] === 0xd8 && d[2] === 0xff;
 const isPng = (d: Uint8Array) =>
 	d[0] === 0x89 && d[1] === 0x50 && d[2] === 0x4e && d[3] === 0x47;
 

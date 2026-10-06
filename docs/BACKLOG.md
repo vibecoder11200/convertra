@@ -58,7 +58,7 @@ chết — TCP timeout). Deploy `vertd` rồi set `PUB_VERTD_URL` khi build.
 Còn lại (chưa làm, theo thứ tự giá trị):
 
 - [ ] DOCX/XLSX → PDF chất lượng LibreOffice — chỉ khả thi khi có vertd riêng
-  cài LibreOffice (item ở trên).
+      cài LibreOffice (item ở trên).
 - [ ] OCR cho PDF scan (tesseract.js, ~2MB/ngôn ngữ) — cân nhắc sau.
 - [ ] Setting kích thước trang cho EPUB → PDF (hiện dùng layout mặc định mupdf).
 - [ ] Gộp nhiều ảnh → 1 PDF nhiều trang (cần luồng UI merge per-file group).

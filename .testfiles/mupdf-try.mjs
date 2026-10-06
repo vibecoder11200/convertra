@@ -1,10 +1,14 @@
 // Probe which INPUT document types the installed mupdf wasm build can open
 // (pdf render worker hardcodes application/pdf today).
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { zipSync } from "fflate";
 
 globalThis.$libmupdf_wasm_Module = {
-	locateFile: () => new URL("../node_modules/mupdf/dist/mupdf-wasm.wasm", import.meta.url).href.replace("file:///", "file:///"),
+	locateFile: () =>
+		new URL(
+			"../node_modules/mupdf/dist/mupdf-wasm.wasm",
+			import.meta.url,
+		).href.replace("file:///", "file:///"),
 };
 
 const mupdf = await import("mupdf");
@@ -14,9 +18,6 @@ const png = readFileSync(new URL("../static/favicon.png", import.meta.url));
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="30"><text x="0" y="20">hello svg</text></svg>`;
 const cbz = zipSync({ "1.png": new Uint8Array(png) });
 
-const cases = [
-	["pdf  ", new Uint8Array(png.subarray(0, 0)), null], // placeholder, replaced below
-].slice(0, 0);
 const tests = [
 	["cbz  ", new Uint8Array(cbz), "application/vnd.comicbook+zip"],
 	["svg  ", new TextEncoder().encode(svg), "image/svg+xml"],
@@ -30,7 +31,7 @@ const container = `<?xml version="1.0"?><container version="1.0" xmlns="urn:oasi
 const opf = `<?xml version="1.0"?><package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="id"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>t</dc:title><dc:identifier id="id">x</dc:identifier><dc:language>en</dc:language></metadata><manifest><item id="c1" href="c1.xhtml" media-type="application/xhtml+xml"/><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/></manifest><spine><itemref idref="c1"/></spine></package>`;
 const epubBuf = zipSync(
 	{
-		"mimetype": new TextEncoder().encode("application/epub+zip"),
+		mimetype: new TextEncoder().encode("application/epub+zip"),
 		"META-INF/container.xml": new TextEncoder().encode(container),
 		"OEBPS/content.opf": new TextEncoder().encode(opf),
 		"OEBPS/c1.xhtml": new TextEncoder().encode(xhtml),
@@ -53,9 +54,15 @@ for (const [label, buf, magic] of tests) {
 		let text = "";
 		try {
 			const page = doc.loadPage(0);
-			text = page.toStructuredText("preserve-whitespace").asText().trim().slice(0, 40);
+			text = page
+				.toStructuredText("preserve-whitespace")
+				.asText()
+				.trim()
+				.slice(0, 40);
 			page.destroy();
-		} catch {}
+		} catch {
+			// page renders but exposes no extractable text layer
+		}
 		console.log(`${label} OPEN-OK pages=${n} text=${JSON.stringify(text)}`);
 		doc.destroy();
 	} catch (e) {

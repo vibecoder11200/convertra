@@ -1,7 +1,7 @@
 // Round-trip probe for src/lib/workers/sheetjs.ts run in a real bun web
 // worker: build a 2-sheet xlsx -> csv (expect zip of 2 csvs) -> read back ->
 // xlsx; plus xlsx -> md/html/json single-shot checks.
-import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
+import { writeFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { unzipSync } from "fflate";
@@ -28,7 +28,9 @@ XLSX.utils.book_append_sheet(
 	]),
 	"Cities",
 );
-const xlsxBytes = new Uint8Array(XLSX.write(wb, { type: "array", bookType: "xlsx" }));
+const xlsxBytes = new Uint8Array(
+	XLSX.write(wb, { type: "array", bookType: "xlsx" }),
+);
 const xlsxPath = join(work, "test.xlsx");
 writeFileSync(xlsxPath, xlsxBytes);
 
@@ -107,7 +109,10 @@ console.log("ods round-trip sheets:", odsBack.SheetNames);
 
 // 8) json records -> xlsx
 const jsonBytes = new TextEncoder().encode(
-	JSON.stringify([{ x: 1, y: "p" }, { x: 2, y: "q" }]),
+	JSON.stringify([
+		{ x: 1, y: "p" },
+		{ x: 2, y: "q" },
+	]),
 );
 res = await run(jsonBytes, ".json", ".xlsx");
 if (res.type === "error") throw new Error(`json->xlsx: ${res.error}`);

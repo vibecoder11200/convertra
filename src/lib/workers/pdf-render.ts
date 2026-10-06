@@ -7,7 +7,10 @@ interface RenderRequest {
 	type: "render";
 	id: string;
 	data: Uint8Array;
-	sourceType: "application/pdf" | "application/epub+zip" | "application/vnd.comicbook+zip";
+	sourceType:
+		| "application/pdf"
+		| "application/epub+zip"
+		| "application/vnd.comicbook+zip";
 	// "cbz" behaves like "png" (comic archives hold png pages)
 	format: "png" | "jpeg" | "webp" | "pdf" | "cbz";
 	scale: number; // render scale (1 = 72dpi, 2 = 144dpi, ...)
@@ -46,10 +49,7 @@ self.onmessage = async (e: MessageEvent<RenderRequest>) => {
 		// worker emits PNG and the converter transcodes to WebP via canvas.
 		// The "pdf" target renders PNG pages and reassembles them into a
 		// single PDF (one full-bleed page per source page).
-		const emitFormat =
-			req.format === "jpeg"
-				? "jpeg"
-				: "png";
+		const emitFormat = req.format === "jpeg" ? "jpeg" : "png";
 
 		for (const p of pages) {
 			const page = doc.loadPage(p);

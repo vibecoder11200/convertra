@@ -39,10 +39,13 @@
 	];
 
 	const documentStatus = (): WorkerStatus =>
-		documentConverterNames.map(
-			(name) =>
-				converters.find((c) => c.name === name)?.status ?? "not-ready",
-		).includes("ready")
+		documentConverterNames
+			.map(
+				(name) =>
+					converters.find((c) => c.name === name)?.status ??
+					"not-ready",
+			)
+			.includes("ready")
 			? "ready"
 			: "not-ready";
 

@@ -41,9 +41,7 @@ class Files {
 			// zip blob as an image (noisy console error)
 			if (
 				file.isZip() ||
-				[".cbz", ".epub", ".xlsx", ".ods", ".xls"].includes(
-					file.from,
-				)
+				[".cbz", ".epub", ".xlsx", ".ods", ".xls"].includes(file.from)
 			)
 				return;
 
