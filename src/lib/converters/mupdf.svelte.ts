@@ -55,5 +55,6 @@ export class MuPDFConverter extends Converter {
 		new FormatInfo("pdf", true, false),
 		new FormatInfo("md", false, true),
 		new FormatInfo("txt", false, true),
+		new FormatInfo("html", false, true),
 	];
 }

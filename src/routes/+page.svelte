@@ -14,14 +14,40 @@
 	import { sanitize } from "$lib/store/index.svelte";
 	import { DISABLE_ALL_EXTERNAL_REQUESTS } from "$lib/util/consts";
 
-	const getSupportedFormats = (name: string) =>
-		converters
-			.find((c) => c.name === name)
-			?.supportedFormats.map(
-				(f) =>
+	const getSupportedFormats = (names: string[]) => {
+		const seen = new Set<string>();
+		const parts: string[] = [];
+		for (const name of names) {
+			const converter = converters.find((c) => c.name === name);
+			for (const f of converter?.supportedFormats ?? []) {
+				if (seen.has(f.name)) continue;
+				seen.add(f.name);
+				parts.push(
 					`${f.name}${f.fromSupported && f.toSupported ? "" : "*"}`,
+				);
+			}
+		}
+		return parts.join(", ") || "none";
+	};
+
+	const documentConverterNames = [
+		"pandoc",
+		"mupdf",
+		"pdf-lib",
+		"pdf-render",
+		"sheetjs",
+	];
+
+	const documentStatus = (): WorkerStatus =>
+		documentConverterNames
+			.map(
+				(name) =>
+					converters.find((c) => c.name === name)?.status ??
+					"not-ready",
 			)
-			.join(", ") || "none";
+			.includes("ready")
+			? "ready"
+			: "not-ready";
 
 	const worker: {
 		[key: string]: {
@@ -40,7 +66,7 @@
 			};
 		} = {
 			Images: {
-				formats: getSupportedFormats("imagemagick"),
+				formats: getSupportedFormats(["imagemagick"]),
 				icon: Image,
 				title: m["upload.cards.images"](),
 				status:
@@ -48,7 +74,7 @@
 					"not-ready",
 			},
 			Audio: {
-				formats: getSupportedFormats("ffmpeg"),
+				formats: getSupportedFormats(["ffmpeg"]),
 				icon: AudioLines,
 				title: m["upload.cards.audio"](),
 				status:
@@ -56,18 +82,16 @@
 					"not-ready",
 			},
 			Documents: {
-				formats: getSupportedFormats("pandoc"),
+				formats: getSupportedFormats(documentConverterNames),
 				icon: BookText,
 				title: m["upload.cards.documents"](),
-				status:
-					converters.find((c) => c.name === "pandoc")?.status ||
-					"not-ready",
+				status: documentStatus(),
 			},
 		};
 
 		if (!DISABLE_ALL_EXTERNAL_REQUESTS) {
 			output.Video = {
-				formats: getSupportedFormats("vertd"),
+				formats: getSupportedFormats(["vertd"]),
 				icon: Film,
 				title: m["upload.cards.video"](),
 				status: $vertdLoaded === true ? "ready" : "not-ready", // not using converter.status for this

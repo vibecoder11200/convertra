@@ -22,36 +22,64 @@ export class PdfLibConverter extends Converter {
 		to: string,
 		...args: unknown[]
 	): Promise<VertFile> {
+		// read the buffer before spawning the worker so a read failure
+		// can't leak the worker
+		const data = new Uint8Array(await input.file.arrayBuffer());
+
 		const worker = new Worker(PdfLibWorker, { type: "module" });
 		this.activeConversions.set(input.id, worker);
 
-		const data = new Uint8Array(await input.file.arrayBuffer());
-
-		// to === ".zip" means split-all; ".pdf" with pageRange arg means
-		// split-range or compress. Converters are single-input, so operations
-		// are encoded via the target format + args:
-		//   .pdf + { op: "compress", quality } -> compress
-		//   .pdf + { op: "split", range }     -> split range -> pdf
-		//   .zip                              -> split all -> zip
-		const op =
-			(args.at(0) as { op?: string; quality?: number; range?: string }) ??
-			{};
-		const msg =
-			to === ".zip"
-				? { type: "split", id: input.id, data, mode: "all" }
-				: op.op === "compress"
-					? {
-							type: "compress",
-							id: input.id,
-							data,
-							quality: op.quality ?? 75,
-						}
-					: {
-							type: "split",
-							id: input.id,
-							data,
-							mode: op.range ? parseRangeToMode(op.range) : "all",
-						};
+		// image -> pdf: the input is an image, not a pdf document
+		const IMAGE_EXTS = [
+			".jpg",
+			".jpeg",
+			".jpe",
+			".jfif",
+			".png",
+			".webp",
+			".gif",
+			".avif",
+			".bmp",
+		];
+		let msg: Record<string, unknown>;
+		if (IMAGE_EXTS.includes(input.from)) {
+			msg = {
+				type: "img2pdf",
+				id: input.id,
+				files: [{ name: input.name, data }],
+			};
+		} else {
+			// to === ".zip" means split-all; ".pdf" with pageRange arg means
+			// split-range or compress. Converters are single-input, so operations
+			// are encoded via the target format + args:
+			//   .pdf + { op: "compress", quality } -> compress
+			//   .pdf + { op: "split", range }     -> split range -> pdf
+			//   .zip                              -> split all -> zip
+			const op =
+				(args.at(0) as {
+					op?: string;
+					quality?: number;
+					range?: string;
+				}) ?? {};
+			msg =
+				to === ".zip"
+					? { type: "split", id: input.id, data, mode: "all" }
+					: op.op === "compress"
+						? {
+								type: "compress",
+								id: input.id,
+								data,
+								quality: op.quality ?? 75,
+							}
+						: {
+								type: "split",
+								id: input.id,
+								data,
+								mode: op.range
+									? parseRangeToMode(op.range)
+									: "all",
+							};
+		}
 
 		worker.postMessage(msg);
 
@@ -114,6 +142,17 @@ export class PdfLibConverter extends Converter {
 	public supportedFormats = [
 		new FormatInfo("pdf", true, true),
 		new FormatInfo("zip", false, true),
+		// image -> pdf inputs (jpg/png embed losslessly; the rest are
+		// canvas-decoded to png inside the worker)
+		new FormatInfo("jpg", true, false),
+		new FormatInfo("jpeg", true, false),
+		new FormatInfo("jpe", true, false),
+		new FormatInfo("jfif", true, false),
+		new FormatInfo("png", true, false),
+		new FormatInfo("webp", true, false),
+		new FormatInfo("gif", true, false),
+		new FormatInfo("avif", true, false),
+		new FormatInfo("bmp", true, false),
 	];
 }
 

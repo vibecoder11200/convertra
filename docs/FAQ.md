@@ -35,4 +35,12 @@ The only external request Convertra will make with this option is to `cdn.jsdeli
 
 ### What libraries does Convertra use?
 
-Convertra uses FFmpeg for audio and video conversion, imagemagick for images and Pandoc for documents. A big thanks to them for maintaining such excellent libraries for so many years.
+Convertra uses FFmpeg for audio and video conversion, imagemagick for images, Pandoc for documents, MuPDF for PDF rendering and extraction, pdf-lib for PDF assembly, and SheetJS for spreadsheets. A big thanks to them for maintaining such excellent libraries for so many years.
+
+### Why does my PDF converted to DOCX lose its layout?
+
+PDF is a page-description format: it records where each glyph sits, not the
+document structure. Converting a PDF to an editable format extracts the text
+and re-typesets it (Convertra chains MuPDF → Pandoc for this), so the original
+layout is not preserved — the UI shows this note when it applies. Scanned PDFs
+contain images of text rather than text, so they extract nothing.

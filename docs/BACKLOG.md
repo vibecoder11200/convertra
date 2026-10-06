@@ -38,3 +38,27 @@ vertd riêng), `GITHUB_URL_VERTD` trong `src/lib/util/consts.ts`.
 
 Video conversion hiện tắt hoàn toàn (các instance công khai cũ của upstream đã
 chết — TCP timeout). Deploy `vertd` rồi set `PUB_VERTD_URL` khi build.
+
+## [x] Mở rộng định dạng đợt Tier 1 + Tier 2 (hoàn tất — 2026-10-07)
+
+Đã ship trên branch `feat/converters-tier12`:
+
+- **EPUB/CBZ → PDF & ảnh**, **PDF → CBZ** (mupdf render worker + pdf-lib
+  assemble trong worker; pdfjs fallback chỉ áp dụng cho PDF).
+- **Ảnh → PDF** (pdf-lib: jpg/png nhúng lossless, webp/gif/avif/bmp decode
+  canvas trong worker).
+- **PPTX / Typst / LaTeX / JATS output** qua pandoc + gỡ chặn RTF (writers
+  đã verify bằng `.testfiles/pandoc-try.mjs`).
+- **PDF → markdown/html thật** (mupdf asJSON → heading theo ratio font size —
+  `src/lib/util/structured-markdown.ts`); chuỗi pdf → md/html → mọi target
+  pandoc tự mở khóa qua ChainedConverter có sẵn.
+- **Spreadsheet** qua SheetJS 0.20.3 (CDN chính thức, tránh CVE của bản npm
+  0.18.5): xlsx/xls/ods ⇄ csv/tsv/json/html/md; multi-sheet → zip CSV.
+
+Còn lại (chưa làm, theo thứ tự giá trị):
+
+- [ ] DOCX/XLSX → PDF chất lượng LibreOffice — chỉ khả thi khi có vertd riêng
+      cài LibreOffice (item ở trên).
+- [ ] OCR cho PDF scan (tesseract.js, ~2MB/ngôn ngữ) — cân nhắc sau.
+- [ ] Setting kích thước trang cho EPUB → PDF (hiện dùng layout mặc định mupdf).
+- [ ] Gộp nhiều ảnh → 1 PDF nhiều trang (cần luồng UI merge per-file group).

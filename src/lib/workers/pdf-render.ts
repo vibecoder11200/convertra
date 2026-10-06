@@ -7,7 +7,12 @@ interface RenderRequest {
 	type: "render";
 	id: string;
 	data: Uint8Array;
-	format: "png" | "jpeg" | "webp";
+	sourceType:
+		| "application/pdf"
+		| "application/epub+zip"
+		| "application/vnd.comicbook+zip";
+	// "cbz" behaves like "png" (comic archives hold png pages)
+	format: "png" | "jpeg" | "webp" | "pdf" | "cbz";
 	scale: number; // render scale (1 = 72dpi, 2 = 144dpi, ...)
 	quality?: number; // JPEG quality (0-100), default 85
 	range: "all" | { from: number; to: number };
@@ -32,7 +37,7 @@ self.onmessage = async (e: MessageEvent<RenderRequest>) => {
 
 		const doc = mupdf.Document.openDocument(
 			new Uint8Array(req.data),
-			"application/pdf",
+			req.sourceType ?? "application/pdf",
 		);
 		const total = doc.countPages();
 		const pages = resolvePages(req.range, total);
@@ -42,12 +47,9 @@ self.onmessage = async (e: MessageEvent<RenderRequest>) => {
 
 		// mupdf exports PNG and JPEG natively. WebP is not supported, so the
 		// worker emits PNG and the converter transcodes to WebP via canvas.
-		const emitFormat =
-			req.format === "png"
-				? "png"
-				: req.format === "jpeg"
-					? "jpeg"
-					: "png";
+		// The "pdf" target renders PNG pages and reassembles them into a
+		// single PDF (one full-bleed page per source page).
+		const emitFormat = req.format === "jpeg" ? "jpeg" : "png";
 
 		for (const p of pages) {
 			const page = doc.loadPage(p);
@@ -69,6 +71,14 @@ self.onmessage = async (e: MessageEvent<RenderRequest>) => {
 				} finally {
 					pixmap.destroy();
 				}
+				// a failed page decode renders blank and encodes to nothing —
+				// feeding zero bytes to pdf-lib/images produces cryptic
+				// downstream errors, so fail with the page number instead
+				if (bytes.length === 0) {
+					throw new Error(
+						`Page ${p + 1} could not be rendered to an image (undecodable or empty page content)`,
+					);
+				}
 				outputs.push({
 					name: `page_${p + 1}.${emitFormat}`,
 					bytes,
@@ -78,6 +88,30 @@ self.onmessage = async (e: MessageEvent<RenderRequest>) => {
 			}
 		}
 		doc.destroy();
+
+		if (req.format === "pdf") {
+			// assemble rendered pages into a single PDF
+			const { PDFDocument } = await import("pdf-lib");
+			const out = await PDFDocument.create();
+			for (const part of outputs) {
+				const img = await out.embedPng(part.bytes);
+				const page = out.addPage([img.width, img.height]);
+				page.drawImage(img, {
+					x: 0,
+					y: 0,
+					width: img.width,
+					height: img.height,
+				});
+			}
+			const pdfBytes = await out.save();
+			self.postMessage({
+				type: "finished",
+				output: pdfBytes,
+				single: true,
+				id: req.id,
+			});
+			return;
+		}
 
 		self.postMessage({
 			type: "finished",
