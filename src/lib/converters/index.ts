@@ -92,6 +92,13 @@ categories.doc.formats =
 				.find((c) => c.name === "pdf-lib")
 				?.supportedFormats.filter((f) => f.toSupported)
 				.map((f) => f.name) || []),
+			// pdf -> cbz lives in the documents category next to pdf
+			...(converters
+				.find((c) => c.name === "pdf-render")
+				?.supportedFormats.filter(
+					(f) => f.toSupported && f.name === ".cbz",
+				)
+				.map((f) => f.name) || []),
 		]),
 	) || [];
 

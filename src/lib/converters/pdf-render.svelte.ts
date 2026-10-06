@@ -48,6 +48,14 @@ export class PdfRenderConverter extends Converter {
 						),
 					};
 
+		// mupdf opens documents by magic: pdf, epub and cbz (zip of images)
+		const sourceType =
+			input.from === ".epub"
+				? "application/epub+zip"
+				: input.from === ".cbz"
+					? "application/vnd.comicbook+zip"
+					: "application/pdf";
+
 		const worker = new Worker(PdfRenderWorker, { type: "module" });
 		this.activeConversions.set(input.id, worker);
 
@@ -56,7 +64,8 @@ export class PdfRenderConverter extends Converter {
 			type: "render",
 			id: input.id,
 			data,
-			format: target as "png" | "jpeg" | "webp",
+			sourceType,
+			format: target as "png" | "jpeg" | "webp" | "pdf",
 			quality,
 			scale,
 			range,
@@ -64,8 +73,11 @@ export class PdfRenderConverter extends Converter {
 
 		const result = await new Promise<{
 			type: string;
-			output?: { name: string; bytes: Uint8Array }[];
+			output?:
+				| Uint8Array
+				| { name: string; bytes: Uint8Array }[];
 			zip?: boolean;
+			single?: boolean;
 			error?: string;
 		}>((resolve) => {
 			worker.onmessage = (e) => resolve(e.data);
@@ -78,10 +90,25 @@ export class PdfRenderConverter extends Converter {
 
 		if (result.type === "error") {
 			// D11: fall back to pdfjs-dist rendering when mupdf fails.
-			return this.renderWithPdfjs(input, target, scale, range);
+			// pdfjs only speaks pdf; keep the original error for epub/cbz.
+			if (sourceType === "application/pdf") {
+				return this.renderWithPdfjs(input, target, scale, range);
+			}
+			throw new Error(result.error);
 		}
 
-		const parts = result.output ?? [];
+		// single-buffer output: document -> one PDF (epub/cbz/pdf -> pdf)
+		if (result.single) {
+			return new VertFile(
+				new File(
+					[result.output as unknown as BlobPart],
+					`${baseName(input.name)}.pdf`,
+				),
+				".pdf",
+			);
+		}
+
+		const parts = result.output as { name: string; bytes: Uint8Array }[];
 		if (parts.length === 0) throw new Error("No pages rendered");
 
 		// mupdf emits PNG for the webp request (it has no WebP export), so
@@ -107,6 +134,18 @@ export class PdfRenderConverter extends Converter {
 
 		const { createZip } = await import("$lib/util/zip");
 		const zipBytes = await createZip(files);
+
+		// cbz is a plain zip of images — same payload, comic-reader naming
+		if (target === "cbz") {
+			return new VertFile(
+				new File(
+					[zipBytes as unknown as BlobPart],
+					`${baseName(input.name)}.cbz`,
+				),
+				".cbz",
+			);
+		}
+
 		return new VertFile(
 			new File(
 				[zipBytes as unknown as BlobPart],
@@ -231,6 +270,10 @@ export class PdfRenderConverter extends Converter {
 		new FormatInfo("png", false, true),
 		new FormatInfo("jpeg", false, true),
 		new FormatInfo("webp", false, true),
-		new FormatInfo("pdf", true, false),
+		// inputs: pdf, epub and cbz lay out via mupdf and render to
+		// image/cbz/pdf targets
+		new FormatInfo("pdf", true, true),
+		new FormatInfo("epub", true, false),
+		new FormatInfo("cbz", true, true),
 	];
 }
