@@ -12,9 +12,25 @@ const font = await pdf.embedFont(StandardFonts.Helvetica);
 const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
 for (let p = 0; p < 2; p++) {
 	const page = pdf.addPage([595, 842]);
-	page.drawText(`Heading on page ${p + 1}`, { x: 72, y: 760, size: 24, font: bold, color: rgb(0, 0, 0) });
-	page.drawText("Regular body text with some words.", { x: 72, y: 700, size: 12, font });
-	page.drawText("A bold word and an italic word.", { x: 72, y: 680, size: 12, font: bold });
+	page.drawText(`Heading on page ${p + 1}`, {
+		x: 72,
+		y: 760,
+		size: 24,
+		font: bold,
+		color: rgb(0, 0, 0),
+	});
+	page.drawText("Regular body text with some words.", {
+		x: 72,
+		y: 700,
+		size: 12,
+		font,
+	});
+	page.drawText("A bold word and an italic word.", {
+		x: 72,
+		y: 680,
+		size: 12,
+		font: bold,
+	});
 }
 const pdfBytes = new Uint8Array(await pdf.save());
 

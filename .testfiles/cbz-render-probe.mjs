@@ -2,17 +2,15 @@
 // pages to PNG, assemble with pdf-lib — same as workers/pdf-render.ts.
 globalThis.$libmupdf_wasm_Module = {
 	locateFile: () =>
-		new URL("../node_modules/mupdf/dist/mupdf-wasm.wasm", import.meta.url).href,
+		new URL("../node_modules/mupdf/dist/mupdf-wasm.wasm", import.meta.url)
+			.href,
 };
 const { readFileSync } = await import("node:fs");
 const mupdf = await import("mupdf");
 const { PDFDocument } = await import("pdf-lib");
 
 const buf = new Uint8Array(readFileSync(".testfiles/e2e/comics.cbz"));
-const doc = mupdf.Document.openDocument(
-	buf,
-	"application/vnd.comicbook+zip",
-);
+const doc = mupdf.Document.openDocument(buf, "application/vnd.comicbook+zip");
 const total = doc.countPages();
 console.log("pages:", total);
 const matrix = mupdf.Matrix.scale(2, 2);

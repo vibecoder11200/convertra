@@ -3,16 +3,28 @@
 import { readFileSync } from "node:fs";
 import * as wasiShim from "@bjorn3/browser_wasi_shim";
 
-const wasmBytes = readFileSync(new URL("../static/pandoc.wasm", import.meta.url));
+const wasmBytes = readFileSync(
+	new URL("../static/pandoc.wasm", import.meta.url),
+);
 const INPUT = "# Hello Probe\n\nA **bold** test and a list:\n\n- one\n- two\n";
 
 async function tryWriter(to) {
 	const args = ["pandoc.wasm", "+RTS", "-H64m", "-RTS"];
-	const in_file = new wasiShim.File(new TextEncoder().encode(INPUT), { readonly: true });
+	const in_file = new wasiShim.File(new TextEncoder().encode(INPUT), {
+		readonly: true,
+	});
 	const out_file = new wasiShim.File(new Uint8Array(), { readonly: false });
-	const root = new wasiShim.PreopenDirectory("/", new Map([["in", in_file], ["out", out_file]]));
+	const root = new wasiShim.PreopenDirectory(
+		"/",
+		new Map([
+			["in", in_file],
+			["out", out_file],
+		]),
+	);
 	const fds = [
-		new wasiShim.OpenFile(new wasiShim.File(new Uint8Array(), { readonly: true })),
+		new wasiShim.OpenFile(
+			new wasiShim.File(new Uint8Array(), { readonly: true }),
+		),
 		wasiShim.ConsoleStdout.lineBuffered(() => {}),
 		wasiShim.ConsoleStdout.lineBuffered(() => {}),
 		root,
@@ -31,7 +43,10 @@ async function tryWriter(to) {
 	const argv = instance.exports.malloc(4 * (args.length + 1));
 	for (let i = 0; i < args.length; i++) {
 		const p = instance.exports.malloc(args[i].length + 1);
-		enc.encodeInto(args[i], new Uint8Array(instance.exports.memory.buffer, p, args[i].length));
+		enc.encodeInto(
+			args[i],
+			new Uint8Array(instance.exports.memory.buffer, p, args[i].length),
+		);
 		mem().setUint8(p + args[i].length, 0);
 		mem().setUint32(argv + 4 * i, p, true);
 	}
@@ -42,7 +57,10 @@ async function tryWriter(to) {
 
 	const cmd = `-f markdown -t ${to} --extract-media=. -o out in`;
 	const cmdPtr = instance.exports.malloc(cmd.length);
-	enc.encodeInto(cmd, new Uint8Array(instance.exports.memory.buffer, cmdPtr, cmd.length));
+	enc.encodeInto(
+		cmd,
+		new Uint8Array(instance.exports.memory.buffer, cmdPtr, cmd.length),
+	);
 	try {
 		instance.exports.wasm_main(cmdPtr, cmd.length);
 	} catch (e) {
@@ -60,7 +78,21 @@ async function tryWriter(to) {
 	);
 }
 
-for (const to of ["pptx", "docx", "odt", "epub", "rtf", "docbook", "typst", "latex", "opendocument", "jats", "rst", "html", "markdown"]) {
+for (const to of [
+	"pptx",
+	"docx",
+	"odt",
+	"epub",
+	"rtf",
+	"docbook",
+	"typst",
+	"latex",
+	"opendocument",
+	"jats",
+	"rst",
+	"html",
+	"markdown",
+]) {
 	try {
 		await tryWriter(to);
 	} catch (e) {

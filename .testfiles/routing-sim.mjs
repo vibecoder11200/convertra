@@ -43,9 +43,7 @@ function single(from, to) {
 	return registry.find((c) => {
 		if (!formatStrings(c).includes(from) || !formatStrings(c).includes(to))
 			return false;
-		const theirFrom = c.formats.find(
-			(f) => f.name === from && f.from,
-		);
+		const theirFrom = c.formats.find((f) => f.name === from && f.from);
 		const theirTo = c.formats.find((f) => f.name === to && f.to);
 		if (!theirFrom || !theirTo) return false;
 		if (!theirFrom.native && !theirTo.native) return false;
@@ -65,9 +63,7 @@ function chain(from, to) {
 				const cFrom = c.formats.find(
 					(f) => f.name === fmt.name && f.from,
 				);
-				const cTo = c.formats.find(
-					(f) => f.name === to && f.to,
-				);
+				const cTo = c.formats.find((f) => f.name === to && f.to);
 				return cFrom && cTo;
 			});
 			if (b) return `${a.name}(->${fmt.name})+${b.name}`;
