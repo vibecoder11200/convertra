@@ -92,8 +92,11 @@
 	const convertPdf = async (file: VertFile) => {
 		const opts = getPdfOptions(file.id);
 		const to = file.to;
-		// pdf-lib: compress (->.pdf), split-all (->.zip), split-range (->.pdf with range)
-		if (to === ".pdf" || to === ".zip") {
+		// pdf-lib ops only exist for pdf SOURCES: compress (->.pdf), split-all
+		// (->.zip), split-range (->.pdf with range). epub/cbz -> .pdf must fall
+		// through to pdf-render below, which ignores {op:...} and would lose
+		// scale/pageSize if it took this branch
+		if (file.from === ".pdf" && (to === ".pdf" || to === ".zip")) {
 			const isCompress = to === ".pdf" && opts.range === "";
 			await file.convert(
 				isCompress
@@ -102,7 +105,8 @@
 			);
 			return;
 		}
-		// pdf-render: pdf -> png/jpeg/webp (epub inputs also take a page size)
+		// pdf-render: pdf/epub/cbz -> png/jpeg/webp/pdf/cbz (epub inputs also
+		// take a page size)
 		await file.convert({
 			scale: opts.scale,
 			range: opts.range || "all",
