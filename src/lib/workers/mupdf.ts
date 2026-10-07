@@ -22,9 +22,12 @@ function pageText(
 	const pageCount = doc.countPages();
 	for (let i = 0; i < pageCount; i++) {
 		const page = doc.loadPage(i);
-		const st = page.toStructuredText("preserve-whitespace");
-		parts.push(mode === "html" ? st.asHTML(i) : st.asText());
-		page.destroy();
+		try {
+			const st = page.toStructuredText("preserve-whitespace");
+			parts.push(mode === "html" ? st.asHTML(i) : st.asText());
+		} finally {
+			page.destroy();
+		}
 	}
 	return parts;
 }
@@ -37,14 +40,15 @@ function pageStructuredBlocks(
 	const pageCount = doc.countPages();
 	for (let i = 0; i < pageCount; i++) {
 		const page = doc.loadPage(i);
-		const st = page.toStructuredText("preserve-whitespace");
 		try {
+			const st = page.toStructuredText("preserve-whitespace");
 			const parsed = JSON.parse(st.asJSON());
 			blocks.push(...(parsed.blocks ?? []));
 		} catch {
 			// no structured text on this page; skip
+		} finally {
+			page.destroy();
 		}
-		page.destroy();
 	}
 	return blocks;
 }
@@ -59,28 +63,30 @@ self.onmessage = async (e: MessageEvent) => {
 		const target = (to || ".txt").toLowerCase();
 
 		let output: Uint8Array;
-		if (target === ".html") {
-			// per-page asHTML already carries positioning + font styling
-			const parts = pageText(doc, "html");
-			output = new TextEncoder().encode(
-				`<!doctype html>\n<html><head><meta charset="utf-8"></head><body>\n${parts.join("\n")}\n</body></html>`,
-			);
-		} else if (target === ".md") {
-			// structured markdown (headings from relative font size, list
-			// bullets); scanned documents carry no text blocks, so fall back
-			// to plain text (which is empty for those) rather than failing
-			const md = structuredTextToMarkdown(pageStructuredBlocks(doc));
-			output = new TextEncoder().encode(
-				md !== "" ? md : pageText(doc, "text").join("\n\n"),
-			);
-		} else {
-			// .txt (default)
-			output = new TextEncoder().encode(
-				pageText(doc, "text").join("\n\n"),
-			);
+		try {
+			if (target === ".html") {
+				// per-page asHTML already carries positioning + font styling
+				const parts = pageText(doc, "html");
+				output = new TextEncoder().encode(
+					`<!doctype html>\n<html><head><meta charset="utf-8"></head><body>\n${parts.join("\n")}\n</body></html>`,
+				);
+			} else if (target === ".md") {
+				// structured markdown (headings from relative font size, list
+				// bullets); scanned documents carry no text blocks, so fall back
+				// to plain text (which is empty for those) rather than failing
+				const md = structuredTextToMarkdown(pageStructuredBlocks(doc));
+				output = new TextEncoder().encode(
+					md !== "" ? md : pageText(doc, "text").join("\n\n"),
+				);
+			} else {
+				// .txt (default)
+				output = new TextEncoder().encode(
+					pageText(doc, "text").join("\n\n"),
+				);
+			}
+		} finally {
+			doc.destroy();
 		}
-
-		doc.destroy();
 
 		self.postMessage({ type: "finished", output, id });
 	} catch (err) {

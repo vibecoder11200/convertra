@@ -30,6 +30,11 @@ export class VertFile {
 
 	public cancelled = $state(false);
 
+	// worker-based converters terminate the worker on cancel, but the
+	// message-promise their convert() awaits never settles after that —
+	// this rejector is the single guarantee that convert() always returns
+	private cancelRejecter: ((reason: Error) => void) | undefined;
+
 	public converters: Converter[] = [];
 
 	public isZip = $state(() => this.from === ".zip");
@@ -146,11 +151,20 @@ export class VertFile {
 			this.result = null;
 			this.progress = 0;
 			this.processing = true;
+			// race the conversion against a cancellation rejection: a
+			// terminated worker's dead promise must not keep callers (and
+			// convertAll's shared queue) waiting forever
+			const cancellation = new Promise<never>((_, reject) => {
+				this.cancelRejecter = reject;
+			});
 			// for zips: extract > convert each > re-zip
 			// else convert normally
 			res = this.isZip()
-				? await this.convertZip(converter)
-				: await converter.convert(this, this.to, ...args);
+				? await Promise.race([this.convertZip(converter), cancellation])
+				: await Promise.race([
+						converter.convert(this, this.to, ...args),
+						cancellation,
+					]);
 			this.result = res;
 			trackEvent("convert_complete", props);
 		} catch (err) {
@@ -163,6 +177,7 @@ export class VertFile {
 			if (!this.cancelled) this.toastErr(err);
 			this.result = null;
 		}
+		this.cancelRejecter = undefined;
 		this.processing = false;
 		return res;
 	}
@@ -263,10 +278,17 @@ export class VertFile {
 		this.cancelled = true;
 		try {
 			await converter.cancel(this);
-			this.processing = false;
-			this.result = null;
 		} catch (err) {
 			this.toastErr(err);
+		} finally {
+			// settle the raced convert() promise (see cancelRejecter) and
+			// detach this attempt's rejecter so a late cancel can never
+			// reject a subsequent conversion
+			const reject = this.cancelRejecter;
+			this.cancelRejecter = undefined;
+			reject?.(new Error("Conversion cancelled"));
+			this.processing = false;
+			this.result = null;
 		}
 	}
 
