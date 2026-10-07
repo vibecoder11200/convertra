@@ -50,6 +50,8 @@
 			"split_range": "Split range",
 			"compress_quality": "Compress quality",
 			"render_scale": "Render scale",
+			"page_size": "Page size (EPUB)",
+			"page_size_default": "Default (A5)",
 			"reflow_note": "PDF text is extracted and re-typeset in the target format; the original page layout is not preserved.",
 			"scan_note": "Scanned PDFs contain images of text, not text — those convert to empty files.",
 			"raster_note": "This route renders each page as an image, so the PDF has no selectable text and its quality is fixed at render time."

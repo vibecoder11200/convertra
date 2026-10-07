@@ -16,6 +16,10 @@ interface RenderRequest {
 	scale: number; // render scale (1 = 72dpi, 2 = 144dpi, ...)
 	quality?: number; // JPEG quality (0-100), default 85
 	range: "all" | { from: number; to: number };
+	// reflowable sources (epub): re-layout to this page size in pt before
+	// rendering; mupdf defaults epub to A5 (420x595). layout() is a
+	// harmless no-op on fixed-layout documents (pdf/cbz)
+	layout?: { width: number; height: number };
 }
 
 function resolvePages(
@@ -39,6 +43,9 @@ self.onmessage = async (e: MessageEvent<RenderRequest>) => {
 			new Uint8Array(req.data),
 			req.sourceType ?? "application/pdf",
 		);
+		// reflow epub to the requested page size before counting pages —
+		// page count and bounds change with the layout
+		if (req.layout) doc.layout(req.layout.width, req.layout.height, 12);
 		const total = doc.countPages();
 		const pages = resolvePages(req.range, total);
 

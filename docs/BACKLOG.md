@@ -60,5 +60,9 @@ Còn lại (chưa làm, theo thứ tự giá trị):
 - [ ] DOCX/XLSX → PDF chất lượng LibreOffice — chỉ khả thi khi có vertd riêng
       cài LibreOffice (item ở trên).
 - [ ] OCR cho PDF scan (tesseract.js, ~2MB/ngôn ngữ) — cân nhắc sau.
-- [ ] Setting kích thước trang cho EPUB → PDF (hiện dùng layout mặc định mupdf).
+- [x] Setting kích thước trang cho EPUB → PDF (2026-10-07): pdf-render worker
+      gọi `doc.layout(w, h, 12)` trước khi đếm trang; UI chọn Default (A5) /
+      A4 / Letter / A5 cho mọi target của epub (pdf/png/cbz/...). Probe
+      `.testfiles/epub-layout-probe.mjs` xác nhận layout() hoạt động trên wasm
+      build này và là no-op an toàn với pdf/cbz.
 - [ ] Gộp nhiều ảnh → 1 PDF nhiều trang (cần luồng UI merge per-file group).

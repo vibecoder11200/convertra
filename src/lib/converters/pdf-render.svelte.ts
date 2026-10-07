@@ -8,6 +8,17 @@ export class PdfRenderConverter extends Converter {
 	public name = "pdf-render";
 	public ready = $state(false);
 
+	// epub re-layout presets in pt @72dpi (the worker reflows the book to
+	// this page size before rendering; pdf/cbz are fixed layouts)
+	public static readonly PAGE_SIZES: Record<
+		string,
+		{ width: number; height: number }
+	> = {
+		a4: { width: 595, height: 842 },
+		letter: { width: 612, height: 792 },
+		a5: { width: 420, height: 595 },
+	};
+
 	private activeConversions = new Map<string, Worker>();
 
 	constructor() {
@@ -28,6 +39,7 @@ export class PdfRenderConverter extends Converter {
 				scale?: number;
 				range?: string;
 				quality?: number;
+				pageSize?: string;
 			}) ?? {};
 		const scale = op.scale ?? 2; // 144dpi default for crisp output
 		const quality = op.quality ?? 85;
@@ -56,6 +68,13 @@ export class PdfRenderConverter extends Converter {
 					? "application/vnd.comicbook+zip"
 					: "application/pdf";
 
+		// reflowable sources only: map the UI preset to a pt size for the
+		// worker's doc.layout() call
+		const layout =
+			sourceType === "application/epub+zip"
+				? PdfRenderConverter.PAGE_SIZES[op.pageSize ?? ""]
+				: undefined;
+
 		// read the buffer before spawning the worker so a read failure
 		// can't leak the worker
 		const data = new Uint8Array(await input.file.arrayBuffer());
@@ -71,6 +90,7 @@ export class PdfRenderConverter extends Converter {
 			quality,
 			scale,
 			range,
+			layout,
 		});
 
 		const result = await new Promise<{

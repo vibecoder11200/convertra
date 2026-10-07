@@ -121,6 +121,8 @@
 			"split_range": "Split range",
 			"compress_quality": "Compress quality",
 			"render_scale": "Render scale",
+			"page_size": "Kích thước trang (EPUB)",
+			"page_size_default": "Mặc định (A5)",
 			"reflow_note": "Chữ trong PDF được trích xuất và dàn lại theo định dạng đích; bố cục trang gốc không được giữ nguyên.",
 			"scan_note": "PDF scan chứa ảnh của chữ chứ không phải chữ thật — những file này sẽ chuyển thành file rỗng.",
 			"raster_note": "Đường chuyển này kết xuất từng trang thành ảnh nên PDF sẽ không chọn được chữ và chất lượng cố định theo lúc kết xuất."

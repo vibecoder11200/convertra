@@ -35,13 +35,22 @@
 
 	let processedFileIds = $state(new Set<string>());
 
-	// Per-file PDF options (split range, compress quality, render scale).
+	// Per-file PDF options (split range, compress quality, render scale,
+	// epub page size).
 	const pdfOptions = $state<
-		Record<string, { range: string; quality: number; scale: number }>
+		Record<
+			string,
+			{ range: string; quality: number; scale: number; pageSize: string }
+		>
 	>({});
 
 	const getPdfOptions = (id: string) => {
-		pdfOptions[id] ??= { range: "", quality: 75, scale: 2 };
+		pdfOptions[id] ??= {
+			range: "",
+			quality: 75,
+			scale: 2,
+			pageSize: "",
+		};
 		return pdfOptions[id];
 	};
 
@@ -93,10 +102,11 @@
 			);
 			return;
 		}
-		// pdf-render: pdf -> png/jpeg/webp
+		// pdf-render: pdf -> png/jpeg/webp (epub inputs also take a page size)
 		await file.convert({
 			scale: opts.scale,
 			range: opts.range || "all",
+			pageSize: opts.pageSize,
 		});
 	};
 
@@ -472,6 +482,26 @@
 										</label>
 									{/if}
 								{:else}
+									{#if file.from === ".epub"}
+										<label class="text-muted">
+											{m["convert.pdf.page_size"]()}
+											<select
+												class="input w-full"
+												bind:value={opts.pageSize}
+											>
+												<option value="">
+													{m[
+														"convert.pdf.page_size_default"
+													]()}
+												</option>
+												<option value="a4">A4</option>
+												<option value="letter">
+													Letter
+												</option>
+												<option value="a5">A5</option>
+											</select>
+										</label>
+									{/if}
 									<label class="text-muted">
 										{m["convert.pdf.render_scale"]()}
 										<select
