@@ -78,3 +78,13 @@ All public config is `PUB_*` prefixed (see `.env.example`):
 ## License
 
 See [LICENSE](LICENSE).
+
+### Third-party notices
+
+- [libheif-js](https://www.npmjs.com/package/libheif-js) (LGPL-3.0) provides
+  HEIC/HEIF decoding. Its WebAssembly binary is distributed as a separate
+  runtime asset (`static/libheif.wasm`, copied at install time from the pinned
+  package) and fetched same-origin at conversion time — it is not compiled
+  into or linked with Convertra's MIT-licensed application code.
+- `mupdf` (AGPL-3.0) is a pre-existing dependency, used via its npm package
+  and WebAssembly binary under the terms of its own license.

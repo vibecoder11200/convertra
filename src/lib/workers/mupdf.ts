@@ -54,10 +54,67 @@ function pageStructuredBlocks(
 }
 
 self.onmessage = async (e: MessageEvent) => {
-	const { file, to, id } = e.data as { file: File; to: string; id: string };
+	const job = e.data as {
+		file?: File;
+		to?: string;
+		id: string;
+		type?: "decrypt";
+		data?: Uint8Array;
+		password?: string;
+	};
+	const id = job.id;
 	try {
 		if (!mupdf) mupdf = await import("mupdf");
 
+		// decrypt job: authenticate + produce decrypted PDF bytes for the
+		// session cache (see store.decryptPdfBytes). password=undefined is a
+		// probe: it only reports pageCount / throws PASSWORD_REQUIRED.
+		if (job.type === "decrypt") {
+			const bytes = new Uint8Array(job.data!);
+			// openDocument is typed to return the base Document; for the pdf
+			// mime it is always the PDF subclass (saveToBuffer lives there)
+			const doc = mupdf.PDFDocument.openDocument(
+				bytes,
+				"application/pdf",
+			) as import("mupdf").PDFDocument;
+			try {
+				if (doc.needsPassword()) {
+					if (
+						!job.password ||
+						doc.authenticatePassword(job.password) === 0
+					) {
+						throw new Error(
+							job.password
+								? "WRONG_PASSWORD"
+								: "PASSWORD_REQUIRED",
+						);
+					}
+				}
+				if (!job.password) {
+					// probe only: readable without a password
+					self.postMessage({
+						type: "finished",
+						output: null,
+						pageCount: doc.countPages(),
+						id: job.id,
+					});
+					return;
+				}
+				// mupdf write option: drop the encryption dictionary
+				const out = doc.saveToBuffer("decrypt=1,garbage=1");
+				self.postMessage({
+					type: "finished",
+					output: new Uint8Array(out.asUint8Array()),
+					pageCount: doc.countPages(),
+					id: job.id,
+				});
+			} finally {
+				doc.destroy();
+			}
+			return;
+		}
+
+		const { file, to } = job as { file: File; to: string };
 		const buf = new Uint8Array(await file.arrayBuffer());
 		const doc = mupdf.Document.openDocument(buf, "application/pdf");
 		const target = (to || ".txt").toLowerCase();

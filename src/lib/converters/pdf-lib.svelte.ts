@@ -3,6 +3,7 @@ import { Converter, FormatInfo } from "./converter.svelte";
 import { browser } from "$app/environment";
 import PdfLibWorker from "$lib/workers/pdf-lib?worker&url";
 import { baseName } from "$lib/util/pdf";
+import { MERGEABLE_IMAGE_EXTS } from "$lib/util/consts";
 
 export class PdfLibConverter extends Converter {
 	public name = "pdf-lib";
@@ -30,19 +31,8 @@ export class PdfLibConverter extends Converter {
 		this.activeConversions.set(input.id, worker);
 
 		// image -> pdf: the input is an image, not a pdf document
-		const IMAGE_EXTS = [
-			".jpg",
-			".jpeg",
-			".jpe",
-			".jfif",
-			".png",
-			".webp",
-			".gif",
-			".avif",
-			".bmp",
-		];
 		let msg: Record<string, unknown>;
-		if (IMAGE_EXTS.includes(input.from)) {
+		if (MERGEABLE_IMAGE_EXTS.includes(input.from)) {
 			msg = {
 				type: "img2pdf",
 				id: input.id,
@@ -52,14 +42,18 @@ export class PdfLibConverter extends Converter {
 			// to === ".zip" means split-all; ".pdf" with pageRange arg means
 			// split-range or compress. Converters are single-input, so operations
 			// are encoded via the target format + args:
-			//   .pdf + { op: "compress", quality } -> compress
-			//   .pdf + { op: "split", range }     -> split range -> pdf
-			//   .zip                              -> split all -> zip
+			//   .pdf + { op: "compress", quality }          -> compress
+			//   .pdf + { op: "split", range }               -> split range -> pdf
+			//   .pdf + { op: "organize", plan }             -> reorder/rotate -> pdf
+			//   .pdf + { op: "encrypt", password }          -> set password -> pdf
+			//   .zip                                        -> split all -> zip
 			const op =
 				(args.at(0) as {
 					op?: string;
 					quality?: number;
 					range?: string;
+					plan?: { index: number; rotation: number }[];
+					password?: string;
 				}) ?? {};
 			msg =
 				to === ".zip"
@@ -71,14 +65,28 @@ export class PdfLibConverter extends Converter {
 								data,
 								quality: op.quality ?? 75,
 							}
-						: {
-								type: "split",
-								id: input.id,
-								data,
-								mode: op.range
-									? parseRangeToMode(op.range)
-									: "all",
-							};
+						: op.op === "organize"
+							? {
+									type: "organize",
+									id: input.id,
+									data,
+									plan: op.plan ?? [],
+								}
+							: op.op === "encrypt"
+								? {
+										type: "encrypt",
+										id: input.id,
+										data,
+										userPassword: op.password ?? "",
+									}
+								: {
+										type: "split",
+										id: input.id,
+										data,
+										mode: op.range
+											? parseRangeToMode(op.range)
+											: "all",
+									};
 		}
 
 		worker.postMessage(msg);
@@ -136,6 +144,66 @@ export class PdfLibConverter extends Converter {
 		if (worker) {
 			worker.terminate();
 			this.activeConversions.delete(input.id);
+		}
+	}
+
+	/**
+	 * Assemble an ordered image list into ONE multi-page pdf (the
+	 * multi-image merge flow). Pre-decoded entries (e.g. heic frames turned
+	 * into png bytes on the main side) arrive as `{name, data}`; progress is
+	 * reported per image. Cancellation terminates the worker via
+	 * `cancelMerge` and settles the returned promise with a rejection.
+	 */
+	public mergeImages(
+		images: { name: string; data: Uint8Array }[],
+		onProgress?: (index: number, total: number) => void,
+	): { promise: Promise<Uint8Array>; cancelMerge: () => void } {
+		const mergeId = `merge-${Math.random().toString(36).slice(2, 8)}`;
+		const worker = new Worker(PdfLibWorker, { type: "module" });
+		this.activeConversions.set(mergeId, worker);
+
+		let rejectOuter: (reason: Error) => void;
+		const promise = new Promise<Uint8Array>((resolve, reject) => {
+			rejectOuter = reject;
+			worker.onmessage = (e: MessageEvent) => {
+				const msg = e.data;
+				if (msg.type === "img-progress") {
+					onProgress?.(msg.index, msg.total);
+					return;
+				}
+				if (msg.type === "finished") resolve(msg.output as Uint8Array);
+				else if (msg.type === "error") reject(new Error(msg.error));
+			};
+			worker.onerror = (e: ErrorEvent) =>
+				reject(new Error(`Worker error: ${e.message}`));
+		});
+
+		const cancelMerge = () => {
+			this.cancelMerge(mergeId);
+			rejectOuter!(new Error("Conversion cancelled"));
+		};
+
+		worker.postMessage({
+			type: "img2pdf",
+			id: mergeId,
+			files: images,
+			reportProgress: true,
+		});
+
+		return {
+			promise: promise.finally(() => {
+				worker.terminate();
+				this.activeConversions.delete(mergeId);
+			}),
+			cancelMerge,
+		};
+	}
+
+	private cancelMerge(mergeId: string): void {
+		const worker = this.activeConversions.get(mergeId);
+		if (worker) {
+			worker.terminate();
+			this.activeConversions.delete(mergeId);
 		}
 	}
 

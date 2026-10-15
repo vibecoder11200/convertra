@@ -23,11 +23,16 @@ vite.config.ts.timestamp-*
 # IDE
 .idea
 
-# mupdf wasm (copied by postinstall)
+# wasm/worker assets copied by postinstall (libheif: LGPL kept out of the
+# bundle; tessdata core+worker come from npm at install time)
 static/mupdf-wasm.wasm
+static/libheif.wasm
+static/tessdata/tesseract-core*
+static/tessdata/worker.min.js
 .playwright-mcp/
 
 # Design render intermediates (regenerate via docs/design/brand/build.sh)
 docs/design/live-*.png
 docs/design/check-*.png
 docs/design/brand/*-render.png
+static/draco/

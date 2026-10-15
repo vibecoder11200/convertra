@@ -15,7 +15,9 @@ interface RenderRequest {
 	format: "png" | "jpeg" | "webp" | "pdf" | "cbz";
 	scale: number; // render scale (1 = 72dpi, 2 = 144dpi, ...)
 	quality?: number; // JPEG quality (0-100), default 85
-	range: "all" | { from: number; to: number };
+	// explicit page list (organizer thumbnails batch wanted pages in one
+	// job instead of one structured-clone of the document per page)
+	range: "all" | { from: number; to: number } | number[];
 	// reflowable sources (epub): re-layout to this page size in pt before
 	// rendering; mupdf defaults epub to A5 (420x595). layout() is a
 	// harmless no-op on fixed-layout documents (pdf/cbz)
@@ -23,9 +25,10 @@ interface RenderRequest {
 }
 
 function resolvePages(
-	range: "all" | { from: number; to: number },
+	range: "all" | { from: number; to: number } | number[],
 	total: number,
 ): number[] {
+	if (Array.isArray(range)) return range.filter((p) => p >= 0 && p < total);
 	if (range === "all") return Array.from({ length: total }, (_, i) => i);
 	const from = Math.max(0, range.from);
 	const to = Math.min(total - 1, range.to);
@@ -97,8 +100,9 @@ self.onmessage = async (e: MessageEvent<RenderRequest>) => {
 		doc.destroy();
 
 		if (req.format === "pdf") {
-			// assemble rendered pages into a single PDF
-			const { PDFDocument } = await import("pdf-lib");
+			// assemble rendered pages into a single PDF (@cantoo/pdf-lib: the
+			// fork supersedes vanilla pdf-lib everywhere in this codebase)
+			const { PDFDocument } = await import("@cantoo/pdf-lib");
 			const out = await PDFDocument.create();
 			for (const part of outputs) {
 				const img = await out.embedPng(part.bytes);

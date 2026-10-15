@@ -50,6 +50,17 @@ export default ts.config(
 		},
 	},
 	{
-		ignores: ["build/", ".svelte-kit/", "dist/"],
+		// generated + vendored runtime assets, local test fixtures
+		ignores: [
+			"build/",
+			".svelte-kit/",
+			"dist/",
+			"src/paraglide/",
+			"src/lib/paraglide/",
+			"static/tessdata/",
+			"static/draco/",
+			".testfiles/",
+			".kilo/",
+		],
 	},
 );

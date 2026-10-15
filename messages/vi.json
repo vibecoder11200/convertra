@@ -69,7 +69,9 @@
 			"download_all": "Giải nén và tải xuống",
 			"remove_all": "Xóa tất cả tệp",
 			"set_all_to": "Chuyển tất cả sang",
-			"na": "Chưa chọn"
+			"na": "Chưa chọn",
+			"merge_pdf": "Gộp thành một PDF",
+			"merge_hint": "Kết hợp tất cả ảnh đang liệt kê thành một PDF nhiều trang, theo thứ tự danh sách."
 		},
 		"dropdown": {
 			"audio": "Âm thanh",
@@ -78,7 +80,8 @@
 			"image": "Hình ảnh",
 			"placeholder": "Tìm định dạng",
 			"no_formats": "Định dạng không tồn tại",
-			"no_results": "Không tìm thấy định dạng"
+			"no_results": "Không tìm thấy định dạng",
+			"3d": "3D"
 		},
 		"tooltips": {
 			"unknown_file": "Loại tệp không xác định",
@@ -87,7 +90,11 @@
 			"document_file": "Tệp tài liệu",
 			"image_file": "Hình ảnh",
 			"convert_file": "Chuyển đổi tệp",
-			"download_file": "Tải xuống"
+			"download_file": "Tải xuống",
+			"drag_handle": "Kéo để sắp xếp lại (có thể dùng phím mũi tên)",
+			"move_up": "Chuyển lên",
+			"move_down": "Chuyển xuống",
+			"model_file": "Mô hình 3D"
 		},
 		"errors": {
 			"cant_convert": "Không thể chuyển đổi tệp này.",
@@ -109,6 +116,7 @@
 			"vertd_ratelimit": "Video của bạn, '{filename}', không thể chuyển đổi sau nhiều lần thử. Để tránh hệ thống quá tải, tính năng chuyển đổi cho file này tạm thời vô hiệu hóa. Xin thử lại sau ít phút.",
 			"unsupported_format": "Chỉ hỗ trợ hình ảnh, video, âm thanh, and tài liệu",
 			"format_output_only": "Hiện tại định dạng này chỉ hỗ trợ xuất file (chuyển đổi sang), không hỗ trợ làm file đầu vào.",
+			"heic_invalid": "{filename} không phải là tệp HEIC/HEIF hợp lệ (nội dung không đúng).",
 			"vertd_not_found": "Lỗi kết nối với hệ thống vertd để chuyển đổi video. Hãy đảm bảo rằng đường dẫn (URL) bạn thiết lập đã đúng",
 			"worker_downloading": "Đang chuẩn bị công cụ chuyển cho loại tệp: {type}, bạn hãy chờ trong giây lát nhé.",
 			"worker_error": "Đã có lỗi trong lúc chuẩn bị công cụ chuyển cho loại tệp: {type}, vui lòng thử lại sau ít phút.",
@@ -125,12 +133,30 @@
 			"page_size_default": "Mặc định (A5)",
 			"reflow_note": "Chữ trong PDF được trích xuất và dàn lại theo định dạng đích; bố cục trang gốc không được giữ nguyên.",
 			"scan_note": "PDF scan chứa ảnh của chữ chứ không phải chữ thật — những file này sẽ chuyển thành file rỗng.",
-			"raster_note": "Đường chuyển này kết xuất từng trang thành ảnh nên PDF sẽ không chọn được chữ và chất lượng cố định theo lúc kết xuất."
+			"raster_note": "Đường chuyển này kết xuất từng trang thành ảnh nên PDF sẽ không chọn được chữ và chất lượng cố định theo lúc kết xuất.",
+			"scanned_toggle": "Tài liệu quét (dùng OCR)",
+			"scan_hint": "Không trích xuất được văn bản. Nếu đây là tài liệu quét, hãy bật \"Tài liệu quét\" để chạy OCR.",
+			"encrypt_password": "Đặt mật khẩu (tùy chọn)",
+			"encrypt_no_password": "Không có mật khẩu"
 		},
 		"video": {
 			"trim": "Trim (start–end seconds)",
 			"fps": "FPS",
 			"width": "Width"
+		},
+		"merge": {
+			"failed": "Lỗi khi gộp ảnh thành PDF: {message}"
+		},
+		"image_ops": {
+			"max_edge": "Kích thước tối đa (px, cạnh dài)",
+			"no_limit": "Không giới hạn",
+			"target_size": "Kích thước mục tiêu (KB)",
+			"no_target": "Không đặt mục tiêu",
+			"target_hint": "Tìm kiếm có giới hạn: chất lượng giảm dần cho đến khi output vừa hoặc đạt ngưỡng dưới. Kích thước đạt được sẽ được báo sau khi chuyển đổi.",
+			"target_result": "Đạt {size} KB với chất lượng {quality}%"
+		},
+		"three": {
+			"scan_result": "{meshes} lưới, {vertices} đỉnh · đã xuất theo {units}"
 		}
 	},
 	"settings": {
@@ -172,7 +198,12 @@
 			"quality_video": "Thay đổi chất lượng mặc định cho video đầu ra. Chỉ số cao giúp video rõ nét hơn nhưng sẽ tốn thời gian xử lý và tăng dung lượng tệp.",
 			"quality_audio": "Âm thanh (kbps)",
 			"quality_images": "Hình ảnh (%)",
-			"rate": "Tần số lấy mẫu (Hz)"
+			"rate": "Tần số lấy mẫu (Hz)",
+			"ocr_language": "Ngôn ngữ OCR",
+			"ocr_language_description": "Ngôn ngữ dùng để nhận dạng chữ trong ảnh và PDF quét (việc nhận dạng chạy hoàn toàn trên thiết bị của bạn).",
+			"three_units": "Đơn vị xuất 3D",
+			"three_units_description": "Tệp GLB luôn tính bằng mét, nhưng tệp STL và OBJ không mang đơn vị và máy in 3D mặc định là milimet. Chọn đơn vị cho bản xuất của bạn.",
+			"default_format_3d": "Định dạng 3D mặc định"
 		},
 		"vertd": {
 			"title": "Chuyển đổi Video",
@@ -263,7 +294,8 @@
 			"pandoc": "Lỗi khi tải hệ thống Pandoc, việc chuyển đổi tài liệu có thể gặp sự cố.",
 			"no_audio": "Không tìm thấy dữ liệu âm thanh (audio stream) trong tệp.",
 			"invalid_rate": "Tần số lấy mẫu không hợp lệ: {rate}Hz",
-			"file_too_large": "Tệp này vượt quá giới hạn {limit}GB của trình duyệt/thiết bị. Hãy thử dùng Firefox hoặc Safari để chuyển đổi các tệp lớn, vì những trình duyệt này thường hỗ trợ giới hạn cao hơn."
+			"file_too_large": "Tệp này vượt quá giới hạn {limit}GB của trình duyệt/thiết bị. Hãy thử dùng Firefox hoặc Safari để chuyển đổi các tệp lớn, vì những trình duyệt này thường hỗ trợ giới hạn cao hơn.",
+			"heic": "Lỗi khi tải bộ giải mã HEIC, việc chuyển đổi HEIC/HEIF có thể không hoạt động như mong đợi."
 		}
 	},
 	"privacy": {
@@ -306,5 +338,52 @@
 	},
 	"toast": {
 		"insecure_context": "Bạn đang truy cập Convertra qua kết nối không an toàn (ví dụ: HTTP thay vì HTTPS). Một số tính năng có thể sẽ không hoạt động ổn định hoặc bị lỗi."
+	},
+	"share": {
+		"title": "Chia sẻ vào Convertra",
+		"description": "Không thể tự động nạp các tệp bạn đã chia sẻ — điều này có thể xảy ra ở lần chia sẻ đầu tiên sau khi cài đặt, trước khi ứng dụng được thiết lập đầy đủ. Hãy mở ứng dụng và thêm tệp tại đó; từ giờ chia sẻ sẽ hoạt động tự động.",
+		"open_app": "Mở Convertra"
+	},
+	"seo": {
+		"h1": "Chuyển đổi {from} sang {to} trực tuyến — miễn phí và riêng tư",
+		"howto.title": "Cách chuyển {from} sang {to}",
+		"howto.step1": "Thêm tệp {from} của bạn — kéo thả vào trang này hoặc nhấn nút tải lên.",
+		"howto.step2": "Việc chuyển đổi sang {to} bắt đầu tự động và chạy hoàn toàn trong trình duyệt của bạn.",
+		"howto.step3": "Tải xuống tệp {to} đã hoàn tất. Tệp gốc không bao giờ được tải lên bất kỳ đâu.",
+		"faq.title": "Câu hỏi thường gặp",
+		"faq.private.q": "Việc chuyển tệp {from} ở đây có an toàn không?",
+		"faq.private.a": "Có. Quá trình chuyển đổi chạy hoàn toàn trong trình duyệt — tệp {from} của bạn không bao giờ được tải lên máy chủ. Bạn thậm chí có thể ngắt kết nối internet sau khi trang đã tải xong và nó vẫn hoạt động.",
+		"faq.free.q": "Có miễn phí không?",
+		"faq.free.a": "Có — không cần tài khoản, không đóng dấu, không giới hạn tệp theo gói. Convertra là mã nguồn mở.",
+		"faq.limit.q": "Tệp {from} của tôi có thể lớn tới cỡ nào?",
+		"faq.limit.a": "Không có giới hạn cứng phía máy chủ, vì không có máy chủ: giới hạn duy nhất là bộ nhớ của thiết bị bạn. Hầu hết các tệp thông thường được chuyển đổi ngay lập tức.",
+		"related.title": "Chuyển đổi liên quan",
+		"pair.failed": "Chuyển đổi thất bại — hãy thử lại"
+	},
+	"organize": {
+		"title": "Sắp xếp PDF",
+		"meta_description": "Sắp xếp lại, xoay và xóa các trang PDF trực quan — ngay trong trình duyệt của bạn, không tải lên đâu cả.",
+		"subtitle": "Sắp xếp lại, xoay và xóa các trang của một tệp PDF, sau đó xuất ra. Mọi thứ vẫn ở trên thiết bị của bạn.",
+		"drop": "Kéo thả tệp PDF vào đây để sắp xếp",
+		"drop_hint": "Chỉ một tệp PDF — kéo thả hoặc nhấn để chọn",
+		"page_count": "{count} trang",
+		"pages_label": "Các trang PDF",
+		"page_label": "Trang {index}",
+		"rotate": "Xoay 90° theo chiều kim đồng hồ",
+		"move_left": "Chuyển sang trái",
+		"move_right": "Chuyển sang phải",
+		"remove": "Xóa trang",
+		"undo": "Hoàn tác",
+		"export": "Xuất PDF",
+		"download": "Tải xuống",
+		"done": "PDF của bạn đã sẵn sàng."
+	},
+	"unlock": {
+		"title": "Cần mật khẩu",
+		"description": "“{name}” được bảo vệ bằng mật khẩu. Nhập mật khẩu để tiếp tục — tệp vẫn ở trên thiết bị của bạn và không bao giờ được lưu.",
+		"password": "Mật khẩu PDF",
+		"wrong": "Sai mật khẩu — hãy thử lại.",
+		"submit": "Mở khóa",
+		"cancel": "Hủy"
 	}
 }

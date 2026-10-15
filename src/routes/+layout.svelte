@@ -41,6 +41,7 @@
 	import { ToastManager } from "$lib/util/toast.svelte.js";
 	import { m } from "$lib/paraglide/messages.js";
 	import { log } from "$lib/util/logger.js";
+	import { page } from "$app/state";
 
 	let { children } = $props();
 	let analyticsActive = $state(false);
@@ -48,10 +49,28 @@
 
 	let scrollPositions = new Map<string, number>();
 
+	// per-page head overrides: SEO pair pages return `seo` from their load
+	// (read reactively through the page store); every other page gets the
+	// site defaults
+	const seoTitle = $derived(
+		(page.data as { seo?: { title?: string } } | null)?.seo?.title ??
+			`${APP_NAME} — Free, fast, and awesome file converter`,
+	);
+	const seoDescription = $derived(
+		(page.data as { seo?: { description?: string } } | null)?.seo
+			?.description ??
+			"With Convertra, you can quickly convert any image, video, audio, and document file. No ads, open source, and all processing (other than video) is done on your device. Analytics are anonymous, aggregated, and cookieless — opt out in Settings.",
+	);
+
 	// canonical/og:url/twitter:url need a configured hostname - an empty
 	// PUB_HOSTNAME would render broken "https:///" URLs that SvelteKit's
 	// prerender crawler also fails to parse (Invalid URL)
 	const canonicalBase = PUB_HOSTNAME ? `https://${PUB_HOSTNAME}` : "";
+	// self-referencing canonical per page (was previously pinned to "/" for
+	// every route, which tells crawlers all pages are duplicates of home)
+	const canonicalUrl = $derived(
+		canonicalBase ? canonicalBase + page.url.pathname : "",
+	);
 
 	beforeNavigate((nav) => {
 		if (!nav.from || !$isMobile) return;
@@ -165,7 +184,7 @@
 </script>
 
 <svelte:head>
-	<title>{APP_NAME}</title>
+	<title>{seoTitle}</title>
 	<meta
 		name="theme-color"
 		media="(prefers-color-scheme: light)"
@@ -176,44 +195,26 @@
 		media="(prefers-color-scheme: dark)"
 		content="#151A1E"
 	/>
-	<meta
-		name="title"
-		content="{APP_NAME} — Free, fast, and awesome file converter"
-	/>
-	<meta
-		name="description"
-		content="With Convertra, you can quickly convert any image, video, audio, and document file. No ads, open source, and all processing (other than video) is done on your device. Analytics are anonymous, aggregated, and cookieless — opt out in Settings."
-	/>
-	{#if canonicalBase}
-		<meta property="og:url" content={canonicalBase} />
+	<meta name="title" content={seoTitle} />
+	<meta name="description" content={seoDescription} />
+	{#if canonicalUrl}
+		<meta property="og:url" content={canonicalUrl} />
 	{/if}
 	<meta property="og:type" content="website" />
-	<meta
-		property="og:title"
-		content="{APP_NAME} — Free, fast, and awesome file converter"
-	/>
-	<meta
-		property="og:description"
-		content="With Convertra, you can quickly convert any image, video, audio, and document file. No ads, open source, and all processing (other than video) is done on your device. Analytics are anonymous, aggregated, and cookieless — opt out in Settings."
-	/>
+	<meta property="og:title" content={seoTitle} />
+	<meta property="og:description" content={seoDescription} />
 	<meta property="og:image" content={featuredImage} />
 	<meta name="twitter:card" content="summary_large_image" />
-	{#if canonicalBase}
+	{#if canonicalUrl}
 		<meta property="twitter:domain" content={PUB_HOSTNAME} />
-		<meta property="twitter:url" content={canonicalBase} />
+		<meta property="twitter:url" content={canonicalUrl} />
 	{/if}
-	<meta
-		property="twitter:title"
-		content="{APP_NAME} — Free, fast, and awesome file converter"
-	/>
-	<meta
-		property="twitter:description"
-		content="With Convertra, you can quickly convert any image, video, audio, and document file. No ads, open source, and all processing (other than video) is done on your device. Analytics are anonymous, aggregated, and cookieless — opt out in Settings."
-	/>
+	<meta property="twitter:title" content={seoTitle} />
+	<meta property="twitter:description" content={seoDescription} />
 	<meta property="twitter:image" content={featuredImage} />
 	<link rel="manifest" href="/manifest.json" />
-	{#if canonicalBase}
-		<link rel="canonical" href="{canonicalBase}/" />
+	{#if canonicalUrl}
+		<link rel="canonical" href={canonicalUrl} />
 	{/if}
 	{#if analyticsActive && providers.plausible}
 		<script

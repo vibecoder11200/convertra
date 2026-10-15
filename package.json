@@ -4,13 +4,13 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
-		"build": "paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide && svelte-kit sync && vite build",
+		"build": "paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide && svelte-kit sync && bun scripts/generate-sitemap.ts && vite build",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
-		"postinstall": "cp node_modules/mupdf/dist/mupdf-wasm.wasm static/mupdf-wasm.wasm"
+		"postinstall": "cp node_modules/mupdf/dist/mupdf-wasm.wasm static/mupdf-wasm.wasm && cp node_modules/libheif-js/libheif-wasm/libheif.wasm static/libheif.wasm && node scripts/setup-tessdata.mjs && mkdir -p static/draco && cp node_modules/three/examples/jsm/libs/draco/gltf/draco_decoder.wasm node_modules/three/examples/jsm/libs/draco/gltf/draco_wasm_wrapper.js static/draco/"
 	},
 	"devDependencies": {
 		"@inlang/paraglide-js": "^2.5.0",
@@ -21,6 +21,7 @@
 		"@types/eslint": "^9.6.1",
 		"@types/node": "^26.2.0",
 		"@types/sanitize-html": "^2.16.0",
+		"@types/three": "^0.186.0",
 		"autoprefixer": "^10.4.22",
 		"css-select": "5.1.0",
 		"eslint": "^9.39.1",
@@ -41,6 +42,7 @@
 	},
 	"dependencies": {
 		"@bjorn3/browser_wasi_shim": "^0.4.2",
+		"@cantoo/pdf-lib": "^2.11.1",
 		"@ffmpeg/ffmpeg": "^0.12.15",
 		"@ffmpeg/util": "^0.12.2",
 		"@fontsource/azeret-mono": "^5.2.11",
@@ -53,17 +55,19 @@
 		"clsx": "^2.1.1",
 		"fflate": "^0.8.2",
 		"gifenc": "^1.0.3",
+		"libheif-js": "^1.23.5",
 		"lucide-svelte": "^0.554.0",
 		"mupdf": "^1.28.0",
 		"music-metadata": "^11.10.3",
 		"overlayscrollbars": "^2.12.0",
 		"overlayscrollbars-svelte": "^0.5.5",
 		"p-queue": "^9.0.1",
-		"pdf-lib": "^1.17.1",
 		"pdfjs-dist": "^6.2.108",
 		"riff-file": "^1.0.3",
 		"sanitize-html": "^2.17.0",
 		"svelte-stripe": "^1.4.0",
+		"tesseract.js": "^7",
+		"three": "^0.186.1",
 		"vert-wasm": "^0.0.2",
 		"vite-plugin-wasm": "^3.5.0",
 		"xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"

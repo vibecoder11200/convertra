@@ -13,6 +13,7 @@ export interface DefaultFormats {
 	video: string;
 	audio: string;
 	document: string;
+	threeD: string;
 }
 export interface ISettings {
 	filenameFormat: string;
@@ -26,6 +27,8 @@ export interface ISettings {
 	ffmpegQuality: ConversionBitrate; // audio (or audio <-> video)
 	ffmpegSampleRate: string; // audio (or audio <-> video)
 	ffmpegCustomSampleRate: number; // audio (or audio <-> video) - only used when ffmpegSampleRate is "custom"
+	ocrLang: string; // tesseract language ("eng" | "vie" | "eng+vie")
+	threeUnits: "mm" | "cm" | "m" | "in"; // 3D export unit (glTF is meters; printers assume mm)
 	vertdBlockedHashes: Map<string, Date[]>; // hashes of files blocked from vertd conversion
 }
 
@@ -39,6 +42,7 @@ export class Settings {
 			video: ".mp4",
 			audio: ".mp3",
 			document: ".docx",
+			threeD: ".stl",
 		},
 		useDefaultFormat: false,
 		metadata: true,
@@ -49,6 +53,8 @@ export class Settings {
 		ffmpegQuality: "auto",
 		ffmpegSampleRate: "auto",
 		ffmpegCustomSampleRate: 44100,
+		ocrLang: "eng",
+		threeUnits: "mm",
 		vertdBlockedHashes: new Map<string, Date[]>(),
 	});
 

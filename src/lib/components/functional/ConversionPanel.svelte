@@ -10,6 +10,20 @@
 	import { categories } from "$lib/converters";
 	import { m } from "$lib/paraglide/messages";
 
+	let {
+		// per-file extra convert args (e.g. image ops), resolved by the page
+		// where the per-file option state lives
+
+		getConvertArgs = undefined,
+		// fired when a batch run settles (success or fail) — the page uses it
+		// to scrub one-shot secrets (encrypt passwords) from its option state
+		onBatchDone = undefined,
+	}: {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		getConvertArgs?: (file: VertFile) => any[];
+		onBatchDone?: () => void;
+	} = $props();
+
 	const length = $derived(files.files.length);
 	const progress = $derived(files.files.filter((f) => f.result).length);
 
@@ -58,7 +72,11 @@
 	>
 		<div class="flex items-center gap-2.5 max-md:w-full">
 			<button
-				onclick={() => files.convertAll()}
+				onclick={() => {
+					void files
+						.convertAll(getConvertArgs)
+						.finally(() => onBatchDone?.());
+				}}
 				class="btn {$effects
 					? ''
 					: '!scale-100'} highlight flex gap-3 max-md:flex-1 max-md:px-3 max-md:text-sm md:max-w-[15.5rem]"
@@ -83,13 +101,43 @@
 						? ''
 						: '!scale-100'} flex gap-3 max-md:px-4"
 					disabled={files.files.length === 0}
-					onclick={() => (files.files = [])}
+					onclick={() => {
+						for (const f of files.files) files.clearDecrypted(f.id);
+						files.files = [];
+						files.mergedResult = null;
+					}}
 				>
 					<Trash2Icon size="24" />
 				</button>
 			</Tooltip>
 		</div>
 		<div class="flex items-center gap-2 max-md:w-full">
+			{#if files.canMerge}
+				<Tooltip text={m["convert.panel.merge_hint"]()} position="top">
+					<label
+						class="flex items-center gap-2 cursor-pointer whitespace-nowrap text-sm md:text-base"
+					>
+						<input
+							type="checkbox"
+							class="accent-accent w-4 h-4"
+							checked={files.mergePdf}
+							onchange={(e) => {
+								files.mergePdf = (
+									e.currentTarget as HTMLInputElement
+								).checked;
+								if (!files.mergePdf) {
+									files.mergedResult = null;
+								} else {
+									// switching to merge invalidates per-file results
+									for (const f of files.files)
+										f.result = null;
+								}
+							}}
+						/>
+						{m["convert.panel.merge_pdf"]()}
+					</label>
+				</Tooltip>
+			{/if}
 			<p
 				class="whitespace-normal text-xl text-right w-full max-md:hidden"
 			>

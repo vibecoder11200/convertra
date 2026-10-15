@@ -54,7 +54,11 @@
 			"page_size_default": "Default (A5)",
 			"reflow_note": "PDF text is extracted and re-typeset in the target format; the original page layout is not preserved.",
 			"scan_note": "Scanned PDFs contain images of text, not text — those convert to empty files.",
-			"raster_note": "This route renders each page as an image, so the PDF has no selectable text and its quality is fixed at render time."
+			"raster_note": "This route renders each page as an image, so the PDF has no selectable text and its quality is fixed at render time.",
+			"scanned_toggle": "Scanned document (use OCR)",
+			"scan_hint": "No text was extracted. If this is a scanned document, enable the \"Scanned document\" toggle to run OCR.",
+			"encrypt_password": "Set password (optional)",
+			"encrypt_no_password": "No password"
 		},
 		"archive_file": {
 			"extract": "Extract archive",
@@ -79,7 +83,9 @@
 			"download_all": "Download all as .zip",
 			"remove_all": "Remove all files",
 			"set_all_to": "Set all to",
-			"na": "N/A"
+			"na": "N/A",
+			"merge_pdf": "Merge into one PDF",
+			"merge_hint": "Combine all listed images into a single multi-page PDF, in list order."
 		},
 		"dropdown": {
 			"audio": "Audio",
@@ -88,7 +94,8 @@
 			"image": "Image",
 			"placeholder": "Search format",
 			"no_formats": "No formats available",
-			"no_results": "No formats match your search"
+			"no_results": "No formats match your search",
+			"3d": "3D"
 		},
 		"tooltips": {
 			"unknown_file": "Unknown file type",
@@ -97,7 +104,11 @@
 			"document_file": "Document file",
 			"image_file": "Image file",
 			"convert_file": "Convert this file",
-			"download_file": "Download this file"
+			"download_file": "Download this file",
+			"drag_handle": "Drag to reorder (arrow keys also work)",
+			"move_up": "Move up",
+			"move_down": "Move down",
+			"model_file": "3D model"
 		},
 		"errors": {
 			"cant_convert": "We can't convert this file.",
@@ -119,6 +130,7 @@
 			"vertd_ratelimit": "Your video, '{filename}', has failed to convert a few times. To prevent server overload, further conversion attempts for this file have been temporarily blocked. Please try again later.",
 			"unsupported_format": "Only image, video, audio, and document files are supported",
 			"format_output_only": "This format can currently only be used as output (converted to), not as input.",
+			"heic_invalid": "{filename} is not a valid HEIC/HEIF file (unexpected file content).",
 			"vertd_not_found": "Could not find the vertd instance to start video conversion. Are you sure the instance URL is set correctly?",
 			"worker_downloading": "The {type} converter is currently being initialized, please wait a few moments.",
 			"worker_error": "The {type} converter had an error during initialization, please try again later.",
@@ -131,6 +143,20 @@
 			"trim": "Trim (start–end seconds)",
 			"fps": "FPS",
 			"width": "Width"
+		},
+		"merge": {
+			"failed": "Failed to merge images into a PDF: {message}"
+		},
+		"image_ops": {
+			"max_edge": "Max dimensions (px, long edge)",
+			"no_limit": "No limit",
+			"target_size": "Target size (KB)",
+			"no_target": "No target",
+			"target_hint": "Bounded search: quality is reduced until the output fits or the floor is reached. The achieved size is reported after conversion.",
+			"target_result": "Reached {size} KB at quality {quality}%"
+		},
+		"three": {
+			"scan_result": "{meshes} meshes, {vertices} vertices · exported in {units}"
 		}
 	},
 	"settings": {
@@ -172,7 +198,12 @@
 			"quality_video": "This changes the default output quality of the converted video files. Higher values may result in longer conversion times and file size.",
 			"quality_audio": "Audio (kbps)",
 			"quality_images": "Image (%)",
-			"rate": "Sample rate (Hz)"
+			"rate": "Sample rate (Hz)",
+			"ocr_language": "OCR language",
+			"ocr_language_description": "Language used when recognizing text in images and scanned PDFs (text recognition runs entirely on your device).",
+			"three_units": "3D export unit",
+			"three_units_description": "GLB files are always meters, but STL and OBJ files carry no units and 3D printers assume millimeters. Pick the unit your export should use.",
+			"default_format_3d": "Default 3D format"
 		},
 		"vertd": {
 			"title": "Video conversion",
@@ -263,7 +294,8 @@
 			"pandoc": "Error loading Pandoc worker, document conversion may not work as expected.",
 			"no_audio": "No audio stream found.",
 			"invalid_rate": "Invalid sample rate specified: {rate}Hz",
-			"file_too_large": "This file exceeds the {limit}GB browser / device limit. Try Firefox or Safari to convert this large file, which typically have higher limits."
+			"file_too_large": "This file exceeds the {limit}GB browser / device limit. Try Firefox or Safari to convert this large file, which typically have higher limits.",
+			"heic": "Error loading the HEIC decoder, HEIC/HEIF conversion may not work as expected."
 		}
 	},
 	"privacy": {
@@ -306,5 +338,52 @@
 	},
 	"toast": {
 		"insecure_context": "You are visiting Convertra in an insecure context (e.g. accessing over HTTP instead of HTTPS). Some features may not work as expected."
+	},
+	"share": {
+		"title": "Share to Convertra",
+		"description": "Your shared files could not be loaded automatically — this can happen on the first share after installing, before the app is fully set up. Open the app and add the files there; sharing will work automatically from now on.",
+		"open_app": "Open Convertra"
+	},
+	"seo": {
+		"h1": "Convert {from} to {to} online — free and private",
+		"howto.title": "How to convert {from} to {to}",
+		"howto.step1": "Add your {from} file — drop it on this page or click the upload button.",
+		"howto.step2": "The conversion to {to} starts automatically and runs entirely in your browser.",
+		"howto.step3": "Download the finished {to} file. The original was never uploaded anywhere.",
+		"faq.title": "Frequently asked questions",
+		"faq.private.q": "Is it safe to convert {from} files here?",
+		"faq.private.a": "Yes. The conversion runs entirely in your browser — your {from} file is never uploaded to a server. You can even disconnect from the internet after the page has loaded and it still works.",
+		"faq.free.q": "Is it free?",
+		"faq.free.a": "Yes — no accounts, no watermarks, no file limits tied to a plan. Convertra is open source.",
+		"faq.limit.q": "How large can my {from} file be?",
+		"faq.limit.a": "There is no hard server-side limit, because there is no server: the only ceiling is your device's memory. Most everyday files convert instantly.",
+		"related.title": "Related conversions",
+		"pair.failed": "Conversion failed — try again"
+	},
+	"organize": {
+		"title": "Organize PDF",
+		"meta_description": "Reorder, rotate and delete PDF pages visually — right in your browser, nothing is uploaded.",
+		"subtitle": "Reorder, rotate and delete pages of one PDF, then export. Everything stays on your device.",
+		"drop": "Drop a PDF here to organize it",
+		"drop_hint": "Single PDF files only — drag & drop or click to browse",
+		"page_count": "{count} pages",
+		"pages_label": "PDF pages",
+		"page_label": "Page {index}",
+		"rotate": "Rotate 90° clockwise",
+		"move_left": "Move left",
+		"move_right": "Move right",
+		"remove": "Delete page",
+		"undo": "Undo",
+		"export": "Export PDF",
+		"download": "Download",
+		"done": "Your organized PDF is ready."
+	},
+	"unlock": {
+		"title": "Password required",
+		"description": "“{name}” is password-protected. Enter its password to work with it — it stays on your device and is never stored.",
+		"password": "PDF password",
+		"wrong": "Wrong password — try again.",
+		"submit": "Unlock",
+		"cancel": "Cancel"
 	}
 }

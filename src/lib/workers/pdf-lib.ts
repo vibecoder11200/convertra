@@ -1,4 +1,6 @@
-import { PDFDocument } from "pdf-lib";
+// @cantoo/pdf-lib is a maintained fork of pdf-lib with PDF encryption
+// (AES-256) — API-compatible for everything else we use
+import { PDFDocument, degrees } from "@cantoo/pdf-lib";
 
 interface MergeRequest {
 	type: "merge";
@@ -24,9 +26,39 @@ interface ImageToPdfRequest {
 	type: "img2pdf";
 	id: string;
 	files: { name: string; data: Uint8Array }[];
+	/** emit {type:"img-progress"} before each image (multi-image merge runs) */
+	reportProgress?: boolean;
 }
 
-type PdfJob = MergeRequest | SplitRequest | CompressRequest | ImageToPdfRequest;
+export interface OrganizePlanEntry {
+	/** zero-based page index in the SOURCE document */
+	index: number;
+	/** clockwise degrees to store on the page (0/90/180/270) */
+	rotation: number;
+}
+
+interface OrganizeRequest {
+	type: "organize";
+	id: string;
+	data: Uint8Array;
+	plan: OrganizePlanEntry[];
+}
+
+interface EncryptRequest {
+	type: "encrypt";
+	id: string;
+	data: Uint8Array;
+	userPassword: string;
+	ownerPassword?: string;
+}
+
+type PdfJob =
+	| MergeRequest
+	| SplitRequest
+	| CompressRequest
+	| ImageToPdfRequest
+	| OrganizeRequest
+	| EncryptRequest;
 
 self.onmessage = async (e: MessageEvent<PdfJob>) => {
 	const job = e.data;
@@ -44,6 +76,12 @@ self.onmessage = async (e: MessageEvent<PdfJob>) => {
 			case "img2pdf":
 				await handleImageToPdf(job);
 				break;
+			case "organize":
+				await handleOrganize(job);
+				break;
+			case "encrypt":
+				await handleEncrypt(job);
+				break;
 		}
 	} catch (err) {
 		self.postMessage({ type: "error", error: String(err), id: job.id });
@@ -53,6 +91,10 @@ self.onmessage = async (e: MessageEvent<PdfJob>) => {
 async function handleMerge(job: MergeRequest) {
 	const merged = await PDFDocument.create();
 	for (const file of job.files) {
+		// ignoreEncryption: owner-password-only PDFs (empty user password)
+		// never trigger the mupdf needsPassword probe, so no unlock modal
+		// fires for them — they must open here. User-password PDFs arrive
+		// already decrypted via the files-store byte substitution.
 		const src = await PDFDocument.load(file.data, {
 			ignoreEncryption: true,
 		});
@@ -119,7 +161,16 @@ const isPng = (d: Uint8Array) =>
 
 async function handleImageToPdf(job: ImageToPdfRequest) {
 	const doc = await PDFDocument.create();
-	for (const file of job.files) {
+	const total = job.files.length;
+	for (const [index, file] of job.files.entries()) {
+		if (job.reportProgress && total > 1) {
+			self.postMessage({
+				type: "img-progress",
+				id: job.id,
+				index,
+				total,
+			});
+		}
 		let image;
 		if (isJpeg(file.data)) {
 			// embed JPEG bytes as-is (no re-encode loss)
@@ -149,6 +200,41 @@ async function handleImageToPdf(job: ImageToPdfRequest) {
 		});
 	}
 	const bytes = await doc.save();
+	self.postMessage({
+		type: "finished",
+		output: bytes,
+		zip: false,
+		id: job.id,
+	});
+}
+
+async function handleOrganize(job: OrganizeRequest) {
+	const src = await PDFDocument.load(job.data, { ignoreEncryption: true });
+	const out = await PDFDocument.create();
+	const indices = job.plan.map((p) => p.index);
+	const pages = await out.copyPages(src, indices);
+	for (const [i, page] of pages.entries()) {
+		const rotation = ((job.plan[i].rotation % 360) + 360) % 360;
+		if (rotation !== 0) page.setRotation(degrees(rotation));
+		out.addPage(page);
+	}
+	const bytes = await out.save();
+	self.postMessage({
+		type: "finished",
+		output: bytes,
+		zip: false,
+		id: job.id,
+	});
+}
+
+async function handleEncrypt(job: EncryptRequest) {
+	const src = await PDFDocument.load(job.data, { ignoreEncryption: true });
+	// cantoo fork: AES-256 by default (ISO 32000-2 recommended cipher)
+	src.encrypt({
+		userPassword: job.userPassword,
+		ownerPassword: job.ownerPassword || job.userPassword,
+	});
+	const bytes = await src.save();
 	self.postMessage({
 		type: "finished",
 		output: bytes,
