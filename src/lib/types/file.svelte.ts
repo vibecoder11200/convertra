@@ -184,7 +184,10 @@ export class VertFile {
 			// pdf-render, chains — sees plain bytes. The substitute keeps
 			// this file's converter list; chain intermediates inherit the
 			// decrypted source naturally.
-			const cached = this.from === ".pdf" ? files.getDecryptedBytes(this.id) : undefined;
+			const cached =
+				this.from === ".pdf"
+					? files.getDecryptedBytes(this.id)
+					: undefined;
 			const effective = cached
 				? new VertFile(new File([cached], this.file.name), this.to)
 				: this;

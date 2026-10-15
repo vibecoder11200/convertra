@@ -51,10 +51,7 @@ export class OcrConverter extends Converter {
 		this.clearTimeout();
 	}
 
-	public async convert(
-		input: VertFile,
-		to: string,
-	): Promise<VertFile> {
+	public async convert(input: VertFile, to: string): Promise<VertFile> {
 		log(["converters", this.name], `converting ${input.name} to ${to}`);
 		const lang = Settings.instance.settings.ocrLang || "eng";
 
@@ -100,12 +97,16 @@ export class OcrConverter extends Converter {
 						return;
 					}
 					if (msg.type === "finished") resolve(msg.pages);
-					else if (msg.type === "error")
-						reject(new Error(msg.error));
+					else if (msg.type === "error") reject(new Error(msg.error));
 				};
 				worker.onerror = (e: ErrorEvent) =>
 					reject(new Error(`Worker error: ${e.message}`));
-				worker.postMessage({ type: "recognize", id: input.id, images, lang });
+				worker.postMessage({
+					type: "recognize",
+					id: input.id,
+					images,
+					lang,
+				});
 			});
 		} finally {
 			this.activeConversions.delete(input.id);

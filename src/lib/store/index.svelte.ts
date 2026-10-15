@@ -663,7 +663,6 @@ class Files {
 		}
 		this.mergedResult = null;
 		const promiseFns = this.files.map(
-			 
 			(f) => () => f.convert(...(perFileArgs?.(f) ?? [])),
 		);
 		const coreCount = navigator.hardwareConcurrency || 4;
@@ -730,8 +729,7 @@ class Files {
 				images,
 				(index, total) => {
 					// assemble phase: second half of each file's bar
-					const share =
-						50 + ((index + 1) / total) * 50;
+					const share = 50 + ((index + 1) / total) * 50;
 					for (const f of this.files) f.progress = Math.round(share);
 				},
 			);
@@ -815,7 +813,8 @@ class Files {
 			const settings = JSON.parse(
 				localStorage.getItem("settings") ?? "{}",
 			);
-			const filenameFormat = settings.filenameFormat || "Convertra_%name%";
+			const filenameFormat =
+				settings.filenameFormat || "Convertra_%name%";
 			const baseName = files.files[0].name.replace(/\.[^/.]+$/, "");
 			const blob = URL.createObjectURL(
 				new Blob([await this.mergedResult.file.arrayBuffer()], {
@@ -824,7 +823,10 @@ class Files {
 			);
 			const a = document.createElement("a");
 			a.href = blob;
-			a.download = `${filenameFormat.replace(/%name%/g, baseName).replace(/%extension%/g, "").replace(/%date%/g, new Date().toISOString())}${outTo}`;
+			a.download = `${filenameFormat
+				.replace(/%name%/g, baseName)
+				.replace(/%extension%/g, "")
+				.replace(/%date%/g, new Date().toISOString())}${outTo}`;
 			a.target = "_blank";
 			a.style.display = "none";
 			a.click();

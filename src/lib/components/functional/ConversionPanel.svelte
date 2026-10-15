@@ -95,29 +95,25 @@
 				<FolderArchiveIcon size="24" />
 				<p>{m["convert.panel.download_all"]()}</p>
 			</button>
-				<Tooltip text={m["convert.panel.remove_all"]()} position="top">
-					<button
-						class="btn p-4 {$effects
-							? ''
-							: '!scale-100'} flex gap-3 max-md:px-4"
-						disabled={files.files.length === 0}
-						onclick={() => {
-							for (const f of files.files)
-								files.clearDecrypted(f.id);
-							files.files = [];
-							files.mergedResult = null;
-						}}
-					>
-						<Trash2Icon size="24" />
-					</button>
-				</Tooltip>
+			<Tooltip text={m["convert.panel.remove_all"]()} position="top">
+				<button
+					class="btn p-4 {$effects
+						? ''
+						: '!scale-100'} flex gap-3 max-md:px-4"
+					disabled={files.files.length === 0}
+					onclick={() => {
+						for (const f of files.files) files.clearDecrypted(f.id);
+						files.files = [];
+						files.mergedResult = null;
+					}}
+				>
+					<Trash2Icon size="24" />
+				</button>
+			</Tooltip>
 		</div>
 		<div class="flex items-center gap-2 max-md:w-full">
 			{#if files.canMerge}
-				<Tooltip
-					text={m["convert.panel.merge_hint"]()}
-					position="top"
-				>
+				<Tooltip text={m["convert.panel.merge_hint"]()} position="top">
 					<label
 						class="flex items-center gap-2 cursor-pointer whitespace-nowrap text-sm md:text-base"
 					>
@@ -133,7 +129,8 @@
 									files.mergedResult = null;
 								} else {
 									// switching to merge invalidates per-file results
-									for (const f of files.files) f.result = null;
+									for (const f of files.files)
+										f.result = null;
 								}
 							}}
 						/>

@@ -58,9 +58,7 @@ const langs = {};
 for (const lang of ["eng", "vie"]) {
 	const p = join(dest, `${lang}.traineddata.gz`);
 	if (!existsSync(p)) fail(`missing language data: ${lang}.traineddata.gz`);
-	const sha = createHash("sha256")
-		.update(readFileSync(p))
-		.digest("hex");
+	const sha = createHash("sha256").update(readFileSync(p)).digest("hex");
 	langs[lang] = { file: `${lang}.traineddata.gz`, sha256: sha };
 }
 writeFileSync(

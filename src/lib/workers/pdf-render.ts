@@ -28,8 +28,7 @@ function resolvePages(
 	range: "all" | { from: number; to: number } | number[],
 	total: number,
 ): number[] {
-	if (Array.isArray(range))
-		return range.filter((p) => p >= 0 && p < total);
+	if (Array.isArray(range)) return range.filter((p) => p >= 0 && p < total);
 	if (range === "all") return Array.from({ length: total }, (_, i) => i);
 	const from = Math.max(0, range.from);
 	const to = Math.min(total - 1, range.to);

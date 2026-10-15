@@ -148,15 +148,17 @@ export class MagickConverter extends Converter {
 				`using user setting for quality: ${compression}%`,
 			);
 		}
-		 
+
 		const imageOps = (args.find(
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			(a: any) =>
 				a &&
 				typeof a === "object" &&
 				("maxEdge" in a || "targetSizeBytes" in a),
-			 
-		) ?? {}) as { maxEdge?: number | null; targetSizeBytes?: number | null };
+		) ?? {}) as {
+			maxEdge?: number | null;
+			targetSizeBytes?: number | null;
+		};
 		log(["converters", this.name], `converting ${input.name} to ${to}`);
 
 		await this.ensureWasm();
@@ -367,9 +369,10 @@ export class MagickConverter extends Converter {
 					const rootTag = /<svg\b[^>]*>/i.exec(svgText)?.[0] ?? "";
 					const attrW = /\swidth="([^"]+)"/i.exec(rootTag)?.[1];
 					const attrH = /\sheight="([^"]+)"/i.exec(rootTag)?.[1];
-					const viewBoxMatch = /viewBox=["'][^"']*?[\s,+]+([\d.eE+-]+)[\s,+]+([\d.eE+-]+)["']/i.exec(
-						rootTag,
-					);
+					const viewBoxMatch =
+						/viewBox=["'][^"']*?[\s,+]+([\d.eE+-]+)[\s,+]+([\d.eE+-]+)["']/i.exec(
+							rootTag,
+						);
 					let width = img.naturalWidth;
 					let height = img.naturalHeight;
 					if (attrW && attrH) {

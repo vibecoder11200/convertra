@@ -74,7 +74,9 @@
 				{:else if file.result}
 					<div class="flex items-center justify-between gap-3">
 						<p class="text-sm text-muted truncate">
-							{file.result.name} · {(file.result.file.size / 1024).toFixed(1)} KB
+							{file.result.name} · {(
+								file.result.file.size / 1024
+							).toFixed(1)} KB
 						</p>
 						<button
 							class="btn highlight flex gap-2 items-center"

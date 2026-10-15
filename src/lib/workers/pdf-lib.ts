@@ -219,7 +219,12 @@ async function handleOrganize(job: OrganizeRequest) {
 		out.addPage(page);
 	}
 	const bytes = await out.save();
-	self.postMessage({ type: "finished", output: bytes, zip: false, id: job.id });
+	self.postMessage({
+		type: "finished",
+		output: bytes,
+		zip: false,
+		id: job.id,
+	});
 }
 
 async function handleEncrypt(job: EncryptRequest) {
@@ -230,5 +235,10 @@ async function handleEncrypt(job: EncryptRequest) {
 		ownerPassword: job.ownerPassword || job.userPassword,
 	});
 	const bytes = await src.save();
-	self.postMessage({ type: "finished", output: bytes, zip: false, id: job.id });
+	self.postMessage({
+		type: "finished",
+		output: bytes,
+		zip: false,
+		id: job.id,
+	});
 }

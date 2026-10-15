@@ -105,8 +105,7 @@ export class HeicConverter extends Converter {
 						return;
 					}
 					if (msg.type === "finished") resolve(msg.frames);
-					else if (msg.type === "error")
-						reject(new Error(msg.error));
+					else if (msg.type === "error") reject(new Error(msg.error));
 				};
 				worker.onerror = (e: ErrorEvent) =>
 					reject(new Error(`Worker error: ${e.message}`));
@@ -135,11 +134,9 @@ export class HeicConverter extends Converter {
 		// single image target: primary frame as lossless png (the chain's
 		// next step or the direct .png target)
 		return new VertFile(
-			new File(
-				[frames[0].data as unknown as BlobPart],
-				`${base}.png`,
-				{ type: "image/png" },
-			),
+			new File([frames[0].data as unknown as BlobPart], `${base}.png`, {
+				type: "image/png",
+			}),
 			".png",
 		);
 	}
@@ -154,12 +151,10 @@ export class HeicConverter extends Converter {
 			worker.postMessage({
 				type: "img2pdf",
 				id: base,
-				files: frames.map(
-					(f: { data: Uint8Array }, i: number) => ({
-						name: `${base}-${i + 1}.png`,
-						data: f.data,
-					}),
-				),
+				files: frames.map((f: { data: Uint8Array }, i: number) => ({
+					name: `${base}-${i + 1}.png`,
+					data: f.data,
+				})),
 			});
 			const result = await new Promise<{
 				type: string;

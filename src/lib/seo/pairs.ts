@@ -152,7 +152,7 @@ export const CONVERSION_PAIRS: ConversionPair[] = [
 		faq: [
 			{
 				q: "Why does my PDF converted to Word lose its layout?",
-				a: "PDF stores where each glyph sits, not the document structure, so the text must be re-typeset. Columns and complex tables may shift. For scanned PDFs there is no text to extract — enable the \"Scanned document\" option to run on-device OCR instead.",
+				a: 'PDF stores where each glyph sits, not the document structure, so the text must be re-typeset. Columns and complex tables may shift. For scanned PDFs there is no text to extract — enable the "Scanned document" option to run on-device OCR instead.',
 			},
 		],
 	},
@@ -248,7 +248,10 @@ export const composeDescription = (pair: ConversionPair): string =>
  * Related pairs: same source first (strongest internal-link signal), then
  * same target, capped.
  */
-export const relatedPairs = (pair: ConversionPair, cap = 6): ConversionPair[] => {
+export const relatedPairs = (
+	pair: ConversionPair,
+	cap = 6,
+): ConversionPair[] => {
 	const active = activePairs().filter((p) => p.slug !== pair.slug);
 	const sameFrom = active.filter((p) => p.from === pair.from);
 	const sameTo = active.filter((p) => p.to === pair.to);

@@ -1,5 +1,11 @@
 <script lang="ts">
-	import { DownloadIcon, Redo2Icon, RotateCwIcon, Trash2Icon, UploadIcon } from "lucide-svelte";
+	import {
+		DownloadIcon,
+		Redo2Icon,
+		RotateCwIcon,
+		Trash2Icon,
+		UploadIcon,
+	} from "lucide-svelte";
 	import { m } from "$lib/paraglide/messages";
 	import { ToastManager } from "$lib/util/toast.svelte";
 	import { organize } from "./store.svelte";
@@ -92,8 +98,12 @@
 		ondrop={onDrop}
 	>
 		<button class="w-full" onclick={() => fileInput?.click()}>
-			<Panel class="flex justify-center items-center w-full h-full flex-col min-h-64 pointer-events-none">
-				<div class="w-16 h-16 bg-accent rounded-full flex items-center justify-center p-4">
+			<Panel
+				class="flex justify-center items-center w-full h-full flex-col min-h-64 pointer-events-none"
+			>
+				<div
+					class="w-16 h-16 bg-accent rounded-full flex items-center justify-center p-4"
+				>
 					<UploadIcon class="w-full h-full text-on-accent" />
 				</div>
 				<h2 class="text-center text-2xl font-semibold mt-4">
@@ -132,7 +142,8 @@
 				</button>
 				<button
 					class="btn highlight flex gap-2 items-center"
-					disabled={organize.processing || organize.pages.length === 0}
+					disabled={organize.processing ||
+						organize.pages.length === 0}
 					onclick={exportPdf}
 				>
 					<DownloadIcon size="18" />
@@ -148,7 +159,10 @@
 				<p class="text-sm text-muted truncate">
 					{m["organize.done"]()}
 				</p>
-				<button class="btn highlight flex gap-2 items-center" onclick={() => organize.result?.download()}>
+				<button
+					class="btn highlight flex gap-2 items-center"
+					onclick={() => organize.result?.download()}
+				>
 					<DownloadIcon size="18" />
 					{m["organize.download"]()}
 				</button>
@@ -164,7 +178,8 @@
 		>
 			{#each organize.pages as page, index (page.src)}
 				<div
-					class="bg-panel rounded-2xl shadow-panel p-2 flex flex-col gap-2 {focusIndex === index
+					class="bg-panel rounded-2xl shadow-panel p-2 flex flex-col gap-2 {focusIndex ===
+					index
 						? 'ring-2 ring-accent'
 						: ''} {dragIndex === index ? 'opacity-50' : ''}"
 					role="option"
@@ -173,7 +188,8 @@
 					tabindex="0"
 					draggable="true"
 					ondragover={(e) => {
-						if (dragIndex !== null && dragIndex !== index) e.preventDefault();
+						if (dragIndex !== null && dragIndex !== index)
+							e.preventDefault();
 					}}
 					ondrop={(e) => {
 						e.preventDefault();
@@ -191,7 +207,9 @@
 						{#if organize.thumbs[page.src]}
 							<img
 								src={organize.thumbs[page.src]}
-								alt={m["organize.page_label"]({ index: index + 1 })}
+								alt={m["organize.page_label"]({
+									index: index + 1,
+								})}
 								class="absolute inset-0 w-full h-full object-contain transition-transform"
 								style:transform="rotate({page.rotation}deg)"
 								draggable="false"
@@ -240,7 +258,7 @@
 						>
 							→
 						</button>
-							<button
+						<button
 							class="p-1.5 rounded hover:bg-panel-alt text-failure"
 							aria-label={m["organize.remove"]()}
 							title={m["organize.remove"]()}
@@ -254,4 +272,3 @@
 		</div>
 	</div>
 {/if}
-

@@ -119,7 +119,12 @@ class OrganizeStore {
 	 * an explicit page list — each job structured-clones the document once
 	 * instead of once per page. */
 	public requestThumb(src: number) {
-		if (!browser || !this.data || this.thumbs[src] || this.requested.has(src))
+		if (
+			!browser ||
+			!this.data ||
+			this.thumbs[src] ||
+			this.requested.has(src)
+		)
 			return;
 		this.requested.add(src);
 		this.thumbBatch.add(src);

@@ -26,7 +26,11 @@ self.onmessage = async (e: MessageEvent<OcrRequest>) => {
 			workerBlobURL: false,
 			logger: (m: { status: string; progress: number }) => {
 				if (m.status === "recognizing text") {
-					post({ type: "page-progress", id: req.id, value: m.progress });
+					post({
+						type: "page-progress",
+						id: req.id,
+						value: m.progress,
+					});
 				}
 			},
 		});

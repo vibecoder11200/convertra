@@ -14,10 +14,7 @@
 		navigateAway?: boolean;
 	};
 
-	const {
-		class: classList,
-		navigateAway = true,
-	}: Props = $props();
+	const { class: classList, navigateAway = true }: Props = $props();
 
 	let uploaderButton = $state<HTMLButtonElement>();
 	let fileInput = $state<HTMLInputElement>();

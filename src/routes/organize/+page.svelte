@@ -13,10 +13,7 @@
 
 <svelte:head>
 	<title>{m["organize.title"]()} | Convertra</title>
-	<meta
-		name="description"
-		content={m["organize.meta_description"]()}
-	/>
+	<meta name="description" content={m["organize.meta_description"]()} />
 </svelte:head>
 
 <div class="flex flex-col items-center gap-6 w-full">

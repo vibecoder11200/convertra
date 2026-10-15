@@ -179,7 +179,14 @@
 	// batch runs too
 	const getVideoConvertArgs = (file: VertFile) => {
 		const opts = getVideoOptions(file.id);
-		return [{ start: opts.start, end: opts.end, fps: opts.fps, width: opts.width }];
+		return [
+			{
+				start: opts.start,
+				end: opts.end,
+				fps: opts.fps,
+				width: opts.width,
+			},
+		];
 	};
 
 	// PWA intake: shared files arrive via the service worker's stash handoff

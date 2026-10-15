@@ -21,6 +21,9 @@ export const load: PageLoad = ({ params }) => {
 	// page store in +layout.svelte)
 	return {
 		pair,
-		seo: { title: composeTitle(pair), description: composeDescription(pair) },
+		seo: {
+			title: composeTitle(pair),
+			description: composeDescription(pair),
+		},
 	};
 };

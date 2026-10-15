@@ -58,7 +58,11 @@
 					>
 						{m["unlock.cancel"]()}
 					</button>
-					<button type="submit" class="btn highlight p-2" disabled={!password}>
+					<button
+						type="submit"
+						class="btn highlight p-2"
+						disabled={!password}
+					>
 						{m["unlock.submit"]()}
 					</button>
 				</div>

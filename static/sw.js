@@ -94,7 +94,7 @@ self.addEventListener("activate", (event) => {
 							);
 							return caches.delete(cacheName);
 						}
-						}),
+					}),
 				);
 			})
 			// share-stash: drop other versions of the handoff cache, then
@@ -153,7 +153,9 @@ async function handleSharePost(request) {
 				headers: {
 					// header values are ByteStrings — non-Latin-1 filenames
 					// (e.g. Vietnamese) throw on raw insertion
-					"x-file-name": encodeURIComponent(value.name || `file-${index}`),
+					"x-file-name": encodeURIComponent(
+						value.name || `file-${index}`,
+					),
 					"x-file-type": value.type || "application/octet-stream",
 					"x-stashed-at": String(Date.now()),
 				},

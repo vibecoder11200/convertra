@@ -49,7 +49,6 @@ HEIC files (bursts, Live Photos) convert to multi-page PDFs; single images
 convert to any supported image target. On Safari the browser's native HEIC
 decoder is used when available.
 
-
 ### Why does my PDF converted to DOCX lose its layout?
 
 PDF is a page-description format: it records where each glyph sits, not the
@@ -70,4 +69,3 @@ for common file types (File Handling API). Files shared into Convertra never
 leave your device: the service worker temporarily stashes them in a local
 Cache API store on your device to hand them to the open tab, then deletes the
 stash immediately after reading it.
-
