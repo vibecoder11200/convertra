@@ -1,4 +1,6 @@
-const CACHE_NAME = "convertra-wasm-cache-v1"; // updated when workers update
+// bumped per wave that changes cached worker/wasm assets; the activate
+// handler drops every cache that doesn't match the current names
+const CACHE_NAME = "convertra-wasm-cache-v2";
 
 // tesseract assets cache separately: its version key follows the tesseract.js
 // version, so app deploys never discard downloaded OCR languages
@@ -138,6 +140,9 @@ async function sweepShareStash() {
 // clears the stash). Handled AHEAD of the shouldCacheUrl gate.
 async function handleSharePost(request) {
 	try {
+		// the TTL sweep normally runs on activate; a long-lived SW would
+		// otherwise keep unclaimed stashes forever, so sweep here too
+		sweepShareStash();
 		const stashId = crypto.randomUUID();
 		const form = await request.formData();
 		const cache = await caches.open(SHARE_STASH_CACHE);

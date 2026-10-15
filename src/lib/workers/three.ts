@@ -22,6 +22,12 @@ const UNIT_FACTOR: Record<ThreeConvertRequest["units"], number> = {
 	in: 1000 / 25.4,
 };
 
+// GLTFLoader materializes the full scene graph in memory before the
+// maxVertices guard can run; a textured scene easily expands 5-10x its
+// file size, so bound the parse itself by input bytes. Generous on
+// purpose — legit 5M-vertex models comfortably fit under this.
+const MAX_INPUT_BYTES = 200 * 1024 * 1024;
+
 self.onmessage = async (e: MessageEvent<ThreeConvertRequest>) => {
 	const req = e.data;
 	// lib.dom types `self` as Window in this file; the transfer-list overload
@@ -30,6 +36,11 @@ self.onmessage = async (e: MessageEvent<ThreeConvertRequest>) => {
 		postMessage(message: unknown, transfer?: Transferable[]): void;
 	};
 	try {
+		if (req.data.length > MAX_INPUT_BYTES) {
+			throw new Error(
+				`Model is too large to parse (${(req.data.length / 1024 / 1024).toFixed(0)}MB; limit ${MAX_INPUT_BYTES / 1024 / 1024}MB)`,
+			);
+		}
 		const magic = String.fromCharCode(
 			req.data[0],
 			req.data[1],

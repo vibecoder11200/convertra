@@ -13,11 +13,15 @@
 	let {
 		// per-file extra convert args (e.g. image ops), resolved by the page
 		// where the per-file option state lives
-		 
+
 		getConvertArgs = undefined,
+		// fired when a batch run settles (success or fail) — the page uses it
+		// to scrub one-shot secrets (encrypt passwords) from its option state
+		onBatchDone = undefined,
 	}: {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		getConvertArgs?: (file: VertFile) => any[];
+		onBatchDone?: () => void;
 	} = $props();
 
 	const length = $derived(files.files.length);
@@ -68,7 +72,11 @@
 	>
 		<div class="flex items-center gap-2.5 max-md:w-full">
 			<button
-				onclick={() => files.convertAll(getConvertArgs)}
+				onclick={() => {
+					void files
+						.convertAll(getConvertArgs)
+						.finally(() => onBatchDone?.());
+				}}
 				class="btn {$effects
 					? ''
 					: '!scale-100'} highlight flex gap-3 max-md:flex-1 max-md:px-3 max-md:text-sm md:max-w-[15.5rem]"

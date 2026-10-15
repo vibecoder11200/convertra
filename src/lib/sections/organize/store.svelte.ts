@@ -18,6 +18,8 @@ type OrganizeOp =
 	| { type: "delete"; index: number; page: OrganizePage };
 
 const THUMB_SCALE = 0.35; // ~100-160px wide thumbnails at 72dpi
+// coalesce window for thumbnail requests (one document clone per batch)
+const THUMB_BATCH_MS = 120;
 const MAX_UNDO = 50;
 
 class OrganizeStore {
@@ -112,53 +114,76 @@ class OrganizeStore {
 		});
 	}
 
-	/** Lazy-render one thumbnail (called from IntersectionObserver). */
-	public async requestThumb(src: number) {
+	/** Queue one thumbnail for lazy rendering (IntersectionObserver).
+	 * Requests landing in the same frame are flushed as ONE render job with
+	 * an explicit page list — each job structured-clones the document once
+	 * instead of once per page. */
+	public requestThumb(src: number) {
 		if (!browser || !this.data || this.thumbs[src] || this.requested.has(src))
 			return;
 		this.requested.add(src);
+		this.thumbBatch.add(src);
+		if (this.thumbFlush !== null) return;
+		this.thumbFlush = window.setTimeout(() => {
+			this.thumbFlush = null;
+			this.flushThumbBatch();
+		}, THUMB_BATCH_MS);
+	}
+
+	private thumbBatch = new Set<number>();
+	private thumbFlush: number | null = null;
+
+	private flushThumbBatch() {
+		if (!this.data || this.thumbBatch.size === 0) return;
+		const pages = [...this.thumbBatch].sort((a, b) => a - b);
+		this.thumbBatch.clear();
 		try {
 			if (!this.thumbWorker)
 				this.thumbWorker = new Worker(PdfRenderWorker, {
 					type: "module",
 				});
 			const worker = this.thumbWorker;
+			const id = `thumb-${pages[0]}-${pages.at(-1)}`;
 			worker.postMessage({
 				type: "render",
-				id: `thumb-${src}`,
+				id,
 				data: new Uint8Array(this.data),
 				sourceType: "application/pdf",
 				format: "png",
 				scale: THUMB_SCALE,
-				range: { from: src, to: src },
+				range: pages,
 			});
 			const onMessage = (e: MessageEvent) => {
-				if (e.data.id !== `thumb-${src}`) return;
+				if (e.data.id !== id) return;
 				worker.removeEventListener("message", onMessage);
 				if (e.data.type === "error") {
-					log(["organize"], `thumb ${src} failed: ${e.data.error}`);
-					// allow a retry on the next intersection
-					this.requested.delete(src);
+					log(["organize"], `thumb batch failed: ${e.data.error}`);
+					// allow retries on the next intersection
+					for (const p of pages) this.requested.delete(p);
 					return;
 				}
 				if (e.data.type === "finished") {
-					const bytes = (
-						e.data.output as { name: string; bytes: Uint8Array }[]
-					)[0]?.bytes;
-					if (bytes) {
-						const url = URL.createObjectURL(
+					const outputs = e.data.output as {
+						name: string;
+						bytes: Uint8Array;
+					}[];
+					// outputs arrive in request order; page N is named
+					// page_N+1.png
+					for (let i = 0; i < pages.length; i++) {
+						const bytes = outputs[i]?.bytes;
+						if (!bytes) continue;
+						this.thumbs[pages[i]] = URL.createObjectURL(
 							new Blob([bytes as unknown as BlobPart], {
 								type: "image/png",
 							}),
 						);
-						this.thumbs[src] = url;
 					}
 				}
 			};
 			worker.addEventListener("message", onMessage);
 		} catch (err) {
-			log(["organize"], `thumb ${src} failed: ${err}`);
-			this.requested.delete(src);
+			log(["organize"], `thumb batch failed: ${err}`);
+			for (const p of pages) this.requested.delete(p);
 		}
 	}
 
@@ -216,6 +241,9 @@ class OrganizeStore {
 
 	public reset() {
 		for (const url of Object.values(this.thumbs)) URL.revokeObjectURL(url);
+		if (this.thumbFlush !== null) window.clearTimeout(this.thumbFlush);
+		this.thumbFlush = null;
+		this.thumbBatch.clear();
 		this.undoStack = [];
 		this.requested.clear();
 		this.fileName = "";

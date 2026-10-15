@@ -132,7 +132,11 @@ class Files {
 		});
 		if (!ok) return null;
 		if (id) return this.decryptedCache.get(id) ?? null;
-		return this.lastUnlocked;
+		// organizer-local handoff: consume once so decrypted bytes for
+		// files outside the store never linger past their only reader
+		const dec = this.lastUnlocked;
+		this.lastUnlocked = null;
+		return dec;
 	}
 
 	/** Modal submit: try to decrypt; flip wrongPassword on failure. */
@@ -688,6 +692,15 @@ class Files {
 		}
 
 		try {
+			// start BEFORE the decode loop so failed merges keep a proper
+			// start → fail funnel (complete/fail are tracked below)
+			trackEvent("convert_start", {
+				from_format: "merge-images",
+				pair: "merge-images-pdf",
+				to_format: ".pdf",
+				converter: "pdf-lib",
+				size_bytes: this.files.reduce((s, f) => s + f.file.size, 0),
+			});
 			const images: { name: string; data: Uint8Array }[] = [];
 			for (const [i, f] of this.files.entries()) {
 				if (f.cancelled) throw new Error("Conversion cancelled");
@@ -738,13 +751,6 @@ class Files {
 				f.progress = 100;
 				f.result = result;
 			}
-			trackEvent("convert_start", {
-				from_format: "merge-images",
-				pair: "merge-images-pdf",
-				to_format: ".pdf",
-				converter: "pdf-lib",
-				size_bytes: images.reduce((s, img) => s + img.data.length, 0),
-			});
 			trackEvent("convert_complete", {
 				from_format: "merge-images",
 				pair: "merge-images-pdf",

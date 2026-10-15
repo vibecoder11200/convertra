@@ -188,7 +188,19 @@ export class VertFile {
 			const effective = cached
 				? new VertFile(new File([cached], this.file.name), this.to)
 				: this;
-			if (cached) effective.converters = this.converters;
+			if (cached) {
+				effective.converters = this.converters;
+				// converters report progress on the input they received —
+				// forward it so the ORIGINAL file's bar moves (the substitute
+				// is invisible to the UI)
+				Object.defineProperty(effective, "progress", {
+					get: () => this.progress,
+					set: (v: number) => {
+						this.progress = v;
+					},
+					configurable: true,
+				});
+			}
 
 			res = this.isZip()
 				? await Promise.race([this.convertZip(converter), cancellation])

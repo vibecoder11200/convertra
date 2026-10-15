@@ -69,7 +69,6 @@ export default defineConfig(({ command }) => {
 				"vert-wasm",
 				"riff-file",
 				"byte-data",
-				"pdf-lib",
 				"@cantoo/pdf-lib",
 				"@bjorn3/browser_wasi_shim",
 				"libheif-js/libheif-wasm/libheif.js",

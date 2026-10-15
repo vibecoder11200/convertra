@@ -124,6 +124,16 @@
 					imageOptions[file.id] = { ...IMAGE_OPTION_DEFAULTS };
 			});
 		}
+		// prune entries for removed files — covers every removal path
+		// (X button, remove-all) so typed encrypt passwords never outlive
+		// their file
+		const live = new Set(files.files.map((f) => f.id));
+		for (const id of Object.keys(pdfOptions))
+			if (!live.has(id)) delete pdfOptions[id];
+		for (const id of Object.keys(videoOptions))
+			if (!live.has(id)) delete videoOptions[id];
+		for (const id of Object.keys(imageOptions))
+			if (!live.has(id)) delete imageOptions[id];
 	});
 
 	const hasImageOps = (file: VertFile): boolean => {
@@ -163,6 +173,13 @@
 		if (file.to === ".pdf")
 			return [{ op: "compress", quality: opts.quality }];
 		return [];
+	};
+
+	// mirrors convertVideo: trim/fps/width reach the webcodecs card in
+	// batch runs too
+	const getVideoConvertArgs = (file: VertFile) => {
+		const opts = getVideoOptions(file.id);
+		return [{ start: opts.start, end: opts.end, fps: opts.fps, width: opts.width }];
 	};
 
 	// PWA intake: shared files arrive via the service worker's stash handoff
@@ -219,6 +236,8 @@
 			// a set password wins: encrypt instead of compress/split
 			if (to === ".pdf" && opts.password) {
 				await file.convert({ op: "encrypt", password: opts.password });
+				// one-shot secret: drop it once it's been applied
+				opts.password = "";
 				return;
 			}
 			const isCompress = to === ".pdf" && opts.range === "";
@@ -897,7 +916,17 @@
 	<div class="max-w-6xl w-full">
 		<ConversionPanel
 			getConvertArgs={(f) =>
-				f.from === ".pdf" ? getPdfConvertArgs(f) : getImageOpsArgs(f)}
+				f.from === ".pdf"
+					? getPdfConvertArgs(f)
+					: f.findConverter()?.name === "webcodecs"
+						? getVideoConvertArgs(f)
+						: getImageOpsArgs(f)}
+			onBatchDone={() => {
+				// one-shot secrets: any applied encrypt password doesn't
+				// outlive the batch run
+				for (const opts of Object.values(pdfOptions))
+					opts.password = "";
+			}}
 		/>
 	</div>
 
