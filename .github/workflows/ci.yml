@@ -6,6 +6,22 @@ on:
     pull_request:
         branches: ["main"]
 
+env:
+    # Needed by $env/static/public type resolution during `bun run check` and
+    # by the production build. Values match .env.example defaults.
+    PUB_HOSTNAME: localhost:5173
+    PUB_ENV: production
+    PUB_DISABLE_ALL_EXTERNAL_REQUESTS: "true"
+    PUB_DISABLE_FAILURE_BLOCKS: "true"
+    # Optional/public-exposed vars; empty values are valid for type resolution.
+    PUB_PLAUSIBLE_URL: ""
+    PUB_UMAMI_URL: ""
+    PUB_UMAMI_WEBSITE_ID: ""
+    PUB_VERTD_URL: ""
+    PUB_DONATION_URL: ""
+    PUB_DONATION_API: ""
+    PUB_STRIPE_KEY: ""
+
 jobs:
     lint-typecheck-build:
         runs-on: ubuntu-latest
@@ -29,6 +45,9 @@ jobs:
             - name: Install dependencies
               run: bun install --frozen-lockfile
 
+            - name: Generate paraglide messages
+              run: bunx paraglide-js compile --project ./project.inlang --outdir ./src/lib/paraglide
+
             - name: Lint
               run: bun run lint
 
@@ -36,9 +55,4 @@ jobs:
               run: bun run check
 
             - name: Build
-              env:
-                  PUB_HOSTNAME: localhost:5173
-                  PUB_ENV: production
-                  PUB_DISABLE_ALL_EXTERNAL_REQUESTS: "true"
-                  PUB_DISABLE_FAILURE_BLOCKS: "true"
               run: bun run build

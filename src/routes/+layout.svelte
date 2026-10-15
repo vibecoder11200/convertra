@@ -2,15 +2,28 @@
 	import { onMount } from "svelte";
 	import { goto, beforeNavigate, afterNavigate } from "$app/navigation";
 
-	import { PUB_PLAUSIBLE_URL, PUB_HOSTNAME } from "$env/static/public";
+	import {
+		PUB_PLAUSIBLE_URL,
+		PUB_UMAMI_WEBSITE_ID,
+		PUB_HOSTNAME,
+	} from "$env/static/public";
 	import {
 		DISABLE_ALL_EXTERNAL_REQUESTS,
-		VERT_NAME,
+		APP_NAME,
 	} from "$lib/util/consts.js";
 	import * as Layout from "$lib/components/layout";
 	import * as Navbar from "$lib/components/layout/Navbar";
-	import featuredImage from "$lib/assets/VERT_Feature.webp";
+	import featuredImage from "$lib/assets/convertra-feature.webp";
 	import { Settings } from "$lib/sections/settings/index.svelte";
+	import {
+		analyticsEnabled,
+		createPlausibleStub,
+		purgeAnalyticsBuffer,
+		providers,
+		setTrackerOptOut,
+		UMAMI_SCRIPT_SRC,
+		type AnalyticsVia,
+	} from "$lib/analytics/index";
 	import {
 		files,
 		isMobile,
@@ -28,12 +41,36 @@
 	import { ToastManager } from "$lib/util/toast.svelte.js";
 	import { m } from "$lib/paraglide/messages.js";
 	import { log } from "$lib/util/logger.js";
+	import { page } from "$app/state";
 
 	let { children } = $props();
-	let enablePlausible = $state(false);
+	let analyticsActive = $state(false);
 	let isAprilFools = $state(false);
 
 	let scrollPositions = new Map<string, number>();
+
+	// per-page head overrides: SEO pair pages return `seo` from their load
+	// (read reactively through the page store); every other page gets the
+	// site defaults
+	const seoTitle = $derived(
+		(page.data as { seo?: { title?: string } } | null)?.seo?.title ??
+			`${APP_NAME} — Free, fast, and awesome file converter`,
+	);
+	const seoDescription = $derived(
+		(page.data as { seo?: { description?: string } } | null)?.seo
+			?.description ??
+			"With Convertra, you can quickly convert any image, video, audio, and document file. No ads, open source, and all processing (other than video) is done on your device. Analytics are anonymous, aggregated, and cookieless — opt out in Settings.",
+	);
+
+	// canonical/og:url/twitter:url need a configured hostname - an empty
+	// PUB_HOSTNAME would render broken "https:///" URLs that SvelteKit's
+	// prerender crawler also fails to parse (Invalid URL)
+	const canonicalBase = PUB_HOSTNAME ? `https://${PUB_HOSTNAME}` : "";
+	// self-referencing canonical per page (was previously pinned to "/" for
+	// every route, which tells crawlers all pages are duplicates of home)
+	const canonicalUrl = $derived(
+		canonicalBase ? canonicalBase + page.url.pathname : "",
+	);
 
 	beforeNavigate((nav) => {
 		if (!nav.from || !$isMobile) return;
@@ -48,12 +85,18 @@
 		window.scrollTo(0, scrollY);
 	});
 
+	// add() is not awaited: regular files push synchronously, so the length
+	// comparison right after reflects what was added
+	const addFiles = (list: FileList | null | undefined, via: AnalyticsVia) => {
+		const oldLength = files.files.length;
+		files.add(list, via);
+		if (oldLength !== files.files.length) goto("/convert");
+	};
+
 	const dropFiles = (e: DragEvent) => {
 		e.preventDefault();
 		dropping.set(false);
-		const oldLength = files.files.length;
-		files.add(e.dataTransfer?.files);
-		if (oldLength !== files.files.length) goto("/convert");
+		addFiles(e.dataTransfer?.files, "drop");
 	};
 
 	const handleDrag = (e: DragEvent, drag: boolean) => {
@@ -65,9 +108,7 @@
 		const clipboardData = e.clipboardData;
 		if (!clipboardData || !clipboardData.files.length) return;
 		e.preventDefault();
-		const oldLength = files.files.length;
-		files.add(clipboardData.files);
-		if (oldLength !== files.files.length) goto("/convert");
+		addFiles(clipboardData.files, "paste");
 	};
 
 	onMount(() => {
@@ -96,9 +137,9 @@
 		if (!DISABLE_ALL_EXTERNAL_REQUESTS) {
 			VertdInstance.instance
 				.url()
-				.then((u) => fetch(`${u}/api/version`))
+				.then((u) => (u ? fetch(`${u}/api/version`) : undefined))
 				.then((res) => {
-					if (res.ok) $vertdLoaded = true;
+					if (res && res.ok) $vertdLoaded = true;
 				});
 		}
 
@@ -122,58 +163,71 @@
 	});
 
 	$effect(() => {
-		enablePlausible =
-			!!PUB_PLAUSIBLE_URL &&
-			Settings.instance.settings.plausible &&
-			!DISABLE_ALL_EXTERNAL_REQUESTS;
-		if (!enablePlausible && browser) {
-			// reset pushState on opt-out so that plausible stops firing events on page navigation
+		analyticsActive = analyticsEnabled();
+		if (!analyticsActive && browser) {
+			// opt-out teardown. Removing the <script> does not unload an
+			// already-executed tracker: Plausible keeps its own popstate
+			// listener (Back-button pageviews) and Umami keeps sending until
+			// its disabled flag is set, so arm the trackers' per-send opt-out
+			// flags (setTrackerOptOut), restore the History methods, and
+			// re-arm no-op stubs so the orphaned entry points die.
+			setTrackerOptOut(true);
 			history.pushState = History.prototype.pushState;
+			history.replaceState = History.prototype.replaceState;
+			window.plausible = createPlausibleStub();
+			window.umami = undefined;
+			purgeAnalyticsBuffer(); // buffered pre-opt-out events are dropped, not deferred
+		} else if (browser) {
+			setTrackerOptOut(false); // clear leftover flags (e.g. after "clear all data")
 		}
 	});
 </script>
 
 <svelte:head>
-	<title>{VERT_NAME}</title>
-	<meta name="theme-color" content="#F2ABEE" />
+	<title>{seoTitle}</title>
 	<meta
-		name="title"
-		content="{VERT_NAME} — Free, fast, and awesome file converter"
+		name="theme-color"
+		media="(prefers-color-scheme: light)"
+		content="#D0F1EE"
 	/>
 	<meta
-		name="description"
-		content="With VERT, you can quickly convert any image, video, audio, and document file. No ads, no tracking, open source, and all processing (other than video) is done on your device."
+		name="theme-color"
+		media="(prefers-color-scheme: dark)"
+		content="#151A1E"
 	/>
-	<meta property="og:url" content="https://vert.sh" />
+	<meta name="title" content={seoTitle} />
+	<meta name="description" content={seoDescription} />
+	{#if canonicalUrl}
+		<meta property="og:url" content={canonicalUrl} />
+	{/if}
 	<meta property="og:type" content="website" />
-	<meta
-		property="og:title"
-		content="{VERT_NAME} — Free, fast, and awesome file converter"
-	/>
-	<meta
-		property="og:description"
-		content="With VERT, you can quickly convert any image, video, audio, and document file. No ads, no tracking, open source, and all processing (other than video) is done on your device."
-	/>
+	<meta property="og:title" content={seoTitle} />
+	<meta property="og:description" content={seoDescription} />
 	<meta property="og:image" content={featuredImage} />
 	<meta name="twitter:card" content="summary_large_image" />
-	<meta property="twitter:domain" content="vert.sh" />
-	<meta property="twitter:url" content="https://vert.sh" />
-	<meta
-		property="twitter:title"
-		content="{VERT_NAME} — Free, fast, and awesome file converter"
-	/>
-	<meta
-		property="twitter:description"
-		content="With VERT, you can quickly convert any image, video, audio, and document file. No ads, no tracking, open source, and all processing (other than video) is done on your device."
-	/>
+	{#if canonicalUrl}
+		<meta property="twitter:domain" content={PUB_HOSTNAME} />
+		<meta property="twitter:url" content={canonicalUrl} />
+	{/if}
+	<meta property="twitter:title" content={seoTitle} />
+	<meta property="twitter:description" content={seoDescription} />
 	<meta property="twitter:image" content={featuredImage} />
 	<link rel="manifest" href="/manifest.json" />
-	<link rel="canonical" href="https://vert.sh/" />
-	{#if enablePlausible}
+	{#if canonicalUrl}
+		<link rel="canonical" href={canonicalUrl} />
+	{/if}
+	{#if analyticsActive && providers.plausible}
 		<script
 			defer
-			data-domain={PUB_HOSTNAME || "vert.sh"}
+			data-domain={PUB_HOSTNAME}
 			src="{PUB_PLAUSIBLE_URL}/js/script.js"
+		></script>
+	{/if}
+	{#if analyticsActive && providers.umami}
+		<script
+			defer
+			data-website-id={PUB_UMAMI_WEBSITE_ID}
+			src={UMAMI_SCRIPT_SRC}
 		></script>
 	{/if}
 	{#if isAprilFools}

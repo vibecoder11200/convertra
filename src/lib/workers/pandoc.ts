@@ -34,6 +34,10 @@ type Format =
 	| ".epub"
 	| ".odt"
 	| ".docbook"
+	| ".pptx"
+	| ".typ"
+	| ".tex"
+	| ".jats"
 	| ".html"
 	| ".markdown";
 
@@ -51,13 +55,8 @@ const handleMessage = async (message: WorkerMessage): Promise<any> => {
 				const { to: ext, input } = message;
 				const file = input.file as File;
 				const to = ext as Format;
-				if (to === ".rtf") {
-					throw new Error(
-						"Converting into RTF is currently not supported.",
-					);
-				}
 				const buf = new Uint8Array(await file.arrayBuffer());
-				const args = `-f ${formatToReader(`.${file.name.split(".").pop() || ""}` as Format)} -t ${formatToReader(to)} --extract-media=.`;
+				const args = `-f ${formatToReader(`.${file.name.split(".").pop() || ""}` as Format)} -t ${formatToWriter(to)} --extract-media=.`;
 				const [result, stderr, zip] = await pandoc(
 					args,
 					buf,
@@ -118,6 +117,23 @@ const formatToReader = (format: Format): string => {
 	}
 
 	throw new Error(`Unsupported format: ${format}`);
+};
+
+// Extension → pandoc writer name. Differs from formatToReader only where
+// pandoc's writer flag is spelled differently from the file extension.
+const formatToWriter = (format: Format): string => {
+	switch (format) {
+		case ".typ":
+			return "typst";
+		case ".tex":
+			return "latex";
+		case ".pptx":
+			return "pptx";
+		case ".jats":
+			return "jats";
+		default:
+			return formatToReader(format);
+	}
 };
 
 async function pandoc(

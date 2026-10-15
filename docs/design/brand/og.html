@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<style>
+	@font-face {
+		font-family: "Radio Canada Big";
+		font-weight: 600;
+		src: url("../../node_modules/@fontsource/radio-canada-big/files/radio-canada-big-latin-600-normal.woff2")
+			format("woff2");
+	}
+	@font-face {
+		font-family: "Host Grotesk";
+		font-weight: 400;
+		src: url("../../src/lib/assets/font/HostGrotesk-Regular.woff2") format("woff2");
+	}
+	@font-face {
+		font-family: "Host Grotesk";
+		font-weight: 600;
+		src: url("../../src/lib/assets/font/HostGrotesk-SemiBold.woff2") format("woff2");
+	}
+	* { margin: 0; padding: 0; box-sizing: border-box; }
+	html, body { width: 1000px; height: 500px; overflow: hidden; }
+	.og {
+		position: relative;
+		width: 1000px; height: 500px;
+		background:
+			radial-gradient(
+				520px 420px at 88% 18%,
+				rgba(53, 212, 191, 0.16),
+				rgba(53, 212, 191, 0) 70%
+			),
+			#151a1e;
+		color: #ffffff;
+		font-family: "Host Grotesk", sans-serif;
+	}
+	.content {
+		position: absolute; inset: 0;
+		padding: 64px 68px;
+		display: flex; flex-direction: column; gap: 26px;
+		z-index: 2;
+	}
+	.brandrow { display: flex; align-items: center; gap: 24px; }
+	.tile {
+		width: 92px; height: 92px; border-radius: 24px;
+		background: #35d4bf;
+		display: grid; place-items: center;
+		flex-shrink: 0;
+	}
+	.tile svg { width: 56px; height: 56px; }
+	.word {
+		font-family: "Radio Canada Big", sans-serif;
+		font-weight: 600;
+		font-size: 78px;
+		line-height: 1;
+		letter-spacing: 0.005em;
+		transform: translateY(-3px);
+	}
+	.tagline {
+		font-size: 31px;
+		font-weight: 400;
+		color: rgba(255, 255, 255, 0.78);
+	}
+	.chips { display: flex; gap: 14px; margin-top: 10px; }
+	.chip {
+		display: flex; align-items: center; gap: 10px;
+		padding: 11px 20px;
+		border-radius: 999px;
+		background: rgba(255, 255, 255, 0.07);
+		border: 1px solid rgba(255, 255, 255, 0.14);
+		font-size: 22px;
+		font-weight: 600;
+		color: #d9e6e4;
+	}
+	.chip .arr { color: #35D4BF; font-weight: 400; }
+	.bigmark {
+		position: absolute; right: -36px; bottom: -48px;
+		width: 430px; height: 430px;
+		opacity: 0.9;
+		z-index: 1;
+	}
+	.privacy {
+		position: absolute; left: 68px; bottom: 46px;
+		display: flex; align-items: center; gap: 10px;
+		font-size: 21px; font-weight: 600;
+		color: #35D4BF;
+		z-index: 2;
+	}
+	.content { padding-bottom: 118px; }
+</style>
+</head>
+<body>
+	<div class="og">
+		<svg
+			class="bigmark"
+			viewBox="0 0 512 512"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<g
+				fill="#2CBAa5"
+				stroke="#35D4BF"
+				stroke-width="18"
+				stroke-linejoin="round"
+			>
+				<path d="M120,162 H344 V140 L416,190 L344,240 V218 H120 Z" />
+				<path d="M392,294 H168 V272 L96,322 L168,372 V350 H392 Z" />
+			</g>
+		</svg>
+
+		<div class="content">
+			<div class="brandrow">
+				<div class="tile">
+					<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+						<g fill="#0E161B" stroke="#0E161B" stroke-width="26" stroke-linejoin="round">
+							<path d="M120,162 H344 V140 L416,190 L344,240 V218 H120 Z" />
+							<path d="M392,294 H168 V272 L96,322 L168,372 V350 H392 Z" />
+						</g>
+					</svg>
+				</div>
+				<div class="word">Convertra</div>
+			</div>
+			<div class="tagline">The file converter you'll love.</div>
+			<div class="chips">
+				<span class="chip">.png <span class="arr">⇄</span> .jpg</span>
+				<span class="chip">.mp3 <span class="arr">⇄</span> .wav</span>
+				<span class="chip">.pdf <span class="arr">⇄</span> .docx</span>
+			</div>
+		</div>
+
+		<div class="privacy">100% private — runs on your device</div>
+	</div>
+</body>
+</html>
