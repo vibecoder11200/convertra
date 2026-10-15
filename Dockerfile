@@ -26,6 +26,11 @@ ENV PUB_DISABLE_FAILURE_BLOCKS=${PUB_DISABLE_FAILURE_BLOCKS}
 
 COPY package.json bun.lock ./
 
+# postinstall needs the tessdata setup script and the committed language
+# data (eng/vie traineddata) before it can run
+COPY scripts/ ./scripts/
+COPY static/tessdata/eng.traineddata.gz static/tessdata/vie.traineddata.gz ./static/tessdata/
+
 RUN apt-get update && \
     apt-get install -y --no-install-recommends git && \
     rm -rf /var/lib/apt/lists/*
