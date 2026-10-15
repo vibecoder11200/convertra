@@ -13,3 +13,21 @@ export const DISABLE_ALL_EXTERNAL_REQUESTS =
 	PUB_DISABLE_ALL_EXTERNAL_REQUESTS === "true";
 
 export const GB = 1024 * 1024 * 1024;
+
+// image extensions the pdf-lib worker embeds directly (jpg/png) or
+// canvas-decodes; heic/heif join after the heic decoder pre-decodes them to
+// png on the main side. Lives here (no converter imports) so the files store
+// can gate the multi-image merge without an import cycle.
+export const MERGEABLE_IMAGE_EXTS = [
+	".jpg",
+	".jpeg",
+	".jpe",
+	".jfif",
+	".png",
+	".webp",
+	".gif",
+	".avif",
+	".bmp",
+	".heic",
+	".heif",
+];

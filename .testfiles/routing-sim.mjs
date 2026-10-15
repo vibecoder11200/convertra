@@ -7,7 +7,9 @@ const FILES = {
 	magick: "src/lib/converters/magick.svelte.ts",
 	ffmpeg: "src/lib/converters/ffmpeg.svelte.ts",
 	pandoc: "src/lib/converters/pandoc.svelte.ts",
+	heic: "src/lib/converters/heic.svelte.ts",
 	mupdf: "src/lib/converters/mupdf.svelte.ts",
+	tesseract: "src/lib/converters/ocr.svelte.ts",
 	"pdf-lib": "src/lib/converters/pdf-lib.svelte.ts",
 	"pdf-render": "src/lib/converters/pdf-render.svelte.ts",
 	webcodecs: "src/lib/converters/video.svelte.ts",
@@ -39,8 +41,8 @@ function formatStrings(c) {
 }
 
 // findConverter step 1 (direction-aware, post-fix)
-function single(from, to) {
-	return registry.find((c) => {
+function singleFrom(claimants, from, to) {
+	return claimants.find((c) => {
 		if (!formatStrings(c).includes(from) || !formatStrings(c).includes(to))
 			return false;
 		const theirFrom = c.formats.find((f) => f.name === from && f.from);
@@ -51,11 +53,13 @@ function single(from, to) {
 	});
 }
 
-// chain loop (unchanged upstream logic)
-function chain(from, to) {
-	const sourceClaimers = registry.filter((c) =>
-		formatStrings(c).includes(from),
-	);
+function single(from, to) {
+	return singleFrom(registry, from, to);
+}
+
+// chain loop — source claimants mirror VertFile's direction-aware
+// constructor filter (output-only entries never claim inputs)
+function chainFrom(sourceClaimers, from, to) {
 	for (const a of sourceClaimers) {
 		for (const fmt of a.formats) {
 			if (!fmt.to) continue;
@@ -72,10 +76,33 @@ function chain(from, to) {
 	return null;
 }
 
+function chain(from, to) {
+	const sourceClaimers = registry.filter((c) =>
+		c.formats.find((f) => f.name === from && f.from),
+	);
+	return chainFrom(sourceClaimers, from, to);
+}
+
 function route(from, to) {
 	const s = single(from, to);
 	if (s) return `SINGLE:${s.name}`;
 	const c = chain(from, to);
+	return c ? `CHAIN:${c}` : "NONE";
+}
+
+// forceOcr resolution: scanned flag reorders the pdf claimants so the
+// tesseract converter is tried first for direct matches AND chain sources
+function routeForceOcr(from, to) {
+	const pdfClaimants = registry.filter((c) =>
+		c.formats.find((f) => f.name === from && f.from),
+	);
+	const ordered = [
+		...pdfClaimants.filter((c) => c.name === "tesseract"),
+		...pdfClaimants.filter((c) => c.name !== "tesseract"),
+	];
+	const s = singleFrom(ordered, from, to);
+	if (s) return `SINGLE:${s.name}`;
+	const c = chainFrom(ordered, from, to);
 	return c ? `CHAIN:${c}` : "NONE";
 }
 
@@ -146,6 +173,27 @@ expect(route(".webm", ".webm"), "SINGLE:webcodecs", "webm identity");
 // phantoms must stay dead
 expect(route(".png", ".cbz"), "CHAIN:pdf-lib", "png->cbz raster chain");
 expect(route(".html", ".txt"), "NONE", "html->txt no route");
+
+// heic routes: images via the runtime 2-step auto-chain (heic -> png ->
+// magick), pdf as a direct HeicConverter output (all frames -> pages)
+expect(route(".heic", ".jpg"), "CHAIN:heic", "heic->jpg");
+expect(route(".heic", ".webp"), "CHAIN:heic", "heic->webp");
+expect(route(".heic", ".png"), "SINGLE:heic", "heic->png");
+expect(route(".heic", ".pdf"), "SINGLE:heic", "heic->pdf");
+expect(route(".heif", ".jpg"), "CHAIN:heic", "heif->jpg");
+// magick must no longer claim heic inputs at all
+expect(defaultPick(".heic"), "heic -> .png", "default .heic");
+
+// ocr routes: images -> txt/md direct on tesseract; pdf keeps mupdf by
+// default (registered first); forceOcr reorders the claimants so scanned
+// pdfs resolve to tesseract (direct for txt/md, chain for docx)
+expect(route(".png", ".txt"), "SINGLE:tesseract", "png->txt");
+expect(route(".jpg", ".md"), "SINGLE:tesseract", "jpg->md");
+expect(route(".pdf", ".txt"), "SINGLE:mupdf", "pdf->txt default");
+expect(route(".pdf", ".md"), "SINGLE:mupdf", "pdf->md default");
+expect(routeForceOcr(".pdf", ".txt"), "SINGLE:tesseract", "pdf->txt scanned");
+expect(routeForceOcr(".pdf", ".md"), "SINGLE:tesseract", "pdf->md scanned");
+expect(routeForceOcr(".pdf", ".docx"), "CHAIN:tesseract", "pdf->docx scanned");
 
 // store defaults (post-fix): md/html must go to pandoc, pdf to mupdf
 expect(defaultPick(".md"), "pandoc -> .docx", "default .md");

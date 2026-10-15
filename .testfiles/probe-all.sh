@@ -24,4 +24,16 @@ echo "== SheetJS round-trips (bun web worker) =="
 bun .testfiles/sheetjs-probe.mjs | tail -4
 
 echo
+echo "== HEIC decode + sniff (bun) =="
+bun .testfiles/heic-probe.mjs | tail -3
+
+echo
+echo "== converter routing table (node) =="
+node .testfiles/routing-sim.mjs | tail -3
+
+echo
+echo "== OCR tesseract local assets + accuracy (bun) =="
+timeout 240 bun .testfiles/ocr-probe.mjs | tail -4
+
+echo
 echo "ALL PROBES DONE"

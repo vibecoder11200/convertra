@@ -30,20 +30,28 @@ if (browser && PUB_UMAMI_URL && !PUB_UMAMI_WEBSITE_ID) {
 }
 
 /** How a file entered the app (file_select.via vocabulary). */
-export type AnalyticsVia = "drop" | "paste" | "picker" | "zip";
+export type AnalyticsVia =
+	| "drop"
+	| "paste"
+	| "picker"
+	| "zip"
+	| "share"
+	| "open-with";
 
 interface ConversionEventProps {
 	from_format: string;
 	to_format: string;
 	converter: string;
 	size_bytes: number;
+	/** "heic-to-jpg" style pair key (no dots), for pair-level funnels */
+	pair: string;
 }
 
 /**
  * Per-event payload contracts, enforced by the compiler at every trackEvent
  * call site: scalar values only, within Umami's event-data limits (strings
  * ≤ 500 chars, objects ≤ 50 properties). Vocabularies:
- * - file_select.via: "drop" | "paste" | "picker" | "zip"
+ * - file_select.via: "drop" | "paste" | "picker" | "zip" | "share" | "open-with"
  * - convert_fail.reason: "cancelled" | "error" ("none" converter = resolution itself failed)
  * - settings_change.key: "useDefaultFormat" | "metadata" | "vertdSpeed"
  * Payloads never contain file names, paths, URLs with names, or error message text.

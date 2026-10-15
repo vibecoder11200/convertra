@@ -6,6 +6,70 @@
 	"display": "standalone",
 	"background_color": "#ffffff",
 	"theme_color": "#D0F1EE",
+	"share_target": {
+		"action": "/share",
+		"method": "POST",
+		"enctype": "multipart/form-data",
+		"params": {
+			"files": "files"
+		},
+		"files": [
+			{
+				"name": "files",
+				"accept": [
+					"image/*",
+					"audio/*",
+					"video/*",
+					"application/pdf",
+					"application/zip",
+					"application/epub+zip",
+					"application/vnd.comicbook+zip",
+					"application/json",
+					"text/*"
+				]
+			}
+		]
+	},
+	"file_handlers": [
+		{
+			"action": "/convert/",
+			"accept": {
+				"image/*": [
+					".png",
+					".jpg",
+					".jpeg",
+					".jpe",
+					".jfif",
+					".webp",
+					".gif",
+					".avif",
+					".jxl",
+					".bmp",
+					".heic",
+					".heif",
+					".ico",
+					".svg",
+					".tiff",
+					".tif",
+					".psd"
+				],
+				"application/pdf": [".pdf"],
+				"application/epub+zip": [".epub"],
+				"application/vnd.comicbook+zip": [".cbz"],
+				"application/zip": [".zip"],
+				"audio/*": [
+					".mp3",
+					".wav",
+					".ogg",
+					".opus",
+					".flac",
+					".m4a",
+					".aac"
+				],
+				"video/*": [".mp4", ".webm", ".mkv", ".mov", ".avi"]
+			}
+		}
+	],
 	"icons": [
 		{
 			"src": "lettermark.jpg",

@@ -145,6 +145,8 @@ export class ChainedConverter extends Converter {
 	public override async convert(
 		input: VertFile,
 		to: string,
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		...args: any[]
 	): Promise<VertFile> {
 		this.status = this.deriveStatus();
 		const { VertFile: VF } = await import("$lib/types");
@@ -154,7 +156,9 @@ export class ChainedConverter extends Converter {
 			const { converter, to: stepTo } = this.steps[i];
 			const isLast = i === this.steps.length - 1;
 			const target = isLast ? to : stepTo;
-			const result = await converter.convert(current, target);
+			// forward user options (e.g. image ops) into every step; steps
+			// that don't understand them ignore the extras
+			const result = await converter.convert(current, target, ...args);
 			if (!isLast) {
 				current = new VF(
 					new File(
@@ -164,7 +168,19 @@ export class ChainedConverter extends Converter {
 					target,
 				);
 			} else {
-				current = result;
+				// the last converter names its output after ITS input (the
+				// intermediate file, e.g. "test.png"), which reads wrong on
+				// result cards — rename to the original name + final target
+				// when the extension doesn't already match
+				const expected = input.name.replace(/\.[^/.]+$/, to);
+				if (result.name !== expected) {
+					current = new VF(
+						new File([await result.file.arrayBuffer()], expected),
+						to,
+					);
+				} else {
+					current = result;
+				}
 			}
 		}
 
