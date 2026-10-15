@@ -15,9 +15,21 @@ type EventOptions = {
 	readonly props?: { readonly [propName: string]: string | number | boolean };
 };
 
+type UmamiTracker = {
+	/**
+	 * Tracks a custom event (Umami tracker functions).
+	 */
+	track: (
+		eventName: string,
+		eventData?: Record<string, string | number | boolean>,
+	) => void;
+	identify: (...args: unknown[]) => void;
+};
+
 declare global {
 	interface Window {
-		plausible: TrackEvent;
+		plausible?: TrackEvent;
+		umami?: UmamiTracker;
 	}
 
 	const __COMMIT_HASH__: string;

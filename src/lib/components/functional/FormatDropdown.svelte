@@ -319,10 +319,11 @@
 					return null;
 				}
 			})
-			.filter(Boolean);
+			.filter((f): f is VertFile => Boolean(f));
 
 		files.files = files.files.filter((f) => f !== file);
-		newFiles.forEach((f) => files.add(f));
+		// one aggregated call: a per-file loop would emit N x {count:1} file_select events
+		files.add(newFiles, "zip");
 	};
 
 	onMount(() => {
@@ -473,7 +474,7 @@
 						<button
 							class="w-full p-2 text-center rounded-xl
 							{format === selected
-								? 'bg-accent text-black'
+								? 'bg-accent text-on-accent'
 								: format === from
 									? 'bg-separator'
 									: 'hover:bg-panel'}"
@@ -495,7 +496,7 @@
 			{#if file?.name.toLowerCase().endsWith(".zip")}
 				<div class="border-t border-separator text-base p-2">
 					<button
-						class="w-full p-2 text-center rounded-lg bg-accent text-black"
+						class="w-full p-2 text-center rounded-lg bg-accent text-on-accent"
 						onclick={() => extract()}
 					>
 						{m["convert.archive_file.extract"]()}

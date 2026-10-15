@@ -10,20 +10,10 @@
 	import { goto } from "$app/navigation";
 	import { page } from "$app/state";
 	import { PUB_DONATION_URL, PUB_STRIPE_KEY } from "$env/static/public";
-	// please do not change these!
-	const OFFICIAL_DONATION_URL = atob("aHR0cHM6Ly9kb25hdGlvbnMudmVydC5zaA==");
-	const OFFICIAL_STRIPE_KEY = atob(
-		"cGtfbGl2ZV81MVRsclBhRlRQamtoRUdCU3U1S3d5NWpKUVl4Y1g1eVVVSFhpSDVnN1h6dmIwTkt6RHFib29jMTI2SGpsVzM1dVVrZkFnUU4ycnVFb0N1eVF5bm94cEthQTAwb2pGZ1ExMTY=",
-	);
-	const isOfficial =
-		PUB_DONATION_URL === OFFICIAL_DONATION_URL &&
-		PUB_STRIPE_KEY === OFFICIAL_STRIPE_KEY;
-
-	// import { PUB_STRIPE_KEY, PUB_DONATION_API } from "$env/static/public";
 	import { fade } from "$lib/util/animation";
 	import FancyInput from "$lib/components/functional/FancyInput.svelte";
 	import Panel from "$lib/components/visual/Panel.svelte";
-	import { effects, link, sanitize } from "$lib/store/index.svelte";
+	import { effects } from "$lib/store/index.svelte";
 	import { loadStripe } from "@stripe/stripe-js/pure";
 	import { type Stripe, type StripeElements } from "@stripe/stripe-js";
 	import clsx from "clsx";
@@ -37,7 +27,6 @@
 	import { quintOut } from "svelte/easing";
 	import { m } from "$lib/paraglide/messages";
 	import { ToastManager } from "$lib/util/toast.svelte";
-	import { log } from "$lib/util/logger";
 
 	let amount = $state(1);
 	let customAmount = $state("");
@@ -111,20 +100,6 @@
 
 	const payDuration = 400;
 	const transition = "cubic-bezier(0.23, 1, 0.320, 1)";
-
-	onMount(async () => {
-		if (!isOfficial) {
-			log(
-				["about", "donate"],
-				"donations are being sent to an unofficial VERT instance - PUB_DONATION_URL and/or PUB_STRIPE_KEY have been changed.",
-			);
-		} else {
-			log(
-				["about", "donate"],
-				"donations are being sent to the official VERT instance.",
-			);
-		}
-	});
 
 	const donate = async () => {
 		if (!stripe || !clientSecret || !elements) return;
@@ -206,10 +181,8 @@
 <Panel class="flex flex-col gap-8 p-6">
 	<div class="flex flex-col gap-3">
 		<h2 class="text-2xl font-bold flex items-center">
-			<div
-				class="rounded-full bg-accent-red p-2 inline-block mr-3 w-10 h-10"
-			>
-				<HeartIcon color="black" />
+			<div class="rounded-full bg-accent p-2 inline-block mr-3 w-10 h-10">
+				<HeartIcon class="text-on-accent" />
 			</div>
 			{m["about.donate.title"]()}
 		</h2>
@@ -236,7 +209,7 @@
 					"btn flex-1 p-4 rounded-lg flex items-center justify-center",
 					{
 						"!scale-100": !$effects,
-						"bg-accent-red text-black": type === "one-time",
+						"bg-accent text-on-accent": type === "one-time",
 					},
 				)}
 			>
@@ -251,7 +224,7 @@
 					"btn flex-1 p-4 rounded-lg flex items-center justify-center",
 					{
 						"!scale-100": !$effects,
-						"bg-accent-red text-black": type === "monthly",
+						"bg-accent text-on-accent": type === "monthly",
 					},
 				)}
 			>
@@ -267,7 +240,7 @@
 						"btn p-4 rounded-lg flex items-center justify-center",
 						{
 							"!scale-100": !$effects,
-							"bg-accent-red text-black": amount === preset,
+							"bg-accent text-on-accent": amount === preset,
 						},
 					)}
 					style={i === 2 ? "grid-column: 3;" : ""}
@@ -298,7 +271,7 @@
 			}}
 			onclick={paymentClick}
 			class={clsx(
-				"btn flex-1 p-3 relative rounded-3xl bg-accent-red border-2 border-accent-red h-14 text-black",
+				"btn flex-1 p-3 relative rounded-3xl bg-accent border-2 border-accent h-14 text-on-accent",
 				{
 					"h-[450px] rounded-2xl bg-transparent cursor-auto !scale-100 -mt-10 -mb-2":
 						paymentState !== "prepay",
@@ -346,7 +319,7 @@
 								disabled={!stripe ||
 									!clientSecret ||
 									!enablePay}
-								class="btn w-full h-12 bg-accent-red text-black rounded-full mt-4"
+								class="btn w-full h-12 bg-accent text-on-accent rounded-full mt-4"
 								onclick={donate}
 							>
 								{m["about.donate.donate_amount"]({
@@ -375,38 +348,8 @@
 	</div>
 
 	<p class="text-sm font-normal text-muted">
-		{#if isOfficial}
-			{m["about.donate.donation_notice_official"]()}
-		{:else}
-			{@html sanitize(
-				link(
-					"official_link",
-					m["about.donate.donation_notice_unofficial"](),
-					"https://vert.sh",
-					true,
-					"",
-				),
-			)}
-		{/if}
+		{m["about.donate.donation_notice"]()}
 	</p>
-
-	<!-- D8: support upstream VERT alongside Convertra -->
-	<div class="flex flex-col gap-2 pt-2 border-t border-separator">
-		<h3 class="text-lg font-bold">
-			{m["about.donate.upstream_title"]()}
-		</h3>
-		<p class="text-sm font-normal text-muted">
-			{@html sanitize(
-				link(
-					"vert_link",
-					m["about.donate.upstream_body"](),
-					"https://github.com/VERT-sh/VERT",
-					true,
-					"",
-				),
-			)}
-		</p>
-	</div>
 
 	<!-- D8a: Vietnamese payment methods -->
 	<div class="flex flex-col gap-3">

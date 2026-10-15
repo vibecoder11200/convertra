@@ -3,7 +3,7 @@
 	import { HeartHandshakeIcon } from "lucide-svelte";
 	import {
 		DISABLE_ALL_EXTERNAL_REQUESTS,
-		GITHUB_URL_VERT,
+		GITHUB_URL_CONVERTRA,
 	} from "$lib/util/consts";
 	import { m } from "$lib/paraglide/messages";
 	import { link, sanitize } from "$lib/store/index.svelte";
@@ -53,8 +53,8 @@
 
 <Panel class="flex flex-col gap-8 p-6">
 	<h2 class="text-2xl font-bold flex items-center">
-		<div class="rounded-full bg-blue-300 p-2 inline-block mr-3 w-10 h-10">
-			<HeartHandshakeIcon color="black" />
+		<div class="rounded-full bg-accent p-2 inline-block mr-3 w-10 h-10">
+			<HeartHandshakeIcon class="text-on-accent" />
 		</div>
 		{m["about.credits.title"]()}
 	</h2>
@@ -105,7 +105,7 @@
 								link(
 									"github_link",
 									m["about.credits.github_description"](),
-									GITHUB_URL_VERT,
+									GITHUB_URL_CONVERTRA,
 									true,
 								),
 							)}
@@ -116,7 +116,7 @@
 								link(
 									"contribute_link",
 									m["about.credits.no_contributors"](),
-									GITHUB_URL_VERT,
+									GITHUB_URL_CONVERTRA,
 									true,
 								),
 							)}

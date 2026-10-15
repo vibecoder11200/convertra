@@ -7,7 +7,11 @@ import { MagickConverter } from "./magick.svelte";
 import { MuPDFConverter } from "./mupdf.svelte";
 import { PdfLibConverter } from "./pdf-lib.svelte";
 import { PdfRenderConverter } from "./pdf-render.svelte";
+import { SheetjsConverter } from "./sheetjs.svelte";
 import { WebCodecsConverter } from "./video.svelte";
+import { HeicConverter } from "./heic.svelte";
+import { OcrConverter } from "./ocr.svelte";
+import { ThreeConverter } from "./three.svelte";
 import { DISABLE_ALL_EXTERNAL_REQUESTS } from "$lib/util/consts";
 
 const getConverters = (): Converter[] => {
@@ -21,12 +25,26 @@ const getConverters = (): Converter[] => {
 	}
 
 	converters.push(new PandocConverter());
+	// after magick, before sheetjs: heic/heif decode via libheif-wasm and
+	// hand png/pdf to the next step (magick claims the image targets). The
+	// runtime auto-chain resolves heic -> png -> <image target>; .pdf is a
+	// direct HeicConverter output (all frames become pages)
+	converters.push(new HeicConverter());
 	converters.push(new MuPDFConverter());
+	// after mupdf: digital PDFs keep mupdf's fast native-text path for
+	// txt/md; the per-file "Scanned document" flag forces tesseract instead
+	converters.push(new OcrConverter());
 	converters.push(new PdfLibConverter());
 	converters.push(new PdfRenderConverter());
 	// Client-side video->GIF/WebM for short clips (D7/D13). vertd stays the
 	// full video path.
 	converters.push(new WebCodecsConverter());
+	// GLB/glTF -> STL/OBJ via three.js (lazy worker import). Claims only 3d
+	// extensions — no shadowing.
+	converters.push(new ThreeConverter());
+	// last: it claims common text formats (csv/tsv/html/json) as inputs and
+	// must never shadow pandoc, which precedes it in this array
+	converters.push(new SheetjsConverter());
 	return converters;
 };
 
@@ -42,10 +60,13 @@ export function getConverterByFormat(format: string) {
 }
 
 export const categories: Categories = {
-	image: { formats: [""], canConvertTo: [] },
+	// image -> doc: OCR (tesseract) makes raster inputs first-class text
+	// sources (txt/md targets)
+	image: { formats: [""], canConvertTo: ["doc"] },
 	video: { formats: [""], canConvertTo: ["audio"] },
 	audio: { formats: [""], canConvertTo: ["video"] },
 	doc: { formats: [""], canConvertTo: [] },
+	"3d": { formats: [""], canConvertTo: [] },
 };
 
 categories.audio.formats =
@@ -92,8 +113,27 @@ categories.doc.formats =
 				.find((c) => c.name === "pdf-lib")
 				?.supportedFormats.filter((f) => f.toSupported)
 				.map((f) => f.name) || []),
+			// pdf -> cbz lives in the documents category next to pdf
+			...(converters
+				.find((c) => c.name === "pdf-render")
+				?.supportedFormats.filter(
+					(f) => f.toSupported && f.name === ".cbz",
+				)
+				.map((f) => f.name) || []),
+			// spreadsheets (xlsx/ods are new names; csv/tsv/html/md already
+			// exist and dedupe in this Set)
+			...(converters
+				.find((c) => c.name === "sheetjs")
+				?.supportedFormats.filter((f) => f.toSupported)
+				.map((f) => f.name) || []),
 		]),
 	) || [];
+
+categories["3d"].formats =
+	converters
+		.find((c) => c.name === "three")
+		?.supportedFormats.filter((f) => f.toSupported)
+		.map((f) => f.name) || [];
 
 export const byNative = (format: string) => {
 	return (a: Converter, b: Converter) => {
@@ -101,6 +141,9 @@ export const byNative = (format: string) => {
 		const bFormat = b.supportedFormats.find((f) => f.name === format);
 
 		if (aFormat && bFormat) {
+			// must return 0 on ties: an inconsistent comparator makes the
+			// result order engine-dependent (and .sort mutates in place)
+			if (aFormat.isNative === bFormat.isNative) return 0;
 			return aFormat.isNative ? -1 : 1;
 		}
 		return 0;

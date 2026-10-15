@@ -11,14 +11,13 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v7
+              uses: actions/checkout@v5
 
             - name: Install Bun
               uses: oven-sh/setup-bun@v2
 
-            - name: Audit npm deps (OSV)
-              uses: socketdev/github-action@v1
-              with:
-                  command: npm audit
+            - name: Audit npm deps
+              run: bun audit
               continue-on-error: true
 
     container-scan:
@@ -29,6 +28,7 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v7
+              uses: actions/checkout@v5
 
             - name: Build image
               run: docker build -t convertra:scan . --build-arg PUB_ENV=production
@@ -42,6 +42,6 @@ jobs:
                   severity: HIGH,CRITICAL
 
             - name: Upload Trivy scan results to GitHub Security tab
-              uses: github/codeql-action/upload-sarif@v3
+              uses: github/codeql-action/upload-sarif@v4
               with:
                   sarif_file: trivy-results.sarif

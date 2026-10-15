@@ -59,6 +59,26 @@ export default defineConfig(({ command }) => {
 				"@ffmpeg/util",
 				"mupdf",
 			],
+			// pre-bundle deps that are first imported at convert time (workers,
+			// zip utils) so their discovery doesn't trigger a dev-server
+			// re-optimization full reload that would drop the uploaded files
+			include: [
+				"fflate",
+				"client-zip",
+				"@imagemagick/magick-wasm",
+				"vert-wasm",
+				"riff-file",
+				"byte-data",
+				"@cantoo/pdf-lib",
+				"@bjorn3/browser_wasi_shim",
+				"libheif-js/libheif-wasm/libheif.js",
+				"tesseract.js",
+				"three",
+				"three/examples/jsm/loaders/GLTFLoader.js",
+				"three/examples/jsm/loaders/DRACOLoader.js",
+				"three/examples/jsm/exporters/STLExporter.js",
+				"three/examples/jsm/exporters/OBJExporter.js",
+			],
 		},
 		css: {
 			preprocessorOptions: {

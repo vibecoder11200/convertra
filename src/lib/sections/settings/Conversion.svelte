@@ -21,9 +21,18 @@
 	import FormatDropdown from "$lib/components/functional/FormatDropdown.svelte";
 	import { categories } from "$lib/converters";
 	import clsx from "clsx";
+	import { trackEvent } from "$lib/analytics/index";
 
 	const { settings = $bindable() }: { settings: ISettings } = $props();
 	let showAdvanced = $state(false);
+
+	const setSetting = (
+		key: "useDefaultFormat" | "metadata",
+		value: boolean,
+	) => {
+		settings[key] = value;
+		trackEvent("settings_change", { key, value });
+	};
 </script>
 
 <Panel class="flex flex-col gap-8 p-6">
@@ -31,8 +40,7 @@
 		<h2 class="text-2xl font-bold">
 			<RefreshCwIcon
 				size="40"
-				class="inline-block -mt-1 mr-2 bg-accent p-2 rounded-full"
-				color="black"
+				class="inline-block -mt-1 mr-2 bg-accent p-2 rounded-full text-on-accent"
 			/>
 			{m["settings.conversion.title"]()}
 		</h2>
@@ -49,7 +57,7 @@
 					</p>
 				</div>
 				<FancyTextInput
-					placeholder="VERT_%name%"
+					placeholder="Convertra_%name%"
 					bind:value={settings.filenameFormat}
 					extension={".ext"}
 					type="text"
@@ -99,7 +107,10 @@
 								<div class="flex gap-3 w-full">
 									<button
 										onclick={() =>
-											(settings.useDefaultFormat = true)}
+											setSetting(
+												"useDefaultFormat",
+												true,
+											)}
 										class="btn {$effects
 											? ''
 											: '!scale-100'} {settings.useDefaultFormat
@@ -117,7 +128,10 @@
 
 									<button
 										onclick={() =>
-											(settings.useDefaultFormat = false)}
+											setSetting(
+												"useDefaultFormat",
+												false,
+											)}
 										class="btn {$effects
 											? ''
 											: '!scale-100'} {settings.useDefaultFormat
@@ -198,6 +212,21 @@
 										disabled={!settings.useDefaultFormat}
 									/>
 								</div>
+								<div class="flex flex-col gap-2">
+									<p class="text-sm font-bold">
+										{m[
+											"settings.conversion.default_format_3d"
+										]()}
+									</p>
+									<FormatDropdown
+										categories={{ "3d": categories["3d"] }}
+										from={".glb"}
+										bind:selected={
+											settings.defaultFormat.threeD
+										}
+										disabled={!settings.useDefaultFormat}
+									/>
+								</div>
 							</div>
 						</div>
 						<div class="flex flex-col gap-4">
@@ -215,7 +244,7 @@
 								<div class="flex gap-3 w-full">
 									<button
 										onclick={() =>
-											(settings.metadata = true)}
+											setSetting("metadata", true)}
 										class="btn {$effects
 											? ''
 											: '!scale-100'} {settings.metadata
@@ -231,7 +260,7 @@
 
 									<button
 										onclick={() =>
-											(settings.metadata = false)}
+											setSetting("metadata", false)}
 										class="btn {$effects
 											? ''
 											: '!scale-100'} {settings.metadata
@@ -290,6 +319,48 @@
 										onselect={(option: string) =>
 											(settings.ffmpegQuality =
 												option as ConversionBitrate)}
+										settingsStyle
+									/>
+								</div>
+							</div>
+							<div class="flex flex-col gap-2">
+								<p class="text-base font-bold">
+									{m["settings.conversion.ocr_language"]()}
+								</p>
+								<p class="text-sm text-muted font-normal">
+									{m[
+										"settings.conversion.ocr_language_description"
+									]()}
+								</p>
+								<div class="max-w-xs">
+									<Dropdown
+										options={["eng", "vie", "eng+vie"]}
+										selected={settings.ocrLang}
+										onselect={(option: string) =>
+											(settings.ocrLang = option)}
+										settingsStyle
+									/>
+								</div>
+							</div>
+							<div class="flex flex-col gap-2">
+								<p class="text-base font-bold">
+									{m["settings.conversion.three_units"]()}
+								</p>
+								<p class="text-sm text-muted font-normal">
+									{m[
+										"settings.conversion.three_units_description"
+									]()}
+								</p>
+								<div class="max-w-xs">
+									<Dropdown
+										options={["mm", "cm", "m", "in"]}
+										selected={settings.threeUnits}
+										onselect={(option: string) =>
+											(settings.threeUnits = option as
+												| "mm"
+												| "cm"
+												| "m"
+												| "in")}
 										settingsStyle
 									/>
 								</div>
