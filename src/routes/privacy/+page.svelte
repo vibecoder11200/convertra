@@ -16,14 +16,7 @@
 		<div class="bg-panel rounded-2xl p-6 shadow-panel text-lg font-normal">
 			<h2 class="text-2xl mb-3">{m["privacy.summary.title"]()}</h2>
 			<p class="mb-4">
-				{@html sanitize(
-					link(
-						["vert_link"],
-						m["privacy.summary.description"](),
-						["https://vert.sh"],
-						[true],
-					),
-				)}
+				{@html sanitize(m["privacy.summary.description"]())}
 			</p>
 
 			<h2 class="text-2xl mb-3">{m["privacy.conversions.title"]()}</h2>
@@ -65,13 +58,14 @@
 			<p class="mb-4">
 				{@html sanitize(
 					link(
-						["settings_link", "plausible_link"],
+						["settings_link", "plausible_link", "umami_link"],
 						m["privacy.analytics.description"](),
 						[
 							"/settings",
 							"https://plausible.io/privacy-focused-web-analytics",
+							"https://umami.is/docs",
 						],
-						[false, true],
+						[false, true, true],
 					),
 				)}
 			</p>
@@ -91,16 +85,7 @@
 			</p>
 
 			<h3 class="text-xl mt-4 mb-2">{m["privacy.contact.title"]()}</h3>
-			<p class="mb-0">
-				{@html sanitize(
-					link(
-						["email_link"],
-						m["privacy.contact.description"](),
-						["mailto:hello@vert.sh"],
-						[false],
-					),
-				)}
-			</p>
+			<p class="mb-0">{m["privacy.contact.description"]()}</p>
 
 			<p class="text-sm text-muted mt-6">{m["privacy.last_updated"]()}</p>
 		</div>

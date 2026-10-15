@@ -3,6 +3,7 @@ import { Converter, FormatInfo } from "./converter.svelte";
 import { browser } from "$app/environment";
 import PdfLibWorker from "$lib/workers/pdf-lib?worker&url";
 import { baseName } from "$lib/util/pdf";
+import { MERGEABLE_IMAGE_EXTS } from "$lib/util/consts";
 
 export class PdfLibConverter extends Converter {
 	public name = "pdf-lib";
@@ -22,36 +23,71 @@ export class PdfLibConverter extends Converter {
 		to: string,
 		...args: unknown[]
 	): Promise<VertFile> {
+		// read the buffer before spawning the worker so a read failure
+		// can't leak the worker
+		const data = new Uint8Array(await input.file.arrayBuffer());
+
 		const worker = new Worker(PdfLibWorker, { type: "module" });
 		this.activeConversions.set(input.id, worker);
 
-		const data = new Uint8Array(await input.file.arrayBuffer());
-
-		// to === ".zip" means split-all; ".pdf" with pageRange arg means
-		// split-range or compress. Converters are single-input, so operations
-		// are encoded via the target format + args:
-		//   .pdf + { op: "compress", quality } -> compress
-		//   .pdf + { op: "split", range }     -> split range -> pdf
-		//   .zip                              -> split all -> zip
-		const op =
-			(args.at(0) as { op?: string; quality?: number; range?: string }) ??
-			{};
-		const msg =
-			to === ".zip"
-				? { type: "split", id: input.id, data, mode: "all" }
-				: op.op === "compress"
-					? {
-							type: "compress",
-							id: input.id,
-							data,
-							quality: op.quality ?? 75,
-						}
-					: {
-							type: "split",
-							id: input.id,
-							data,
-							mode: op.range ? parseRangeToMode(op.range) : "all",
-						};
+		// image -> pdf: the input is an image, not a pdf document
+		let msg: Record<string, unknown>;
+		if (MERGEABLE_IMAGE_EXTS.includes(input.from)) {
+			msg = {
+				type: "img2pdf",
+				id: input.id,
+				files: [{ name: input.name, data }],
+			};
+		} else {
+			// to === ".zip" means split-all; ".pdf" with pageRange arg means
+			// split-range or compress. Converters are single-input, so operations
+			// are encoded via the target format + args:
+			//   .pdf + { op: "compress", quality }          -> compress
+			//   .pdf + { op: "split", range }               -> split range -> pdf
+			//   .pdf + { op: "organize", plan }             -> reorder/rotate -> pdf
+			//   .pdf + { op: "encrypt", password }          -> set password -> pdf
+			//   .zip                                        -> split all -> zip
+			const op =
+				(args.at(0) as {
+					op?: string;
+					quality?: number;
+					range?: string;
+					plan?: { index: number; rotation: number }[];
+					password?: string;
+				}) ?? {};
+			msg =
+				to === ".zip"
+					? { type: "split", id: input.id, data, mode: "all" }
+					: op.op === "compress"
+						? {
+								type: "compress",
+								id: input.id,
+								data,
+								quality: op.quality ?? 75,
+							}
+						: op.op === "organize"
+							? {
+									type: "organize",
+									id: input.id,
+									data,
+									plan: op.plan ?? [],
+								}
+							: op.op === "encrypt"
+								? {
+										type: "encrypt",
+										id: input.id,
+										data,
+										userPassword: op.password ?? "",
+									}
+								: {
+										type: "split",
+										id: input.id,
+										data,
+										mode: op.range
+											? parseRangeToMode(op.range)
+											: "all",
+									};
+		}
 
 		worker.postMessage(msg);
 
@@ -111,9 +147,80 @@ export class PdfLibConverter extends Converter {
 		}
 	}
 
+	/**
+	 * Assemble an ordered image list into ONE multi-page pdf (the
+	 * multi-image merge flow). Pre-decoded entries (e.g. heic frames turned
+	 * into png bytes on the main side) arrive as `{name, data}`; progress is
+	 * reported per image. Cancellation terminates the worker via
+	 * `cancelMerge` and settles the returned promise with a rejection.
+	 */
+	public mergeImages(
+		images: { name: string; data: Uint8Array }[],
+		onProgress?: (index: number, total: number) => void,
+	): { promise: Promise<Uint8Array>; cancelMerge: () => void } {
+		const mergeId = `merge-${Math.random().toString(36).slice(2, 8)}`;
+		const worker = new Worker(PdfLibWorker, { type: "module" });
+		this.activeConversions.set(mergeId, worker);
+
+		let rejectOuter: (reason: Error) => void;
+		const promise = new Promise<Uint8Array>((resolve, reject) => {
+			rejectOuter = reject;
+			worker.onmessage = (e: MessageEvent) => {
+				const msg = e.data;
+				if (msg.type === "img-progress") {
+					onProgress?.(msg.index, msg.total);
+					return;
+				}
+				if (msg.type === "finished") resolve(msg.output as Uint8Array);
+				else if (msg.type === "error") reject(new Error(msg.error));
+			};
+			worker.onerror = (e: ErrorEvent) =>
+				reject(new Error(`Worker error: ${e.message}`));
+		});
+
+		const cancelMerge = () => {
+			this.cancelMerge(mergeId);
+			rejectOuter!(new Error("Conversion cancelled"));
+		};
+
+		worker.postMessage({
+			type: "img2pdf",
+			id: mergeId,
+			files: images,
+			reportProgress: true,
+		});
+
+		return {
+			promise: promise.finally(() => {
+				worker.terminate();
+				this.activeConversions.delete(mergeId);
+			}),
+			cancelMerge,
+		};
+	}
+
+	private cancelMerge(mergeId: string): void {
+		const worker = this.activeConversions.get(mergeId);
+		if (worker) {
+			worker.terminate();
+			this.activeConversions.delete(mergeId);
+		}
+	}
+
 	public supportedFormats = [
 		new FormatInfo("pdf", true, true),
 		new FormatInfo("zip", false, true),
+		// image -> pdf inputs (jpg/png embed losslessly; the rest are
+		// canvas-decoded to png inside the worker)
+		new FormatInfo("jpg", true, false),
+		new FormatInfo("jpeg", true, false),
+		new FormatInfo("jpe", true, false),
+		new FormatInfo("jfif", true, false),
+		new FormatInfo("png", true, false),
+		new FormatInfo("webp", true, false),
+		new FormatInfo("gif", true, false),
+		new FormatInfo("avif", true, false),
+		new FormatInfo("bmp", true, false),
 	];
 }
 

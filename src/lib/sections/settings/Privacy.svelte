@@ -128,8 +128,7 @@
 		<h2 class="text-2xl font-bold">
 			<ChartColumnIcon
 				size="40"
-				class="inline-block -mt-1 mr-2 bg-accent-blue p-2 rounded-full"
-				color="black"
+				class="inline-block -mt-1 mr-2 bg-accent p-2 rounded-full text-on-accent"
 			/>
 			{m["settings.privacy.title"]()}
 		</h2>
@@ -138,26 +137,27 @@
 				<div class="flex flex-col gap-4">
 					<div class="flex flex-col gap-2">
 						<p class="text-base font-bold">
-							{m["settings.privacy.plausible_title"]()}
+							{m["settings.privacy.analytics_title"]()}
 						</p>
 						<p class="text-sm text-muted font-normal">
 							{@html link(
-								["plausible_link", "analytics_link"],
-								m["settings.privacy.plausible_description"](),
+								["plausible_link", "umami_link"],
+								m["settings.privacy.analytics_description"](),
 								[
 									"https://plausible.io/privacy-focused-web-analytics",
-									"https://ats.vert.sh/vert.sh",
+									"https://umami.is/docs",
 								],
+								[true, true],
 							)}
 						</p>
 					</div>
 					<div class="flex flex-col gap-3 w-full">
 						<div class="flex gap-3 w-full">
 							<button
-								onclick={() => (settings.plausible = true)}
+								onclick={() => (settings.analytics = true)}
 								class="btn {$effects
 									? ''
-									: '!scale-100'} {settings.plausible
+									: '!scale-100'} {settings.analytics
 									? 'selected'
 									: ''} flex-1 p-4 rounded-lg text-black dynadark:text-white flex items-center justify-center"
 							>
@@ -166,10 +166,10 @@
 							</button>
 
 							<button
-								onclick={() => (settings.plausible = false)}
+								onclick={() => (settings.analytics = false)}
 								class="btn {$effects
 									? ''
-									: '!scale-100'} {settings.plausible
+									: '!scale-100'} {settings.analytics
 									? ''
 									: 'selected'} flex-1 p-4 rounded-lg text-black dynadark:text-white flex items-center justify-center"
 							>

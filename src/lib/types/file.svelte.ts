@@ -4,7 +4,8 @@ import { ChainedConverter } from "$lib/converters/converter.svelte";
 import { m } from "$lib/paraglide/messages";
 import { ToastManager } from "$lib/util/toast.svelte";
 import type { Component } from "svelte";
-import { MAX_ARRAY_BUFFER_SIZE } from "$lib/store/index.svelte";
+import { MAX_ARRAY_BUFFER_SIZE, files } from "$lib/store/index.svelte";
+import { trackEvent } from "$lib/analytics/index";
 
 export class VertFile {
 	public id: string = Math.random().toString(36).slice(2, 8);
@@ -29,9 +30,18 @@ export class VertFile {
 
 	public cancelled = $state(false);
 
+	// worker-based converters terminate the worker on cancel, but the
+	// message-promise their convert() awaits never settles after that —
+	// this rejector is the single guarantee that convert() always returns
+	private cancelRejecter: ((reason: Error) => void) | undefined;
+
 	public converters: Converter[] = [];
 
 	public isZip = $state(() => this.from === ".zip");
+
+	// per-file "Scanned document" flag: forces OCR resolution for pdf
+	// inputs instead of mupdf's native-text path (set from the convert page)
+	public forceOcr = $state(false);
 
 	public findConverters(supportedFormats: string[] = [this.from]) {
 		const converter = this.converters
@@ -48,7 +58,17 @@ export class VertFile {
 		// zip will always only be added if there's one converter that supports all files - handled in store's _handleZipFile()
 		if (this.isZip()) return this.converters[0];
 
-		const converter = this.converters.find((converter) => {
+		// scanned documents: try the OCR converter first (direct, then as a
+		// chain source) so pdf -> txt/md/docx goes through tesseract instead
+		// of mupdf's native-text extraction
+		const ordered = this.forceOcr
+			? [
+					...this.converters.filter((c) => c.name === "tesseract"),
+					...this.converters.filter((c) => c.name !== "tesseract"),
+				]
+			: this.converters;
+
+		const converter = ordered.find((converter) => {
 			if (
 				!converter.formatStrings().includes(this.from) ||
 				!converter.formatStrings().includes(this.to)
@@ -56,11 +76,15 @@ export class VertFile {
 				return false;
 			}
 
+			// name presence is not enough — a converter may list a format as
+			// input-only or output-only (e.g. pdf-lib lists .png as an input
+			// for image->pdf, pdf-render as an output). Match each side
+			// against an entry that actually supports that direction.
 			const theirFrom = converter.supportedFormats.find(
-				(f) => f.name === this.from,
+				(f) => f.name === this.from && f.fromSupported,
 			);
 			const theirTo = converter.supportedFormats.find(
-				(f) => f.name === this.to,
+				(f) => f.name === this.to && f.toSupported,
 			);
 			if (!theirFrom || !theirTo) return false;
 			if (!theirFrom.isNative && !theirTo.isNative) return false;
@@ -68,7 +92,7 @@ export class VertFile {
 		});
 		if (converter) return converter;
 
-		for (const a of this.converters) {
+		for (const a of ordered) {
 			for (const fmt of a.supportedFormats) {
 				if (!fmt.toSupported) continue;
 				const b = converters.find((c) => {
@@ -110,8 +134,13 @@ export class VertFile {
 		);
 		this.file = newFile;
 		this.to = to.startsWith(".") ? to : `.${to}`;
+		// direction-aware claim: only converters that can actually READ this
+		// format (some list an extension as output-only, e.g. heic lists .png
+		// as its chain intermediate — that entry must not claim png inputs)
 		this.converters = converters.filter((c) =>
-			c.formatStrings().includes(this.from),
+			c.supportedFormats.find(
+				(f) => f.name === this.from && f.fromSupported,
+			),
 		);
 		this.convert = this.convert.bind(this);
 		this.download = this.download.bind(this);
@@ -120,25 +149,82 @@ export class VertFile {
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	public async convert(...args: any[]) {
-		if (!this.converters.length) throw new Error("No converters found");
-		const converter = this.findConverter();
-		if (!converter) throw new Error("No converter found");
-		this.result = null;
-		this.progress = 0;
-		this.processing = true;
+		// reset a stale cancel from a previous attempt first, so a resolution
+		// failure below is never mislabeled reason:"cancelled"
 		this.cancelled = false;
+		// converter resolution lives inside the try so the most common failure
+		// class (no/unsupported converter) still emits convert_fail
+		let converter: Converter | undefined;
 		let res;
 		try {
+			if (!this.converters.length) throw new Error("No converters found");
+			converter = this.findConverter();
+			if (!converter) throw new Error("No converter found");
+			const props = {
+				from_format: this.from,
+				to_format: this.to,
+				converter: converter.name,
+				size_bytes: this.file.size,
+				pair: `${this.from.replace(/^\./, "")}-${this.to.replace(/^\./, "")}`,
+			};
+			trackEvent("convert_start", props);
+			this.result = null;
+			this.progress = 0;
+			this.processing = true;
+			// race the conversion against a cancellation rejection: a
+			// terminated worker's dead promise must not keep callers (and
+			// convertAll's shared queue) waiting forever
+			const cancellation = new Promise<never>((_, reject) => {
+				this.cancelRejecter = reject;
+			});
 			// for zips: extract > convert each > re-zip
 			// else convert normally
+			// substitute decrypted bytes for unlocked PDFs (session cache fed
+			// by the password modal) so every consumer — pdf-lib ops, mupdf,
+			// pdf-render, chains — sees plain bytes. The substitute keeps
+			// this file's converter list; chain intermediates inherit the
+			// decrypted source naturally.
+			const cached =
+				this.from === ".pdf"
+					? files.getDecryptedBytes(this.id)
+					: undefined;
+			const effective = cached
+				? new VertFile(new File([cached], this.file.name), this.to)
+				: this;
+			if (cached) {
+				effective.converters = this.converters;
+				// converters report progress on the input they received —
+				// forward it so the ORIGINAL file's bar moves (the substitute
+				// is invisible to the UI)
+				Object.defineProperty(effective, "progress", {
+					get: () => this.progress,
+					set: (v: number) => {
+						this.progress = v;
+					},
+					configurable: true,
+				});
+			}
+
 			res = this.isZip()
-				? await this.convertZip(converter)
-				: await converter.convert(this, this.to, ...args);
+				? await Promise.race([this.convertZip(converter), cancellation])
+				: await Promise.race([
+						converter.convert(effective, this.to, ...args),
+						cancellation,
+					]);
 			this.result = res;
+			trackEvent("convert_complete", props);
 		} catch (err) {
+			trackEvent("convert_fail", {
+				from_format: this.from,
+				to_format: this.to,
+				converter: converter?.name ?? "none",
+				pair: `${this.from.replace(/^\./, "")}-${this.to.replace(/^\./, "")}`,
+				reason: this.cancelled ? "cancelled" : "error",
+			});
 			if (!this.cancelled) this.toastErr(err);
 			this.result = null;
 		}
+		this.cancelRejecter = undefined;
 		this.processing = false;
 		return res;
 	}
@@ -239,10 +325,17 @@ export class VertFile {
 		this.cancelled = true;
 		try {
 			await converter.cancel(this);
-			this.processing = false;
-			this.result = null;
 		} catch (err) {
 			this.toastErr(err);
+		} finally {
+			// settle the raced convert() promise (see cancelRejecter) and
+			// detach this attempt's rejecter so a late cancel can never
+			// reject a subsequent conversion
+			const reject = this.cancelRejecter;
+			this.cancelRejecter = undefined;
+			reject?.(new Error("Conversion cancelled"));
+			this.processing = false;
+			this.result = null;
 		}
 	}
 
@@ -298,7 +391,7 @@ export class VertFile {
 		if (!to.startsWith(".")) to = `.${to}`;
 
 		const settings = JSON.parse(localStorage.getItem("settings") ?? "{}");
-		const filenameFormat = settings.filenameFormat || "VERT_%name%";
+		const filenameFormat = settings.filenameFormat || "Convertra_%name%";
 
 		const format = (name: string) => {
 			const date = new Date().toISOString();
@@ -325,6 +418,12 @@ export class VertFile {
 		a.click();
 		URL.revokeObjectURL(blob);
 		a.remove();
+		// a.click() has no success callback, so the event honestly reports a
+		// click, not a result; the !this.result early-throw emits nothing
+		trackEvent("download_click", {
+			from_format: this.from,
+			to_format: to,
+		});
 	}
 
 	public hash(): Promise<string> {

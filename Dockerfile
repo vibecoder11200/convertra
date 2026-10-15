@@ -5,6 +5,8 @@ WORKDIR /app
 ARG PUB_ENV
 ARG PUB_HOSTNAME
 ARG PUB_PLAUSIBLE_URL
+ARG PUB_UMAMI_URL
+ARG PUB_UMAMI_WEBSITE_ID
 ARG PUB_VERTD_URL
 ARG PUB_DISABLE_ALL_EXTERNAL_REQUESTS
 ARG PUB_DONATION_URL
@@ -14,19 +16,29 @@ ARG PUB_DISABLE_FAILURE_BLOCKS=false
 ENV PUB_ENV=${PUB_ENV}
 ENV PUB_HOSTNAME=${PUB_HOSTNAME}
 ENV PUB_PLAUSIBLE_URL=${PUB_PLAUSIBLE_URL}
+ENV PUB_UMAMI_URL=${PUB_UMAMI_URL}
+ENV PUB_UMAMI_WEBSITE_ID=${PUB_UMAMI_WEBSITE_ID}
 ENV PUB_VERTD_URL=${PUB_VERTD_URL}
 ENV PUB_DISABLE_ALL_EXTERNAL_REQUESTS=${PUB_DISABLE_ALL_EXTERNAL_REQUESTS}
 ENV PUB_DONATION_URL=${PUB_DONATION_URL}
 ENV PUB_STRIPE_KEY=${PUB_STRIPE_KEY}
 ENV PUB_DISABLE_FAILURE_BLOCKS=${PUB_DISABLE_FAILURE_BLOCKS}
 
-COPY package.json ./
+COPY package.json bun.lock ./
+
+# postinstall needs the tessdata setup script and the committed language
+# data (eng/vie traineddata) before it can run
+COPY scripts/ ./scripts/
+COPY static/tessdata/eng.traineddata.gz static/tessdata/vie.traineddata.gz ./static/tessdata/
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends git && \
     rm -rf /var/lib/apt/lists/*
 
-RUN bun install
+# postinstall copies mupdf-wasm.wasm into static/; create it before install.
+RUN mkdir -p static
+
+RUN bun install --frozen-lockfile
 
 COPY . ./
 

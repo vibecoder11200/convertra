@@ -9,3 +9,16 @@ src/lib/paraglide/**
 # Not Prettier-parseable (nginx/Docker/CF headers)
 Dockerfile
 static/_headers
+
+# Static design mockups - heavy inline SVG, reformatting is churn-only
+docs/design/
+
+# Vendored runtime assets (gitignored, machine-generated)
+static/tessdata/
+static/draco/
+
+# Local e2e test fixtures
+.testfiles/
+
+# Tool worktree (nested repo copy)
+.kilo/

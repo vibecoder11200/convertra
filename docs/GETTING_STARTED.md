@@ -1,6 +1,6 @@
 ## Getting Started
 
-This file covers how to get started with VERT.
+This file covers how to get started with Convertra.
 
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
@@ -19,8 +19,8 @@ Make sure you have the following installed:
 First, clone the repository:
 
 ```sh
-git clone https://github.com/VERT-sh/VERT
-cd VERT/
+git clone https://github.com/vibecoder11200/convertra
+cd convertra/
 ```
 
 Install dependencies:

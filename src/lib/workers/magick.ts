@@ -244,17 +244,33 @@ const handleMessage = async (
 					message.to === ".gif"
 						? MagickFormat.Gif
 						: MagickFormat.WebP;
-				const result = await new Promise<Uint8Array>((resolve) => {
-					collection.write(format, (output) => {
-						resolve(structuredClone(output));
+				try {
+					const result = await new Promise<Uint8Array>((resolve) => {
+						let settled = false;
+						const onDone = (output: Uint8Array) => {
+							settled = true;
+							resolve(structuredClone(output));
+						};
+						collection.write(format, onDone);
+						// If magick-wasm never calls back (e.g. a corrupt
+						// animated frame), time out so the caller doesn't hang
+						// and the collection is still disposed via finally.
+						setTimeout(() => {
+							if (!settled) resolve(new Uint8Array(0));
+						}, 30_000);
 					});
-				});
-				collection.dispose();
-
-				return {
-					type: "finished",
-					output: result,
-				};
+					if ((result as Uint8Array).length === 0) {
+						throw new Error("Failed to convert animated image");
+					}
+					return {
+						type: "finished",
+						output: result,
+					};
+				} finally {
+					// Always release the collection, even on error, so the WASM
+					// image buffers don't leak across conversions.
+					collection.dispose();
+				}
 			}
 
 			const img = MagickImage.create(
@@ -265,6 +281,44 @@ const handleMessage = async (
 			);
 
 			try {
+				// dimension cap: clamp the long edge (aspect preserved, never
+				// upscale) before any encode
+				const maxEdge = message.resize?.maxEdge;
+				if (maxEdge && maxEdge > 0) {
+					const longest = Math.max(img.width, img.height);
+					if (longest > maxEdge) {
+						const scale = maxEdge / longest;
+						img.resize(
+							Math.max(1, Math.round(img.width * scale)),
+							Math.max(1, Math.round(img.height * scale)),
+						);
+					}
+				}
+
+				// target-size: bounded quality search, decode once + re-encode
+				// N times inside this worker (jpg/webp only; other formats
+				// ignore quality and would never converge)
+				const targetBytes = message.targetSize?.bytes;
+				const lossyTarget = [".jpg", ".jpeg", ".webp"].includes(
+					message.to,
+				);
+				if (targetBytes && targetBytes > 0 && lossyTarget) {
+					const { output, achievedBytes, finalQuality } =
+						await encodeToTargetSize(
+							img,
+							message.to,
+							keepMetadata,
+							compression,
+							targetBytes,
+						);
+					return {
+						type: "finished",
+						output,
+						achievedBytes,
+						finalQuality,
+					};
+				}
+
 				const converted = await magickConvert(
 					img,
 					message.to,
@@ -286,6 +340,68 @@ const handleMessage = async (
 				error: `Unknown message type: ${message.type}`,
 			};
 	}
+};
+
+// hard iteration cap: bounded search, never an unbounded loop
+const MAX_TARGET_ITERATIONS = 10;
+
+// encode-to-target-size: binary search for the highest quality whose output
+// fits the target. Returns the best attempt either way — when the target is
+// unreachable even at the floor, the smallest output is returned and the
+// caller reports achieved size honestly.
+const encodeToTargetSize = async (
+	img: IMagickImage,
+	to: string,
+	keepMetadata: boolean,
+	compression: number | undefined,
+	targetBytes: number,
+): Promise<{
+	output: Uint8Array;
+	achievedBytes: number;
+	finalQuality: number;
+}> => {
+	const encode = async (quality: number) =>
+		magickConvert(img, to, keepMetadata, quality);
+
+	// lo: highest quality known to fit; hi: lowest known not to fit
+	let lo = 0;
+	let hi = 96;
+	let bestFit: { bytes: Uint8Array; quality: number } | null = null;
+	let smallest: { bytes: Uint8Array; quality: number } | null = null;
+
+	for (let i = 0; i < MAX_TARGET_ITERATIONS && hi - lo > 3; i++) {
+		const mid = Math.round((lo + hi) / 2);
+		const bytes = await encode(mid);
+		if (!smallest || bytes.length < smallest.bytes.length) {
+			smallest = { bytes, quality: mid };
+		}
+		if (bytes.length <= targetBytes) {
+			lo = mid;
+			// prefer the HIGHEST quality that fits (better image), not the
+			// smallest bytes
+			if (!bestFit || mid > bestFit.quality) {
+				bestFit = { bytes, quality: mid };
+			}
+		} else {
+			hi = mid;
+		}
+	}
+
+	const result = bestFit ?? smallest;
+	if (!result) {
+		const fallbackQuality = compression ?? 75;
+		const bytes = await encode(fallbackQuality);
+		return {
+			output: bytes,
+			achievedBytes: bytes.length,
+			finalQuality: fallbackQuality,
+		};
+	}
+	return {
+		output: result.bytes,
+		achievedBytes: result.bytes.length,
+		finalQuality: result.quality,
+	};
 };
 
 const readToEnd = async (reader: ReadableStreamDefaultReader<Uint8Array>) => {
