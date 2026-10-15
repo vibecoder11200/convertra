@@ -14,14 +14,40 @@
 	import { sanitize } from "$lib/store/index.svelte";
 	import { DISABLE_ALL_EXTERNAL_REQUESTS } from "$lib/util/consts";
 
-	const getSupportedFormats = (name: string) =>
-		converters
-			.find((c) => c.name === name)
-			?.supportedFormats.map(
-				(f) =>
+	const getSupportedFormats = (names: string[]) => {
+		const seen = new Set<string>();
+		const parts: string[] = [];
+		for (const name of names) {
+			const converter = converters.find((c) => c.name === name);
+			for (const f of converter?.supportedFormats ?? []) {
+				if (seen.has(f.name)) continue;
+				seen.add(f.name);
+				parts.push(
 					`${f.name}${f.fromSupported && f.toSupported ? "" : "*"}`,
+				);
+			}
+		}
+		return parts.join(", ") || "none";
+	};
+
+	const documentConverterNames = [
+		"pandoc",
+		"mupdf",
+		"pdf-lib",
+		"pdf-render",
+		"sheetjs",
+	];
+
+	const documentStatus = (): WorkerStatus =>
+		documentConverterNames
+			.map(
+				(name) =>
+					converters.find((c) => c.name === name)?.status ??
+					"not-ready",
 			)
-			.join(", ") || "none";
+			.includes("ready")
+			? "ready"
+			: "not-ready";
 
 	const worker: {
 		[key: string]: {
@@ -40,7 +66,7 @@
 			};
 		} = {
 			Images: {
-				formats: getSupportedFormats("imagemagick"),
+				formats: getSupportedFormats(["imagemagick"]),
 				icon: Image,
 				title: m["upload.cards.images"](),
 				status:
@@ -48,7 +74,7 @@
 					"not-ready",
 			},
 			Audio: {
-				formats: getSupportedFormats("ffmpeg"),
+				formats: getSupportedFormats(["ffmpeg"]),
 				icon: AudioLines,
 				title: m["upload.cards.audio"](),
 				status:
@@ -56,18 +82,16 @@
 					"not-ready",
 			},
 			Documents: {
-				formats: getSupportedFormats("pandoc"),
+				formats: getSupportedFormats(documentConverterNames),
 				icon: BookText,
 				title: m["upload.cards.documents"](),
-				status:
-					converters.find((c) => c.name === "pandoc")?.status ||
-					"not-ready",
+				status: documentStatus(),
 			},
 		};
 
 		if (!DISABLE_ALL_EXTERNAL_REQUESTS) {
 			output.Video = {
-				formats: getSupportedFormats("vertd"),
+				formats: getSupportedFormats(["vertd"]),
 				icon: Film,
 				title: m["upload.cards.video"](),
 				status: $vertdLoaded === true ? "ready" : "not-ready", // not using converter.status for this
@@ -131,25 +155,17 @@
 </script>
 
 <div class="max-w-6xl w-full mx-auto px-6 md:px-8">
-	<div class="flex items-center justify-center pb-10 md:py-16">
-		<div
-			class="flex items-center h-auto gap-12 md:gap-24 md:flex-row flex-col"
+	<div class="flex flex-col items-center text-center gap-5 pb-10 md:py-14">
+		<h1
+			class="text-4xl md:text-6xl tracking-tight leading-tight md:leading-[68px]"
 		>
-			<div class="flex-grow w-full text-center md:text-left">
-				<h1
-					class="text-4xl px-12 md:p-0 md:text-6xl flex-wrap tracking-tight leading-tight md:leading-[72px] mb-4 md:mb-6"
-				>
-					{m["upload.title"]()}
-				</h1>
-				<p
-					class="font-normal px-5 md:p-0 text-lg md:text-xl text-black text-muted dynadark:text-muted"
-				>
-					{m["upload.subtitle"]()}
-				</p>
-			</div>
-			<div class="flex-grow w-full h-72">
-				<Uploader class="w-full h-full" />
-			</div>
+			{m["upload.title"]()}
+		</h1>
+		<p class="font-normal text-lg md:text-xl text-muted max-w-2xl">
+			{m["upload.subtitle"]()}
+		</p>
+		<div class="w-full h-64 md:h-72 mt-2">
+			<Uploader class="w-full h-full" />
 		</div>
 	</div>
 
@@ -168,8 +184,8 @@
 								class={clsx("icon-container", {
 									"bg-accent-blue": key === "Images",
 									"bg-accent-purple": key === "Audio",
-									"bg-accent-green": key === "Documents",
-									"bg-accent-red": key === "Video",
+									"bg-accent-amber": key === "Documents",
+									"bg-accent-coral": key === "Video",
 								})}
 							>
 								<Icon size="20" />
@@ -204,17 +220,11 @@
 												]()}
 											>
 												<span>
-													<a
-														href="https://github.com/VERT-sh/VERT/blob/main/docs/VIDEO_CONVERSION.md"
-														target="_blank"
-														rel="noopener noreferrer"
-													>
-														{m[
-															"upload.cards.video_server_processing"
-														]()}
-													</a>
+													{m[
+														"upload.cards.video_server_processing"
+													]()}
 													<span
-														class="text-red-500 -ml-0.5"
+														class="text-failure -ml-0.5"
 														>*</span
 													>
 												</span>
@@ -264,7 +274,7 @@
 															)}
 														>
 															{formatName}<span
-																class="text-red-500"
+																class="text-failure"
 																>*</span
 															>
 														</Tooltip>

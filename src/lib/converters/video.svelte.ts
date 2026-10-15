@@ -154,9 +154,9 @@ export class WebCodecsConverter extends Converter {
 			let t = start;
 			let frame = 0;
 
-			// gifenc delay is in 10ms units; clamp to >= 50ms so the clip does
-			// not play back faster than the requested fps.
-			const frameDelay = Math.max(5, Math.round(step * 100));
+			// gifenc delay is in 10ms units. round() of 1/fps*100 gives the
+			// closest 10ms step; floor at 1 so 30+fps stays expressible.
+			const frameDelay = Math.max(1, Math.round(step * 100));
 
 			for (
 				frame = 0;
@@ -255,7 +255,13 @@ export class WebCodecsConverter extends Converter {
 					ctx.drawImage(video, 0, 0, width, height);
 					t += step;
 					input.progress = Math.round((frame / totalFrames) * 100);
-					await new Promise((r) => setTimeout(r, 0)); // keep recorder fed
+					// captureStream has no internal clock; the MediaRecorder
+					// stamps frames by real elapsed time, so sleep the real
+					// frame interval to get a WebM whose duration matches the
+					// clip instead of a 1s file containing all frames.
+					await new Promise((r) =>
+						setTimeout(r, Math.max(1, step * 1000)),
+					);
 				}
 			} finally {
 				rec.stop();

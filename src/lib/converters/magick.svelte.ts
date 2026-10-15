@@ -26,8 +26,8 @@ export class MagickConverter extends Converter {
 		new FormatInfo("svg", true, true),
 		new FormatInfo("jxl", true, true),
 		new FormatInfo("avif", true, true),
-		new FormatInfo("heic", true, false), // seems to be unreliable? HEIC/HEIF is very weird if it will actually work
-		new FormatInfo("heif", true, false),
+		// heic/heif moved to HeicConverter (magick-wasm has no libheif
+		// delegate, so this entry could never actually decode them)
 		// TODO: .ico files can encode multiple images at various
 		// sizes, bitdepths, etc. we should support that in future
 		new FormatInfo("ico", true, true),
@@ -133,7 +133,14 @@ export class MagickConverter extends Converter {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		...args: any[]
 	): Promise<VertFile> {
-		let compression: number | undefined = args.at(0);
+		// image-ops options ride the first arg object when present (the page
+		// passes {maxEdge?, targetSizeBytes?}); legacy numeric compression
+		// args still win when provided
+		const numericArg = args.find(
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			(a: any) => typeof a === "number" && a > 0,
+		) as number | undefined;
+		let compression: number | undefined = numericArg;
 		if (!compression) {
 			compression = Settings.instance.settings.magickQuality ?? 100;
 			log(
@@ -141,6 +148,17 @@ export class MagickConverter extends Converter {
 				`using user setting for quality: ${compression}%`,
 			);
 		}
+
+		const imageOps = (args.find(
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			(a: any) =>
+				a &&
+				typeof a === "object" &&
+				("maxEdge" in a || "targetSizeBytes" in a),
+		) ?? {}) as {
+			maxEdge?: number | null;
+			targetSizeBytes?: number | null;
+		};
 		log(["converters", this.name], `converting ${input.name} to ${to}`);
 
 		await this.ensureWasm();
@@ -151,7 +169,7 @@ export class MagickConverter extends Converter {
 		// handle converting from SVG manually because magick-wasm doesn't support it
 		if (input.from === ".svg") {
 			try {
-				const blob = await this.svgToImage(input);
+				const blob = await this.svgToImage(input, imageOps.maxEdge);
 				const pngFile = new VertFile(
 					new File([blob], input.name.replace(/\.svg$/i, ".png")),
 					input.to,
@@ -226,6 +244,14 @@ export class MagickConverter extends Converter {
 				to,
 				compression,
 				keepMetadata,
+				resize:
+					imageOps.maxEdge && imageOps.maxEdge > 0
+						? { maxEdge: imageOps.maxEdge }
+						: undefined,
+				targetSize:
+					imageOps.targetSizeBytes && imageOps.targetSizeBytes > 0
+						? { bytes: imageOps.targetSizeBytes }
+						: undefined,
 			};
 			worker.postMessage(convertMsg);
 
@@ -235,6 +261,19 @@ export class MagickConverter extends Converter {
 					["converters", this.name],
 					`converted ${input.name} to ${to}`,
 				);
+				if (typeof res.achievedBytes === "number") {
+					// bounded search result: never promise the target, report
+					// what was actually reached. Sub-10KB results keep a
+					// decimal so they don't round down to "0 KB"
+					const kb = res.achievedBytes / 1024;
+					ToastManager.add({
+						type: "info",
+						message: m["convert.image_ops.target_result"]({
+							size: kb < 10 ? kb.toFixed(1) : kb.toFixed(0),
+							quality: String(res.finalQuality ?? ""),
+						}),
+					});
+				}
 				return new VertFile(
 					new File([res.output as unknown as BlobPart], input.name),
 					res.zip ? ".zip" : to,
@@ -301,7 +340,10 @@ export class MagickConverter extends Converter {
 		});
 	}
 
-	private async svgToImage(input: VertFile): Promise<Blob> {
+	private async svgToImage(
+		input: VertFile,
+		maxEdge?: number | null,
+	): Promise<Blob> {
 		log(["converters", this.name], `converting SVG to image (PNG)`);
 
 		const svgText = await input.file.text();
@@ -314,30 +356,50 @@ export class MagickConverter extends Converter {
 
 		const img = new Image();
 
-		// try to extract dimensions from SVG, and if not fallback to default
-		let width = 512;
-		let height = 512;
-		const widthMatch = svgText.match(/width=["'](\d+)["']/);
-		const heightMatch = svgText.match(/height=["'](\d+)["']/);
-		const viewBoxMatch = svgText.match(
-			/viewBox=["'][^"']*\s+(\d+)\s+(\d+)["']/,
-		);
-
-		if (widthMatch && heightMatch) {
-			width = parseInt(widthMatch[1]);
-			height = parseInt(heightMatch[1]);
-		} else if (viewBoxMatch) {
-			width = parseInt(viewBoxMatch[1]);
-			height = parseInt(viewBoxMatch[2]);
-		}
-
 		return new Promise((resolve, reject) => {
 			img.onload = () => {
 				try {
-					canvas.width = img.naturalWidth || width;
-					canvas.height = img.naturalHeight || height;
+					// Sizing precedence: explicit width/height attributes win —
+					// naturalWidth reflects the browser's layout for them and
+					// handles %/units (VERT #238). ViewBox-only SVGs report the
+					// CSS default-object size for naturalWidth (e.g. 200x150),
+					// not the document's coordinate size, so the viewBox wins
+					// there. Truly attribute-less SVGs fall back to
+					// naturalWidth, then 512.
+					const rootTag = /<svg\b[^>]*>/i.exec(svgText)?.[0] ?? "";
+					const attrW = /\swidth="([^"]+)"/i.exec(rootTag)?.[1];
+					const attrH = /\sheight="([^"]+)"/i.exec(rootTag)?.[1];
+					const viewBoxMatch =
+						/viewBox=["'][^"']*?[\s,+]+([\d.eE+-]+)[\s,+]+([\d.eE+-]+)["']/i.exec(
+							rootTag,
+						);
+					let width = img.naturalWidth;
+					let height = img.naturalHeight;
+					if (attrW && attrH) {
+						width = width || parseFloat(attrW) || 512;
+						height = height || parseFloat(attrH) || 512;
+					} else if (viewBoxMatch) {
+						width = parseFloat(viewBoxMatch[1]) || 512;
+						height = parseFloat(viewBoxMatch[2]) || 512;
+					} else {
+						width = width || 512;
+						height = height || 512;
+					}
 
-					ctx.drawImage(img, 0, 0);
+					// dimension cap: clamp the long edge, never upscale
+					if (maxEdge && maxEdge > 0) {
+						const longest = Math.max(width, height);
+						if (longest > maxEdge) {
+							const scale = maxEdge / longest;
+							width = Math.max(1, Math.round(width * scale));
+							height = Math.max(1, Math.round(height * scale));
+						}
+					}
+
+					canvas.width = width;
+					canvas.height = height;
+
+					ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
 					canvas.toBlob((blob) => {
 						URL.revokeObjectURL(svgUrl);

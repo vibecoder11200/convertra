@@ -26,10 +26,10 @@
 		"additional" in props.toast ? props.toast.additional : {};
 
 	const colors = {
-		success: "purple",
+		success: "green",
 		error: "red",
 		info: "blue",
-		warning: "pink",
+		warning: "amber",
 	};
 
 	const Icons = {
@@ -51,9 +51,9 @@
 	// this would lead to the colours not being generated in the final css file by tailwind
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const colourVariants = [
-		"border-accent-pink-alt",
+		"border-accent-green-alt",
 		"border-accent-red-alt",
-		"border-accent-purple-alt",
+		"border-accent-amber-alt",
 		"border-accent-blue-alt",
 	];
 </script>

@@ -9,9 +9,12 @@
 
 	type Props = {
 		class?: string;
+		/** false keeps the user on the current page after adding files
+		 * (SEO pair pages embed the whole convert flow themselves) */
+		navigateAway?: boolean;
 	};
 
-	const { class: classList }: Props = $props();
+	const { class: classList, navigateAway = true }: Props = $props();
 
 	let uploaderButton = $state<HTMLButtonElement>();
 	let fileInput = $state<HTMLInputElement>();
@@ -24,8 +27,8 @@
 	const handleFileChange = () => {
 		if (!fileInput) return;
 		const oldLength = files.files.length;
-		files.add(fileInput.files);
-		if (oldLength !== files.files.length) goto("/convert");
+		files.add(fileInput.files, "picker");
+		if (navigateAway && oldLength !== files.files.length) goto("/convert");
 	};
 
 	onMount(() => {
@@ -76,5 +79,8 @@
 				action: m["upload.uploader.convert"](),
 			})}
 		</h2>
+		<p class="text-center text-sm font-normal text-muted mt-1">
+			{m["upload.uploader.hint"]()}
+		</p>
 	</Panel>
 </button>
